@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 
 @dataclass(frozen=True)
 class Config:
-    reddit_client_id: str
-    reddit_client_secret: str
     reddit_user_agent: str
     subreddit: str = "blender"
     crawl_limit: int = 100
@@ -21,28 +19,15 @@ class Config:
 def load_config() -> Config:
     """Load config from .env file and environment variables.
 
-    Raises ValueError if required Reddit credentials are missing.
+    Raises ValueError if REDDIT_USER_AGENT is missing.
     """
     load_dotenv()
 
-    client_id = os.environ.get("REDDIT_CLIENT_ID", "")
-    client_secret = os.environ.get("REDDIT_CLIENT_SECRET", "")
     user_agent = os.environ.get("REDDIT_USER_AGENT", "")
-
-    missing = []
-    if not client_id:
-        missing.append("REDDIT_CLIENT_ID")
-    if not client_secret:
-        missing.append("REDDIT_CLIENT_SECRET")
     if not user_agent:
-        missing.append("REDDIT_USER_AGENT")
-
-    if missing:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+        raise ValueError("Missing required environment variable: REDDIT_USER_AGENT")
 
     return Config(
-        reddit_client_id=client_id,
-        reddit_client_secret=client_secret,
         reddit_user_agent=user_agent,
         subreddit=os.environ.get("FUNKWORKS_SUBREDDIT", "blender"),
         crawl_limit=int(os.environ.get("FUNKWORKS_CRAWL_LIMIT", "100")),

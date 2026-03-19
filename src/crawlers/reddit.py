@@ -1,7 +1,6 @@
 """Reddit crawler for r/blender plugin opportunities.
 
-Fetches posts, filters for opportunity signals, produces an aggregate
-digest with zero individual user data retained.
+Uses the public .json endpoints — no OAuth or API approval required.
 """
 
 import argparse
@@ -12,12 +11,14 @@ import time
 from collections import defaultdict
 from datetime import datetime, timezone
 
-import praw
+import requests
 
 from src.config import Config, load_config
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
+
+BASE_URL = "https://www.reddit.com"
 
 EXCLUDED_FLAIRS = {
     "showcase", "artwork", "meme", "memes", "humor",
@@ -57,13 +58,11 @@ OPPORTUNITY_SIGNALS = {
 MAX_SAMPLE_TITLES = 3
 
 
-def make_reddit(config: Config) -> praw.Reddit:
-    """Create a read-only praw Reddit instance."""
-    return praw.Reddit(
-        client_id=config.reddit_client_id,
-        client_secret=config.reddit_client_secret,
-        user_agent=config.reddit_user_agent,
-    )
+def make_session(user_agent: str) -> requests.Session:
+    """Create a requests session with the given User-Agent header."""
+    session = requests.Session()
+    session.headers["User-Agent"] = user_agent
+    return session
 
 
 def is_excluded_flair(flair: str | None) -> bool:
@@ -106,43 +105,50 @@ def build_digest(posts: list[tuple[str, set[str]]]) -> dict[str, dict]:
     return dict(signals)
 
 
+def _fetch_listing(session: requests.Session, url: str, params: dict) -> list[dict]:
+    """Fetch one page of posts from a Reddit .json listing endpoint."""
+    resp = session.get(url, params=params, timeout=10)
+    resp.raise_for_status()
+    return [child["data"] for child in resp.json()["data"]["children"]]
+
+
 def fetch_opportunities(
-    reddit: praw.Reddit, config: Config
+    session: requests.Session, config: Config
 ) -> tuple[list[tuple[str, set[str]]], int]:
     """Fetch posts, filter, and classify into opportunity signals.
 
     Returns (categorized_posts, total_scanned) where categorized_posts
     is a list of (title, signal_names) tuples.
     """
-    subreddit = reddit.subreddit(config.subreddit)
+    base = f"{BASE_URL}/r/{config.subreddit}"
+    sources = [
+        (f"{base}/new.json", {"limit": config.crawl_limit}),
+        (f"{base}/search.json", {"q": "?", "sort": "new", "t": "day", "limit": 50}),
+    ]
+
     seen_ids: set[str] = set()
     seen_flairs: set[str] = set()
     categorized: list[tuple[str, set[str]]] = []
 
-    sources = [
-        ("new", subreddit.new(limit=config.crawl_limit)),
-        ("search:questions", subreddit.search("?", sort="new", time_filter="day", limit=50)),
-    ]
-
-    for source_name, listings in sources:
-        log.info("Fetching from %s/%s", config.subreddit, source_name)
-        for submission in listings:
-            if submission.id in seen_ids:
+    for url, params in sources:
+        log.info("Fetching %s", url)
+        posts = _fetch_listing(session, url, params)
+        for post in posts:
+            post_id = post["id"]
+            if post_id in seen_ids:
                 continue
-            seen_ids.add(submission.id)
+            seen_ids.add(post_id)
 
-            flair = submission.link_flair_text
+            flair = post.get("link_flair_text")
             if flair:
                 seen_flairs.add(flair)
 
             if is_excluded_flair(flair):
                 continue
 
-            title = submission.title
-            selftext = submission.selftext or ""
-            signals = classify_signals(title, selftext)
+            signals = classify_signals(post["title"], post.get("selftext") or "")
             if signals:
-                categorized.append((title, signals))
+                categorized.append((post["title"], signals))
 
         time.sleep(config.polite_delay)
 
@@ -153,8 +159,8 @@ def fetch_opportunities(
 
 def crawl(config: Config) -> dict:
     """Crawl subreddit, digest opportunities, save aggregate digest."""
-    reddit = make_reddit(config)
-    categorized, total_scanned = fetch_opportunities(reddit, config)
+    session = make_session(config.reddit_user_agent)
+    categorized, total_scanned = fetch_opportunities(session, config)
 
     now = datetime.now(timezone.utc)
     digest = {

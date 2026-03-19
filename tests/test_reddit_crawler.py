@@ -1,4 +1,4 @@
-"""Tests for reddit crawler (mocked praw)."""
+"""Tests for reddit crawler (mocked requests session)."""
 
 from unittest.mock import MagicMock
 
@@ -12,29 +12,21 @@ from src.crawlers.reddit import (
 )
 
 
-class MockSubmission:
-    """Mimics praw.models.Submission for testing."""
-
-    def __init__(
-        self,
-        id="abc123",
-        title="Test post",
-        selftext="Some body text here",
-        link_flair_text=None,
-    ):
-        self.id = id
-        self.title = title
-        self.selftext = selftext
-        self.link_flair_text = link_flair_text
-
-
 def _test_config():
-    return Config(
-        reddit_client_id="test",
-        reddit_client_secret="test",
-        reddit_user_agent="test",
-        polite_delay=0.0,
-    )
+    return Config(reddit_user_agent="test", polite_delay=0.0)
+
+
+def _make_post(id="abc", title="Test post", selftext="", flair=None) -> dict:
+    return {"id": id, "title": title, "selftext": selftext, "link_flair_text": flair}
+
+
+def _mock_response(posts: list[dict]) -> MagicMock:
+    """Build a mock requests.Response for a Reddit .json listing."""
+    resp = MagicMock()
+    resp.json.return_value = {
+        "data": {"children": [{"kind": "t3", "data": p} for p in posts]}
+    }
+    return resp
 
 
 class TestIsExcludedFlair:
@@ -144,18 +136,18 @@ class TestBuildDigest:
 
 class TestFetchOpportunities:
     def test_filters_and_deduplicates(self):
-        opportunity = MockSubmission(id="q1", title="How do I bevel?")
-        showcase = MockSubmission(id="s1", title="My render", link_flair_text="Showcase")
-        irrelevant = MockSubmission(id="i1", title="Check this out", selftext="Cool thing")
-        duplicate = MockSubmission(id="q1", title="How do I bevel?")
+        opportunity = _make_post(id="q1", title="How do I bevel?")
+        showcase = _make_post(id="s1", title="My render", flair="Showcase")
+        irrelevant = _make_post(id="i1", title="Check this out", selftext="Cool thing")
+        duplicate = _make_post(id="q1", title="How do I bevel?")
 
-        mock_reddit = MagicMock()
-        mock_subreddit = MagicMock()
-        mock_reddit.subreddit.return_value = mock_subreddit
-        mock_subreddit.new.return_value = [opportunity, showcase, irrelevant]
-        mock_subreddit.search.return_value = [duplicate]
+        session = MagicMock()
+        session.get.side_effect = [
+            _mock_response([opportunity, showcase, irrelevant]),
+            _mock_response([duplicate]),
+        ]
 
-        categorized, total_scanned = fetch_opportunities(mock_reddit, _test_config())
+        categorized, total_scanned = fetch_opportunities(session, _test_config())
 
         assert len(categorized) == 1
         assert categorized[0][0] == "How do I bevel?"
@@ -163,29 +155,29 @@ class TestFetchOpportunities:
         assert total_scanned == 3
 
     def test_keeps_multiple_opportunities(self):
-        posts_in = [
-            MockSubmission(id="q1", title="How do I UV unwrap?"),
-            MockSubmission(id="q2", title="Any addon for retopology?"),
-            MockSubmission(id="q3", title="Plugin recommendation?"),
+        posts = [
+            _make_post(id="q1", title="How do I UV unwrap?"),
+            _make_post(id="q2", title="Any addon for retopology?"),
+            _make_post(id="q3", title="Plugin recommendation?"),
         ]
 
-        mock_reddit = MagicMock()
-        mock_subreddit = MagicMock()
-        mock_reddit.subreddit.return_value = mock_subreddit
-        mock_subreddit.new.return_value = posts_in
-        mock_subreddit.search.return_value = []
+        session = MagicMock()
+        session.get.side_effect = [
+            _mock_response(posts),
+            _mock_response([]),
+        ]
 
-        categorized, total_scanned = fetch_opportunities(mock_reddit, _test_config())
+        categorized, total_scanned = fetch_opportunities(session, _test_config())
         assert len(categorized) == 3
         assert total_scanned == 3
 
     def test_empty_subreddit(self):
-        mock_reddit = MagicMock()
-        mock_subreddit = MagicMock()
-        mock_reddit.subreddit.return_value = mock_subreddit
-        mock_subreddit.new.return_value = []
-        mock_subreddit.search.return_value = []
+        session = MagicMock()
+        session.get.side_effect = [
+            _mock_response([]),
+            _mock_response([]),
+        ]
 
-        categorized, total_scanned = fetch_opportunities(mock_reddit, _test_config())
+        categorized, total_scanned = fetch_opportunities(session, _test_config())
         assert categorized == []
         assert total_scanned == 0
