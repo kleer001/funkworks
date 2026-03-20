@@ -123,7 +123,7 @@ def fetch_opportunities(
     base = f"{BASE_URL}/r/{config.subreddit}"
     sources = [
         (f"{base}/new.json", {"limit": config.crawl_limit}),
-        (f"{base}/search.json", {"q": "?", "sort": "new", "t": "day", "limit": 50}),
+        (f"{base}/search.json", {"q": "?", "sort": "new", "t": "day", "limit": 50, "restrict_sr": 1}),
     ]
 
     seen_ids: set[str] = set()

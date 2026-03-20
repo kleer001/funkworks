@@ -34,8 +34,9 @@ class TestLoadConfig:
         cfg = load_config()
         assert cfg.reddit_user_agent == "test_agent"
 
+    @patch("src.config.load_dotenv")
     @patch.dict(os.environ, {}, clear=True)
-    def test_missing_raises(self):
+    def test_missing_raises(self, _mock_dotenv):
         with pytest.raises(ValueError, match="REDDIT_USER_AGENT"):
             load_config()
 
