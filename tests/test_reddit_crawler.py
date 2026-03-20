@@ -111,8 +111,8 @@ class TestClassifySignals:
 class TestBuildDigest:
     def test_counts_and_samples(self):
         posts = [
-            ("How do I bevel?", {"question", "how_to"}),
-            ("Any addon for retopo?", {"question", "plugin_addon"}),
+            {"title": "How do I bevel?", "body": "", "signals": ["question", "how_to"]},
+            {"title": "Any addon for retopo?", "body": "", "signals": ["question", "plugin_addon"]},
         ]
         digest = build_digest(posts)
         assert digest["question"]["count"] == 2
@@ -120,7 +120,7 @@ class TestBuildDigest:
         assert digest["plugin_addon"]["count"] == 1
 
     def test_sample_title_limit(self):
-        posts = [(f"Question {i}?", {"question"}) for i in range(10)]
+        posts = [{"title": f"Question {i}?", "body": "", "signals": ["question"]} for i in range(10)]
         digest = build_digest(posts)
         assert digest["question"]["count"] == 10
         assert len(digest["question"]["sample_titles"]) == 3
@@ -129,7 +129,7 @@ class TestBuildDigest:
         assert build_digest([]) == {}
 
     def test_sample_titles_preserved(self):
-        posts = [("How do I bevel?", {"question"})]
+        posts = [{"title": "How do I bevel?", "body": "", "signals": ["question"]}]
         digest = build_digest(posts)
         assert digest["question"]["sample_titles"] == ["How do I bevel?"]
 
@@ -150,8 +150,8 @@ class TestFetchOpportunities:
         categorized, total_scanned = fetch_opportunities(session, _test_config())
 
         assert len(categorized) == 1
-        assert categorized[0][0] == "How do I bevel?"
-        assert "question" in categorized[0][1]
+        assert categorized[0]["title"] == "How do I bevel?"
+        assert "question" in categorized[0]["signals"]
         assert total_scanned == 3
 
     def test_keeps_multiple_opportunities(self):
@@ -181,3 +181,17 @@ class TestFetchOpportunities:
         categorized, total_scanned = fetch_opportunities(session, _test_config())
         assert categorized == []
         assert total_scanned == 0
+
+    def test_post_dict_has_expected_keys(self):
+        session = MagicMock()
+        session.get.side_effect = [
+            _mock_response([_make_post(id="q1", title="How do I bevel?", selftext="Some body")]),
+            _mock_response([]),
+        ]
+
+        categorized, _ = fetch_opportunities(session, _test_config())
+        post = categorized[0]
+        assert "title" in post
+        assert "body" in post
+        assert "signals" in post
+        assert isinstance(post["signals"], list)

@@ -10,6 +10,7 @@ import re
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
+from pathlib import Path
 
 import requests
 
@@ -56,6 +57,7 @@ OPPORTUNITY_SIGNALS = {
 }
 
 MAX_SAMPLE_TITLES = 3
+MAX_BODY_CHARS = 500  # truncate body to keep raw posts file manageable
 
 
 def make_session(user_agent: str) -> requests.Session:
@@ -87,21 +89,21 @@ def is_opportunity(title: str, selftext: str) -> bool:
     return bool(classify_signals(title, selftext))
 
 
-def build_digest(posts: list[tuple[str, set[str]]]) -> dict[str, dict]:
+def build_digest(posts: list[dict]) -> dict[str, dict]:
     """Build signal breakdown from categorized posts.
 
     Args:
-        posts: list of (title, signal_names) tuples
+        posts: list of dicts with keys title, body, signals
 
     Returns:
         dict mapping signal name to {count, sample_titles}
     """
     signals: dict[str, dict] = defaultdict(lambda: {"count": 0, "sample_titles": []})
-    for title, matched_signals in posts:
-        for signal in matched_signals:
+    for post in posts:
+        for signal in post["signals"]:
             signals[signal]["count"] += 1
             if len(signals[signal]["sample_titles"]) < MAX_SAMPLE_TITLES:
-                signals[signal]["sample_titles"].append(title)
+                signals[signal]["sample_titles"].append(post["title"])
     return dict(signals)
 
 
@@ -114,11 +116,11 @@ def _fetch_listing(session: requests.Session, url: str, params: dict) -> list[di
 
 def fetch_opportunities(
     session: requests.Session, config: Config
-) -> tuple[list[tuple[str, set[str]]], int]:
+) -> tuple[list[dict], int]:
     """Fetch posts, filter, and classify into opportunity signals.
 
-    Returns (categorized_posts, total_scanned) where categorized_posts
-    is a list of (title, signal_names) tuples.
+    Returns (categorized_posts, total_scanned) where each categorized post
+    is a dict with keys: title, body, signals. No author or URL retained.
     """
     base = f"{BASE_URL}/r/{config.subreddit}"
     sources = [
@@ -128,7 +130,7 @@ def fetch_opportunities(
 
     seen_ids: set[str] = set()
     seen_flairs: set[str] = set()
-    categorized: list[tuple[str, set[str]]] = []
+    categorized: list[dict] = []
 
     for url, params in sources:
         log.info("Fetching %s", url)
@@ -148,7 +150,11 @@ def fetch_opportunities(
 
             signals = classify_signals(post["title"], post.get("selftext") or "")
             if signals:
-                categorized.append((post["title"], signals))
+                categorized.append({
+                    "title": post["title"],
+                    "body": (post.get("selftext") or "")[:MAX_BODY_CHARS],
+                    "signals": list(signals),
+                })
 
         time.sleep(config.polite_delay)
 
@@ -157,12 +163,26 @@ def fetch_opportunities(
     return categorized, len(seen_ids)
 
 
-def crawl(config: Config) -> dict:
-    """Crawl subreddit, digest opportunities, save aggregate digest."""
+def crawl(config: Config) -> tuple[dict, Path]:
+    """Crawl subreddit, save raw posts and aggregate digest.
+
+    Returns (digest, raw_posts_path). The raw posts file is temporary —
+    pass it to the digest agent which will delete it after classification.
+    """
     session = make_session(config.reddit_user_agent)
     categorized, total_scanned = fetch_opportunities(session, config)
 
     now = datetime.now(timezone.utc)
+    ts = now.strftime("%Y-%m-%dT%H-%M-%SZ")
+
+    # Save raw posts (temp — digest agent will delete after classification)
+    raw_dir = config.data_dir.parent / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = raw_dir / f"raw_{config.subreddit}_{ts}.json"
+    raw_path.write_text(json.dumps(categorized, indent=2))
+    log.info("Raw posts saved to %s", raw_path)
+
+    # Save aggregate digest
     digest = {
         "subreddit": config.subreddit,
         "crawled_at": now.isoformat(),
@@ -170,14 +190,12 @@ def crawl(config: Config) -> dict:
         "opportunities_found": len(categorized),
         "signals": build_digest(categorized),
     }
-
     config.data_dir.mkdir(parents=True, exist_ok=True)
-    ts = now.strftime("%Y-%m-%dT%H-%M-%SZ")
-    filepath = config.data_dir / f"digest_{config.subreddit}_{ts}.json"
-    filepath.write_text(json.dumps(digest, indent=2))
-    log.info("Digest saved to %s", filepath)
+    digest_path = config.data_dir / f"digest_{config.subreddit}_{ts}.json"
+    digest_path.write_text(json.dumps(digest, indent=2))
+    log.info("Digest saved to %s", digest_path)
 
-    return digest
+    return digest, raw_path
 
 
 def main() -> None:
@@ -185,8 +203,9 @@ def main() -> None:
     parser.parse_args()
 
     config = load_config()
-    digest = crawl(config)
+    digest, raw_path = crawl(config)
     print(json.dumps(digest, indent=2))
+    print(f"\nRaw posts: {raw_path}", flush=True)
 
 
 if __name__ == "__main__":
