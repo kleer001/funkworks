@@ -34,3 +34,42 @@
 
 - **Mascot:** Rotifer — spinning wheel + filter metaphor, does its work invisibly
 - **Tagline:** *The 47th reply in a 3-year-old thread.*
+
+---
+
+# Branding Ideas — Second Pass (Mainstream)
+
+## Mascots
+
+1. **Fox with a toolbelt** — clever, resourceful, always has the right tool ready; wearing a canvas apron with hex wrenches and calipers poking out
+2. **Owl in a lab coat** — wise, observant, works the night shift; safety goggles pushed up on forehead, clipboard under one wing
+3. **Raccoon with a magnifying glass** — finds hidden problems everyone else walks past; wears a detective trench coat and carries a satchel of fixes
+4. **Badger in coveralls** — tenacious, doesn't quit until the job is done; grease-stained mechanic's jumpsuit, wrench in paw
+5. **Beaver with a hard hat** — the original builder; hi-vis vest, blueprint tucked under one arm, pencil behind ear
+6. **Octopus in a workshop apron** — eight arms means eight tasks at once; each tentacle holding a different tool, welder's mask flipped up
+7. **Hedgehog with a backpack** — small but prepared for anything; stuffed hiking pack, compass around neck, trail-ready boots
+8. **Squirrel with safety glasses** — quick, energetic, always gathering what's needed; cargo vest full of nuts and bolts, tiny soldering iron
+9. **Hummingbird with a pen** — fast, precise, gets in and out before you notice; aviator scarf, drafting pen in beak, tiny messenger bag
+10. **Monkey with a headlamp** — curious, hands-on, dives into dark corners; spelunking harness, chalk bag on hip, tape measure on belt
+11. **Otter in a wetsuit** — playful but professional; zip-up wetsuit with a utility belt, snorkel pushed to one side, waterproof tablet in paw
+12. **Penguin with a clipboard** — organized, dependable, thrives in tough conditions; puffer vest, lanyard badge, mechanical pencil at the ready
+
+## Taglines
+
+1. *Tools that just work — so you can too.*
+2. *Less fiddling, more creating.*
+3. *We fixed the thing.*
+4. *Your workflow called. It wants fewer steps.*
+5. *Addons built from real problems.*
+6. *Small tools. Big difference.*
+7. *Made for makers.*
+8. *The missing piece for your pipeline.*
+9. *One click instead of twenty.*
+10. *Built because we needed it too.*
+11. *Smoother workflows start here.*
+12. *Plugins with a purpose.*
+
+## Favorites (Mainstream)
+
+- **Mascot:** Raccoon with a magnifying glass — detective vibe fits the "finding hidden problems" mission, instantly recognizable and charming
+- **Tagline:** *Built because we needed it too.*
