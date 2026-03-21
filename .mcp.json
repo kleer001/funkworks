@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "blender-mcp": {
+      "command": "uv",
+      "args": ["run", "--directory", "/home/menser/Dropbox/ai/code/blender-mcp", "blender-mcp"]
+    }
+  }
+}
