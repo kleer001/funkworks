@@ -1,8 +1,19 @@
+<div align="center">
+
+<img src="docs/images/mascot.png" alt="Funkworks Mascot" width="200">
+
 # Funkworks
+
+**Addons built from real problems.**<br>
+*Small tools. Big difference.*
 
 Free addons that eliminate repetitive workflow steps for digital artists.
 
 Starting with Blender and r/blender, the goal is to expand across DCC tools (Houdini, Maya, Cinema 4D, etc.) and artist communities — automatically surfacing pain points and shipping targeted solutions wherever artists are struggling.
+
+---
+
+</div>
 
 ## Plugins
 
