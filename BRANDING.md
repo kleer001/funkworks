@@ -73,3 +73,30 @@
 
 - **Mascot:** Raccoon with a magnifying glass — detective vibe fits the "finding hidden problems" mission, instantly recognizable and charming
 - **Tagline:** *Built because we needed it too.*
+
+---
+
+# Final Mascot — Red Ant Construction Foreman
+
+## Nano Banana 2 Prompts
+
+Style reference: chibi sticker-style character with bold clean outlines, soft cel shading, warm palette, standing on a plain white background. Similar to a cute construction-animal mascot giving a thumbs-up.
+
+### Variation A — Classic Three-Quarter Pose
+
+> Create a friendly chibi mascot character of a red ant standing in a confident three-quarter pose on a plain white background. The ant is anthropomorphic with two legs, two arms, and expressive dark oval eyes with a determined, cheerful expression. He wears a white Japanese construction hard hat with a red cross (plus symbol) on the front. He holds a wooden clipboard with a checklist in one hand, and gives a small respectful nod with his other hand at his side. He wears a short-sleeved khaki work shirt tucked into dark navy work pants, with a leather utility belt holding a pencil and a small measuring tape. His exoskeleton is a warm burnt-red color with subtle segmented shading on his thorax and abdomen. The overall style is clean sticker art with bold outlines, soft cel shading, and no background elements. The character radiates diligent, quiet professionalism.
+
+### Variation B — Checking the Clipboard
+
+> Create a cute chibi sticker-style mascot of an anthropomorphic red ant viewed from a slight low angle, standing upright on a plain white background. He is looking down at a clipboard he holds in both hands, studying a checklist with focused concentration. He wears a glossy white Japanese-style construction helmet with a bold red plus sign on the front and a chin strap. His outfit is a neatly pressed tan short-sleeve work shirt with a chest pocket holding two pens, dark olive cargo work pants, and small black safety boots. His body is warm crimson-red with visible segmented joints at the shoulders and waist. His two antennae curve forward slightly as if sensing the task ahead. Bold clean outlines, flat soft shading, sticker-ready with no drop shadow or background. The mood is focused diligence — a foreman who genuinely cares about getting every detail right.
+
+### Variation C — Thumbs-Up with Hard Hat Tilt
+
+> Create a cheerful chibi sticker mascot of a red ant construction foreman giving an enthusiastic thumbs-up directly toward the viewer, standing on a solid white background. His white Japanese hard hat sits slightly tilted back on his head, showing the red cross emblem on the front and a thin chin strap. He tucks a wooden clipboard under his other arm. He wears a crisp light-gray short-sleeve work shirt with rolled cuffs, a hi-vis yellow safety vest over it, sturdy dark-blue work pants, and small brown leather boots. His exoskeleton is a rich scarlet-red with warm highlights on his rounded head and smooth thorax. His antennae perk up with enthusiasm. His expression is a big confident smile with bright friendly eyes. Art style is bold vector-like outlines, clean cel shading, and a mascot-logo quality — ready to be used as a brand sticker or app icon. The character conveys hardworking optimism and approachable expertise.
+
+### Prompting Notes
+
+- These prompts follow [Nano Banana 2 best practices](https://dev.to/googleai/getting-the-most-out-of-nano-banana-2-502k): narrative descriptions (not keyword tags), positive framing (describing what *is* present, not what to avoid), specific material/color callouts, and explicit art-style direction.
+- Start with any variation, then use conversational editing to refine (e.g., "Make the red darker," "Add a tiny Funkworks logo to the vest," "Change the clipboard to a tablet").
+- Keep Thinking mode OFF for these — they're straightforward character prompts.
+- Request **1:1 aspect ratio** for icon/sticker use, or **3:4** for full-body portrait.
