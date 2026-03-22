@@ -45,7 +45,11 @@ Each DCC exposes a Python API that the Screenshot Runner uses to set up scenes a
 3. **Capture** a screenshot of a specific UI area
 4. **Verify** the output file exists and is non-empty
 
-DCC-specific API details are in the [appendices](#appendix-a--blender) below.
+DCC-specific API details are in the per-DCC docs:
+
+- [Blender](auto_tutorial_blender.md)
+- [Houdini](auto_tutorial_houdini.md)
+- [Nuke](auto_tutorial_nuke.md)
 
 ### Screenshot Manifest Format
 
@@ -157,7 +161,7 @@ The Tutorial Agent generates markdown following this structure. Image references
 
 ## Installation
 
-[DCC-specific installation steps — see appendices for per-DCC templates.]
+[DCC-specific installation steps — see per-DCC doc for template.]
 
 ## Using [Plugin Name]
 
@@ -215,7 +219,7 @@ From these, the agent produces:
 
 ### What the Agent Infers from Source Code
 
-The specific metadata fields vary by DCC. See the appendices for per-DCC mappings. The general pattern:
+The specific metadata fields vary by DCC. See the per-DCC docs for detailed mappings. The general pattern:
 
 | Source Code Element | Tutorial Content It Generates |
 |--------------------|------------------------------|
@@ -314,168 +318,12 @@ This gives the DCC a virtual screen to render into. Screenshots capture from thi
 
 ---
 
-## Appendix A — Blender
+## DCC-Specific References
 
-### Screenshot API
+Each supported DCC has its own doc covering screenshot APIs, scene file formats, plugin installation templates, source code metadata mappings, and example manifests:
 
-| Task | Blender Python API |
-|------|-------------------|
-| Render viewport to image | `bpy.ops.render.opengl(write_still=True)` |
-| Screenshot full window | `bpy.ops.screen.screenshot(filepath=...)` |
-| Screenshot specific area | `bpy.ops.screen.screenshot_area(filepath=...)` |
-| Set viewport shading | `context.space_data.shading.type = 'SOLID'` / `'MATERIAL'` / `'RENDERED'` |
-| Set camera/view angle | `bpy.ops.view3d.view_axis(type='FRONT')` or set `region_3d.view_rotation` |
-| Navigate to frame | `context.scene.frame_set(N)` |
-| Select objects | `obj.select_set(True)` / `context.view_layer.objects.active = obj` |
-| Open editor/panel | `bpy.ops.screen.area_type_set(type='PROPERTIES')` |
+- [Blender](auto_tutorial_blender.md)
+- [Houdini](auto_tutorial_houdini.md)
+- [Nuke](auto_tutorial_nuke.md)
 
-### Scene File Format
-
-`.blend` — opened via `bpy.ops.wm.open_mainfile(filepath=...)`, reset via `bpy.ops.wm.revert_mainfile()`.
-
-### Plugin Installation (Tutorial Template)
-
-```markdown
-1. Download `[filename].py` from [GitHub Releases](link)
-2. In Blender: **Edit > Preferences > Add-ons > Install**
-3. Select the downloaded file and enable the addon
-```
-
-### Plugin Install via Runner
-
-`bpy.ops.preferences.addon_install(filepath=...)` + `bpy.ops.preferences.addon_enable(module=...)`
-
-### Source Code Metadata Mapping
-
-| Source Code Element | Tutorial Content |
-|--------------------|-----------------|
-| `bl_info["location"]` | "Find the plugin at **[location]**" |
-| `bl_info["blender"]` | Compatibility requirements |
-| Panel class `bl_space_type`, `bl_region_type`, `bl_context` | Screenshot area type + navigation instructions |
-| Operator `poll()` method | Prerequisites |
-| `bpy.props.*Property` definitions | Options table |
-| `self.report()` calls | Expected feedback messages |
-| `bl_options = {'REGISTER', 'UNDO'}` | "You can undo this with Ctrl+Z" |
-
-### Example Manifest
-
-```json
-{
-  "dcc": "blender",
-  "plugin": "fluid_domain_visibility",
-  "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
-  "screenshots": [
-    {
-      "id": "01_problem",
-      "description": "Viewport showing domain box visible before sim starts",
-      "setup": [
-        "bpy.context.scene.frame_set(1)",
-        "bpy.ops.view3d.view_axis(type='FRONT')",
-        "bpy.context.space_data.shading.type = 'SOLID'"
-      ],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "VIEW_3D",
-        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/01_problem.png"
-      }
-    },
-    {
-      "id": "02_panel",
-      "description": "Auto-Visibility panel in Properties editor",
-      "setup": [
-        "domain = bpy.data.objects['Fluid Domain']",
-        "bpy.context.view_layer.objects.active = domain",
-        "domain.select_set(True)"
-      ],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "PROPERTIES",
-        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel.png"
-      }
-    }
-  ]
-}
-```
-
-### Example Scene Generation
-
-```python
-bpy.ops.wm.read_homefile(use_empty=True)
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0))
-domain = bpy.context.active_object
-domain.name = "Fluid Domain"
-bpy.ops.object.modifier_add(type='FLUID')
-domain.modifiers["Fluid"].fluid_type = 'DOMAIN'
-domain.modifiers["Fluid"].domain_settings.cache_frame_start = 24
-bpy.ops.wm.save_as_mainfile(filepath="/path/to/tutorial_scenes/fluid_domain_demo.blend")
-```
-
----
-
-## Appendix B — Houdini
-
-### Screenshot API
-
-| Task | Houdini Python API |
-|------|-------------------|
-| Screenshot desktop/pane | `hou.ui.savePaneTabsScreenshot(filepath)` |
-| Set viewport shading | `viewport.settings().displaySet(hou.displaySetType.SceneObject)` |
-| Set camera/view angle | `viewport.homeAll()` or set camera transform |
-| Navigate to frame | `hou.setFrame(N)` |
-| Select objects | `node.setSelected(True)` |
-| Open network editor / pane tab | `pane.setCurrentTab(tab)` |
-
-### Scene File Format
-
-`.hip` / `.hiplc` — opened via `hou.hipFile.load(filepath)`, reset via `hou.hipFile.clear()`.
-
-### Plugin Installation (Tutorial Template)
-
-```markdown
-1. Download the HDA or shelf tool from [GitHub Releases](link)
-2. Copy to your Houdini preferences directory, or:
-3. In Houdini: **File > Install Digital Asset Library** (for HDAs)
-```
-
-### Source Code Metadata Mapping
-
-| Source Code Element | Tutorial Content |
-|--------------------|-----------------|
-| HDA `TypeProperties` (label, icon, help) | Title, "Find the plugin at **[shelf/tab]**" |
-| Parameter template definitions | Options table |
-| Input/output connectors | Prerequisites ("Connect a SOP network first") |
-| `hou.NodeWarning` / status messages | Expected feedback messages |
-
----
-
-## Appendix C — Nuke
-
-### Screenshot API
-
-| Task | Nuke Python API |
-|------|----------------|
-| Screenshot viewer | `nuke.activeViewer().capture(filepath)` or widget grab |
-| Set viewer state | `nuke.activeViewer().node().knob('channels').setValue(...)` |
-| Navigate to frame | `nuke.frame(N)` |
-| Select nodes | `node.setSelected(True)` |
-| Open Properties panel | `nuke.show(node)` |
-
-### Scene File Format
-
-`.nk` — opened via `nuke.scriptOpen(filepath)`, reset via `nuke.scriptClear()`.
-
-### Plugin Installation (Tutorial Template)
-
-```markdown
-1. Download `[filename].py` or `[filename].gizmo` from [GitHub Releases](link)
-2. Place in your `.nuke` directory
-3. Add to your `menu.py` or `init.py` to register
-```
-
-### Source Code Metadata Mapping
-
-| Source Code Element | Tutorial Content |
-|--------------------|-----------------|
-| Gizmo knob definitions | Options table |
-| Menu registration (`menu.addCommand`) | "Find the plugin at **[menu path]**" |
-| `nuke.message()` / `nuke.alert()` calls | Expected feedback messages |
+When adding a new DCC target, create `docs/auto_tutorial_<dcc>.md` following the same structure.
