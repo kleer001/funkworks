@@ -402,3 +402,17 @@ YouTube is a critical addon discovery channel, especially for Blender. Channels 
 | **Nuke** | Nukepedia | GitHub | Foundry forums |
 | **Resolve/Fusion** | Reactor (via We Suck Less) | GitHub | Blackmagic forums, WSL forum |
 | **After Effects** | aescripts.com | GitHub | AE community forums |
+
+### DCCs Reachable via GitHub Alone
+
+GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researched:
+
+- **Blender** — Thousands of repos under `blender-addon` topic. Dominant free distribution channel.
+- **Houdini** — Standard for free HDAs/HIP files. SideFX Labs itself lives on GitHub.
+- **Maya** — Less open-source culture, but GT Tools, maya-usd, mGear all live here.
+- **3ds Max** — Growing. Open-source Max tools use GitHub alongside ScriptSpot.
+- **Cinema 4D** — Less common in C4D culture but increasing.
+- **Nuke** — Nuke Survival Toolkit, SpinVFX gizmos, jedypod configs. Healthy presence.
+- **DaVinci Resolve / Fusion** — Individual fuse collections. Smaller but real.
+- **After Effects** — Moderate. Some open-source scripts and expressions.
+- **Substance 3D** — Small. Python tools and node packs under `substance-designer` topic.
