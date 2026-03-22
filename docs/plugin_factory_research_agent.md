@@ -106,7 +106,7 @@ Each raw post is stored as a structured record:
 - Free tier is restricted to **non-commercial use only**
 - Commercial use requires an enterprise agreement ($12,000+/year as of 2024)
 - Pushshift (historical Reddit data archive) was shut down by Reddit in 2024
-- **Implication for this project:** The free tier is sufficient for low-frequency polling of a handful of subreddits. If the project becomes commercial (selling plugins based on research), a commercial API agreement may be needed. Start with the free tier and monitor usage.
+- **Implication for this project:** The free tier is sufficient for low-frequency polling of a handful of subreddits. This is a non-commercial open-source project, so the free tier applies. Monitor usage to stay within limits.
 
 **Other APIs:**
 - Stack Exchange API: Free, generous rate limits (300 requests/day unauthenticated, 10,000/day with API key)

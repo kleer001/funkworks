@@ -76,7 +76,7 @@ Stage 5 — Publish (repo + static site)
 
 ### Tier 4: Nuke
 
-**Advantages:** MCP exists. Python API (`nuke` module) is mature. Professional compositing market has high willingness to pay for tools.
+**Advantages:** MCP exists. Python API (`nuke` module) is mature. Professional compositing users value well-built tools.
 
 **Disadvantages:** Smallest community of the four. Nuke licenses are expensive (Nuke Non-Commercial is free but limited). The user base is almost entirely professional studios — different distribution dynamics than Blender's hobbyist/indie majority.
 
@@ -405,5 +405,5 @@ For Houdini and Nuke, the MCP already exists, so the critical path is just build
 | Build Agent produces code that passes smoke tests but is low quality | Bad reputation, user complaints | Add a Review Agent pass before Test; spot-check early plugins manually |
 | Host app API changes break existing plugins | Published plugins stop working | Pin minimum version in specs; monitor release notes for breaking changes |
 | AE scripting landscape shifts (UXP becomes required) | ExtendScript plugins become obsolete | Monitor Adobe's UXP rollout for AE; delay major AE investment until the target is stable |
-| Loop takes too long (>1 day per plugin) | Not economically viable | Profile each stage; the Build-Test loop is usually the bottleneck — improve prompts and increase MCP feedback granularity |
+| Loop takes too long (>1 day per plugin) | Pipeline isn't demonstrating efficiency | Profile each stage; the Build-Test loop is usually the bottleneck — improve prompts and increase MCP feedback granularity |
 | Generated plugins are too similar to existing tools | Redundancy, wasted effort | Novelty check is in the Research pipeline (Tier 2); Review Agent should also check for existing free tools before publishing |

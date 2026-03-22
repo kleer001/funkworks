@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Context
+
+Funkworks is a **portfolio piece**. It exists to demonstrate expertise, care, and work ethic to prospective employers and partners. Every artifact in this repo — code, docs, commit history, architecture decisions — should reflect that. Quality matters more than speed. Thoughtfulness matters more than volume. Everything is free and open-source as a matter of principle, not as a business strategy. There is no monetization layer and never will be.
+
 ## Commands
 
 ```bash
