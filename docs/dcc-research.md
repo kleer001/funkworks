@@ -205,22 +205,29 @@ Maya plugin distribution is more institutional than community-driven.
 | Venue | Type | Activity | Notes |
 |---|---|---|---|
 | **ScriptSpot** | Free + paid | Active | New scripts submitted as recently as March 2026 (PixPatch AI). The primary community hub for Max scripts. |
-| **Autodesk App Store** | Official | Active | Similar to Maya store. |
+| **MAXPlugins.de** | Database/directory | Active (maintained through March 2026) | Comprehensive database of all known freeware and commercial Max plugins. |
+| **Autodesk App Store** | Official (~122 plugins) | Active | Publishers must target Max 2026. Forest Pack Lite (free) is notable. |
+| **ArtStation Marketplace** | Paid | Growing | Scripts like "Align Pivot" (104 ratings, 5.0 stars). |
 | **Gumroad** | Paid | Moderate | Archviz-focused tools. |
 
 **Community:** Archviz-heavy. ScriptSpot is the heartbeat. Smaller indie/hobbyist scene than Blender.
 
 ---
 
-### Cinema 4D — Dedicated but Smaller
+### Cinema 4D — No Central Marketplace
+
+Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any centralized marketplace.
 
 | Venue | Type | Activity | Notes |
 |---|---|---|---|
-| **PluginCafe** | Official forums | Active | Maxon's developer community. |
-| **Gumroad** | Paid | Moderate | Motion graphics and procedural tools. |
-| **GitHub** | Free | Small | Some open-source plugins. |
+| **Direct from developers** | Paid | Active | INSYDIUM Fused/X-Particles, Greyscalegorilla, Redshift — all sold directly. This is the primary model. |
+| **Gumroad** | Paid | Moderate | Indie developers (Plugins 4D, etc.). |
+| **Toolfarm** | Third-party retailer | Active | Carries major C4D plugins. |
+| **Nitro4D** | Free + paid | Active | All plugins updated for C4D 2026. |
+| **developers.maxon.net** | Dev forums | Active | PluginCafe forums migrated here Nov 2023. Plugin ID registration only at plugincafe.maxon.net now. |
+| **Cineversity Forums** | Official community | Active | Dedicated Cinema 4D Assets & Plugins section. |
 
-**Community:** Tight-knit motion graphics community. Plugin developers like Rocket Lasso, Nitroman have loyal followings.
+**Community:** Tight-knit motion graphics community. Plugin developers like Rocket Lasso, Nitroman have loyal followings. Core 4D and C4Dzone are independent community forums. Plugin discovery is harder here than any other major DCC due to lack of central marketplace.
 
 ---
 
