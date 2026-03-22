@@ -36,6 +36,37 @@ Output: plugins/<dcc>/docs/tutorials/<plugin>.md + plugins/<dcc>/docs/images/<pl
 
 ## Screenshot Automation via MCP
 
+### Capture Resolution
+
+All screenshots are captured at **1920×1080** (HD / 2K). This is the pipeline's standard resolution — every DCC session used for screenshot capture must run at this size, regardless of the host machine's native display.
+
+**Why 1920×1080:**
+- Standard resolution that most users will recognize and find readable
+- Large enough for crisp UI detail after cropping, small enough to keep file sizes reasonable
+- Deterministic — crop coordinates from Claude are valid across any machine running the pipeline, because the source image is always the same size
+- The MVP test machine is 4K native; capturing at native resolution would produce oversized images and make crop coordinates non-portable
+
+**How to enforce it:**
+
+| Environment | Method |
+|-------------|--------|
+| Headless (CI, xvfb) | Set the virtual framebuffer to 1920×1080: `xvfb-run -a -s "-screen 0 1920x1080x24"` |
+| Windowed (local dev) | Launch the DCC at a fixed window size. Blender: `blender --window-geometry 0 0 1920 1080`. Other DCCs have equivalent flags. |
+| High-DPI / Retina | Disable display scaling for the DCC process so 1920×1080 means 1920×1080 pixels, not logical points. On Linux: `QT_SCALE_FACTOR=1` / `GDK_SCALE=1` as needed. |
+
+The manifest records this at the top level so downstream tools know what they're working with:
+
+```json
+{
+  "dcc": "blender",
+  "resolution": [1920, 1080],
+  "plugin": "fluid_domain_visibility",
+  ...
+}
+```
+
+If a captured image doesn't match the expected resolution, the Runner flags it as a setup error before proceeding to the crop pass.
+
 ### How It Works
 
 Each DCC exposes a Python API that the Screenshot Runner uses to set up scenes and capture images. The runner sends commands through an MCP connection to a running DCC session. The specific API calls differ per application, but the pattern is always the same:
@@ -488,14 +519,14 @@ The Doc Agent from the build pipeline doc becomes the Tutorial Agent here. Same 
 
 ### Headless Screenshot Capture
 
-For CI/automated runs where no display is available, use `xvfb` to provide a virtual framebuffer on Linux (Ubuntu/KDE):
+For CI/automated runs where no display is available, use `xvfb` to provide a virtual framebuffer at the pipeline's standard 1920×1080 resolution (see [Capture Resolution](#capture-resolution)):
 
 ```bash
 # Generic pattern — substitute the DCC launch command
 xvfb-run -a -s "-screen 0 1920x1080x24" <dcc-command> <args>
 
 # Blender example
-xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
+xvfb-run -a -s "-screen 0 1920x1080x24" blender --window-geometry 0 0 1920 1080 --python screenshot_runner.py
 
 # Houdini example
 xvfb-run -a -s "-screen 0 1920x1080x24" hython screenshot_runner.py
@@ -504,7 +535,7 @@ xvfb-run -a -s "-screen 0 1920x1080x24" hython screenshot_runner.py
 xvfb-run -a -s "-screen 0 1920x1080x24" nuke -t screenshot_runner.py
 ```
 
-This gives the DCC a virtual screen to render into. Screenshots capture from this virtual display. Resolution is configurable via the `-screen` argument.
+This gives the DCC a virtual screen to render into. The framebuffer size must match the pipeline's standard resolution so crop coordinates are consistent between headless and windowed runs.
 
 ---
 
