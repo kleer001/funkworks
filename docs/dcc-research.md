@@ -147,6 +147,16 @@ Blender has the richest, most accessible plugin distribution ecosystem of any DC
 
 **Recommendation for funkworks:** Post free addons on **extensions.blender.org** (widest organic reach, built into Blender) + **GitHub** (credibility, open source cred). Announce on **r/blender** and **BlenderArtists**. This is the highest-ROI community for reputation building.
 
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push a repo, tag a release as `.zip`, done. Zero gatekeeping.
+2. **Gumroad** — Easy. Create account, upload `.zip`, set price (or free). Live in minutes.
+3. **itch.io** — Easy. Similar to Gumroad, slightly more indie-game audience.
+4. **r/blender / BlenderArtists / Discord** — Easy. Just post. Large audiences. Moderation is light.
+5. **extensions.blender.org** — Moderate. Must pass review (GPL-compatible license, metadata requirements, basic quality checks). Review queue can take days. But once listed, the addon is installable directly from Blender's preferences — unbeatable distribution.
+6. **Superhive** — Moderate. Seller application + review process. ~25% commission. Best for paid addons.
+7. **BlenderKit** — Moderate. Requires account setup and asset approval. Free tier available.
+
 ---
 
 ### Houdini — Fragmented, No Central Marketplace
@@ -175,6 +185,15 @@ Orbolt is effectively dead. The ecosystem is scattered but the community is tech
 
 **Recommendation for funkworks:** Houdini community is small but deeply technical. Share HDAs on **GitHub** + announce on **SideFX forums** and **Think Procedural Discord**. Sell premium tools on **Gumroad**. Skip Orbolt entirely.
 
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push HDAs/HIP files, done. Standard for free Houdini tools.
+2. **Gumroad** — Easy. Upload HDA `.zip`, set price. De facto paid marketplace since Orbolt died.
+3. **Think Procedural Discord / SideFX Forums / od|force** — Easy. Post and share. Small but generous community — you'll get feedback fast.
+4. **ArtStation Marketplace** — Low-moderate. Account setup + listing. Low price points ($1–$20) common for HDAs.
+5. **SideFX Labs** — Hard. Must be accepted by SideFX team as a contribution. High quality bar, code review, must fit their curation. But the payoff is massive — ships with Houdini Launcher.
+6. **Orbolt** — Don't bother. Dead.
+
 ---
 
 ### Maya — Studio-Centric, Less Open
@@ -198,6 +217,15 @@ Maya plugin distribution is more institutional than community-driven.
 
 **Recommendation for funkworks:** Maya community is harder to break into for community building. The audience is mostly studio TDs, not hobbyists. Lower priority unless targeting pipeline tools.
 
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push scripts/plugins. Less open-source culture than Blender, but still the path of least resistance.
+2. **Gumroad** — Easy. Upload and sell. Indie TDs use this.
+3. **ArtStation Marketplace** — Low-moderate. Listing + review.
+4. **Highend3D** — Moderate. Account + upload. Has gone offline before — don't rely on it as sole distribution.
+5. **Autodesk App Store** — Hardest. Must target current Maya version (2026), pass Autodesk review, follow their packaging requirements. Small catalog (~141 plugins) but official visibility.
+6. **Autodesk Forums / Maya Discord** — Easy for announcements, but the audience is smaller and more studio-oriented. Less viral potential than Blender communities.
+
 ---
 
 ### 3ds Max — Legacy but Active
@@ -211,6 +239,15 @@ Maya plugin distribution is more institutional than community-driven.
 | **Gumroad** | Paid | Moderate | Archviz-focused tools. |
 
 **Community:** Archviz-heavy. ScriptSpot is the heartbeat. Smaller indie/hobbyist scene than Blender.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **ScriptSpot** — Easiest. Create account, upload script. The community home base. Active moderation but low barrier.
+2. **GitHub** — Easy. Standard for open-source Max tools.
+3. **Gumroad** — Easy. Archviz tools sell well here.
+4. **ArtStation Marketplace** — Low-moderate. Listing + review.
+5. **Autodesk App Store** — Hardest. Same review process as Maya. Must target Max 2026. ~122 plugins in catalog.
+6. **MAXPlugins.de** — Not a distribution platform, but getting listed in this directory gives visibility. Submit your plugin info.
 
 ---
 
@@ -229,6 +266,16 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 
 **Community:** Tight-knit motion graphics community. Plugin developers like Rocket Lasso, Nitroman have loyal followings. Core 4D and C4Dzone are independent community forums. Plugin discovery is harder here than any other major DCC due to lack of central marketplace.
 
+**Ease of Entry — Ranked by Friction:**
+
+1. **Gumroad** — Easiest for paid tools. Upload and sell. Indie C4D devs use this.
+2. **GitHub** — Easy for free/open-source. Less common in C4D culture but growing.
+3. **Nitro4D** — Moderate. Independent developer site; if you're contributing free tools, community is receptive.
+4. **developers.maxon.net (PluginCafe)** — Moderate. Register plugin IDs here. Forum is the dev community hub. Not a marketplace but essential for visibility among plugin developers.
+5. **Cineversity Forums** — Low friction for sharing. Official community space.
+6. **Direct website** — The dominant model for serious C4D plugins (INSYDIUM, Greyscalegorilla). High friction — you need your own site, payment processing, marketing. But it's how the established players operate.
+7. **Toolfarm** — Hard. Third-party retailer. You'd need a relationship/business arrangement. Only for established commercial plugins.
+
 ---
 
 ### Nuke — Nukepedia is King
@@ -241,6 +288,13 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 | **Foundry Community Forums** | Official | Active | Discussion venue. Nuke 17.0 released Feb 2026 (Gaussian Splats, USD-based 3D). |
 
 **Key trend:** Foundry acquired Griptape (Feb 2026) for AI integration across VFX pipelines. Subscription-only licensing announced for 2027.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push gizmos/scripts. Nuke Survival Toolkit model.
+2. **Nukepedia** — Easy-moderate. Create account, submit tool. Light review process. Once listed, you reach 900k+ users. The canonical venue.
+3. **nuBridge** — Pulls from Nukepedia. Get on Nukepedia and you're automatically discoverable in-app for $5/mo subscribers.
+4. **Foundry Forums** — Easy for announcements. Not a distribution platform.
 
 ---
 
@@ -255,6 +309,13 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 
 **Key trend:** Resolve 20.0 (May 2025) was a massive release. The Reactor Standalone workaround for Resolve Free is important community infrastructure.
 
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub/Codeberg** — Easiest. Push fuse collections.
+2. **We Suck Less (steakunderwater.com)** — Easy. Create account, post in the forum, share fuses. The community is welcoming and active (54k posts, 32k members).
+3. **Reactor** — Moderate. Submit a PR to the Reactor package list. Must follow packaging conventions. But once accepted, your tool reaches 400k+ weekly users via the in-app package manager.
+4. **Blackmagic Forums** — Easy for announcements. Official but less technical than WSL.
+
 ---
 
 ### After Effects — aescripts Dominates
@@ -266,6 +327,12 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 | **GitHub** | Free | Moderate | Some open-source tools. |
 
 **Community:** Massive motion graphics community. aescripts.com is the undisputed hub.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push scripts/expressions.
+2. **Gumroad** — Easy. Upload and sell.
+3. **aescripts.com** — Moderate. Must apply as a developer and pass review. But this is *the* marketplace — if you're serious about AE tools, you need to be here. They handle distribution, licensing, and marketing.
 
 ---
 
@@ -279,6 +346,13 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 | **GitHub** | Free | Small | `substance-designer` topic. Python tools, node packs. |
 
 **Key trend:** Adobe gave all Substance 3D subscribers unmetered (unlimited) access to the full premium asset library (20k+ assets) as of Jan 2025. Designer 16.0 previewed at GDC 2026 with SDF-based shape scattering. 95%+ of AAA game projects use Substance 3D.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push node packs and Python tools.
+2. **Substance 3D Community Assets** — Easy-moderate. Upload materials, filters, generators to the official sharing platform (formerly Substance Share). Free sharing only.
+3. **Gumroad/ArtStation** — Easy. Sell custom nodes and material packs.
+4. **Adobe Community Forums** — Easy for announcements. Not a distribution platform.
 
 ---
 
