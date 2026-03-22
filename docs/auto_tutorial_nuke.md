@@ -14,6 +14,12 @@
 | Select nodes | `node.setSelected(True)` |
 | Open Properties panel | `nuke.show(node)` |
 
+### Cropping Strategy
+
+Nuke's Python API doesn't provide per-panel screenshot methods — captures are typically full-viewer or widget grabs via Qt. For focused screenshots, the runner should grab the specific Qt widget (e.g. the Properties panel widget) rather than the full application window. When that's not possible, capture the window and post-crop with Pillow using the `crop.region` from the manifest. Coordinates are relative to the captured image.
+
+For node graph screenshots, zoom to fit the relevant nodes (`nuke.zoomToFitSelected()`) before capture so the subject fills the frame.
+
 ---
 
 ## Scene File Format

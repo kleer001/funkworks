@@ -17,6 +17,12 @@
 | Select objects | `obj.select_set(True)` / `context.view_layer.objects.active = obj` |
 | Open editor/panel | `bpy.ops.screen.area_type_set(type='PROPERTIES')` |
 
+### Cropping Strategy
+
+Always use `screenshot_area` (not `screenshot`) — it captures a single editor area instead of the full Blender window. For tighter crops (e.g. a single sub-panel within Properties), the Screenshot Runner post-crops with Pillow using the `crop.region` from the manifest.
+
+Blender's `screenshot_area` captures the entire area including headers and sidebars. To crop to just a sub-panel or specific control, estimate pixel coordinates from the area's layout. These coordinates are relative to the captured area image, not the full screen.
+
 ---
 
 ## Scene File Format
@@ -81,11 +87,12 @@ xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
         "method": "screenshot_area",
         "area_type": "VIEW_3D",
         "filepath": "plugins/blender/docs/images/fluid_domain_visibility/01_problem.png"
-      }
+      },
+      "crop": { "method": "area_only" }
     },
     {
       "id": "02_panel",
-      "description": "Auto-Visibility panel in Properties editor",
+      "description": "Close-up of Auto-Visibility toggle in Properties panel",
       "setup": [
         "domain = bpy.data.objects['Fluid Domain']",
         "bpy.context.view_layer.objects.active = domain",
@@ -95,6 +102,11 @@ xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
         "method": "screenshot_area",
         "area_type": "PROPERTIES",
         "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel.png"
+      },
+      "crop": {
+        "method": "bbox",
+        "region": [0, 120, 320, 280],
+        "comment": "Crop to just the plugin's sub-panel within the full Properties area"
       }
     }
   ]

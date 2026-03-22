@@ -43,7 +43,28 @@ Each DCC exposes a Python API that the Screenshot Runner uses to set up scenes a
 1. **Open/reset** the demo scene
 2. **Set up** the viewport state (camera angle, frame, selection, panel focus)
 3. **Capture** a screenshot of a specific UI area
-4. **Verify** the output file exists and is non-empty
+4. **Crop** to just the relevant region — never ship a full-workspace screenshot
+5. **Verify** the output file exists and is non-empty
+
+### Crop, Don't Dump
+
+Screenshots must show only the relevant context for the tutorial step — not the entire application workspace. A full-window screenshot is noisy and unhelpful: it buries the subject in toolbars, timelines, and unrelated panels.
+
+**What to crop to depends on the step:**
+
+| Tutorial step is about... | Crop to... |
+|--------------------------|------------|
+| A panel or sidebar widget | Just that panel, with enough frame to show where it lives |
+| A viewport result (before/after) | The 3D viewport area only, no surrounding editors |
+| A menu or dialog | The menu/dialog plus minimal surrounding context |
+| A specific property or control | Tight crop around the control, include the label |
+
+The Screenshot Runner handles cropping in one of two ways, depending on what the DCC supports:
+
+1. **Area-level capture** — some DCCs can screenshot a single editor area (e.g. Blender's `screenshot_area`). This is the minimum; it avoids full-window captures but may still include more than needed.
+2. **Post-capture crop** — the runner crops the captured image to a bounding box specified in the manifest. This handles cases where even an area-level capture is too wide (e.g. cropping a Properties panel to just the plugin's sub-panel).
+
+Both approaches can be combined: capture an area, then crop further. The manifest's `crop` field (see below) controls this.
 
 DCC-specific API details are in the per-DCC docs:
 
@@ -69,11 +90,37 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
         "method": "<DCC-specific capture method>",
         "area_type": "VIEW_3D",
         "filepath": "plugins/blender/docs/images/fluid_domain_visibility/01_problem.png"
+      },
+      "crop": {
+        "method": "area_only"
+      }
+    },
+    {
+      "id": "02_panel_detail",
+      "description": "Close-up of the Auto-Visibility toggle in the Properties panel",
+      "setup": ["<DCC-specific setup commands>"],
+      "capture": {
+        "method": "<DCC-specific capture method>",
+        "area_type": "PROPERTIES",
+        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel_detail.png"
+      },
+      "crop": {
+        "method": "bbox",
+        "region": [x, y, width, height],
+        "comment": "Crop to just the plugin's sub-panel within Properties"
       }
     }
   ]
 }
 ```
+
+**Crop methods:**
+
+| Method | Behavior |
+|--------|----------|
+| `area_only` | Use the DCC's area-level screenshot — no further cropping. Suitable when an entire editor area *is* the subject. |
+| `bbox` | Post-capture crop to `[x, y, width, height]` pixels. The runner uses Pillow (`PIL.Image.crop`). Coordinates are relative to the captured image, not the full screen. |
+| `auto` | *(future)* The runner uses edge detection or UI element recognition to auto-crop to the relevant widget. Not yet implemented. |
 
 ### Screenshot Runner (Python Script)
 
@@ -86,6 +133,7 @@ The runner is a small Python script that:
 5. For each screenshot entry:
    - Executes the `setup` commands in sequence
    - Executes the `capture` command
+   - Applies `crop` if specified (bbox crop via Pillow)
    - Verifies the output file exists and is non-empty
 6. Reports success/failure per screenshot
 

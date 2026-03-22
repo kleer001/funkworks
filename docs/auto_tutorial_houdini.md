@@ -15,6 +15,12 @@
 | Select objects | `node.setSelected(True)` |
 | Open network editor / pane tab | `pane.setCurrentTab(tab)` |
 
+### Cropping Strategy
+
+`savePaneTabsScreenshot` captures an entire pane tab, which may include more than needed. For tighter crops (e.g. a specific parameter section within the Parameter Editor), the Screenshot Runner post-crops with Pillow using the `crop.region` from the manifest. Coordinates are relative to the captured pane image.
+
+Houdini's pane layout is user-configurable, so screenshot setups should maximize the target pane first (`pane.setIsMaximized(True)`) for consistent framing before capture.
+
 ---
 
 ## Scene File Format
