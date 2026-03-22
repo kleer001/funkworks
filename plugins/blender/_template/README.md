@@ -22,6 +22,11 @@
 2. [Step 2]
 3. [Step 3]
 
+## Distribution
+
+- **GitHub releases** — primary distribution channel; attach the `.py` file to a tagged release
+- **Blender Extensions Platform** ([extensions.blender.org](https://extensions.blender.org/)) — for discoverability inside Blender's built-in extension browser. Requires GPL, a review process, and a `blender_manifest.toml`. Not yet pursued; revisit when plugins are mature.
+
 ## Compatibility
 
 - Blender [X.Y]+
