@@ -4,7 +4,7 @@
 <td>
 <h1>Funkworks</h1>
 <p><strong>Addons built from real problems.</strong><br>
-<em>The 47th reply in a 3-year-old thread.</em></p>
+<em>Small tools. Big difference.</em></p>
 </td>
 </tr>
 </table>
