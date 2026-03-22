@@ -6,7 +6,7 @@
   <rect width="900" height="260" rx="12" fill="none" stroke="#e0e0e0" stroke-width="1"/>
   <image href="mascot.svg" x="20" y="10" width="145" height="240" preserveAspectRatio="xMidYMid meet"/>
   <text x="195" y="80" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="40" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
-  <text x="195" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#C0392B">Addons built from real problems.</text>
+  <text x="195" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#CC2200">Addons built from real problems.</text>
   <text x="195" y="185" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
-  <rect x="195" y="210" width="120" height="2" rx="1" fill="#C0392B" opacity="0.6"/>
+  <rect x="195" y="210" width="120" height="2" rx="1" fill="#CC2200" opacity="0.6"/>
 </svg>
