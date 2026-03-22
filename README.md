@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/mascot.png" alt="Funkworks" width="300"/>
+  <img src="docs/images/banner.svg" alt="Funkworks — Addons built from real problems." width="700"/>
 </p>
 
 <p align="center">
