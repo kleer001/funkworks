@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Context
+
+Funkworks is a **portfolio piece**. It exists to demonstrate expertise, care, and work ethic to prospective employers and partners. Every artifact in this repo — code, docs, commit history, architecture decisions — should reflect that. Quality matters more than speed. Thoughtfulness matters more than volume. Everything is free and open-source as a matter of principle, not as a business strategy. There is no monetization layer and never will be.
+
 ## Commands
 
 ```bash
@@ -72,6 +76,15 @@ plugins/
 Future DCC targets (Houdini, Nuke, etc.) follow the same layout under `plugins/<dcc>/`.
 
 Blender plugins register an `Operator` class and a `Panel` class, following standard Blender addon conventions. Use `plugins/blender/_template/` when creating a new one.
+
+### Skills
+
+Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `SKILL.md` file.
+
+| Skill | Invocation | Purpose |
+|-------|-----------|---------|
+| `new-plugin` | `/new-plugin <name>` | Build and document a new Blender addon end-to-end |
+| `tutorial` | `/tutorial <plugin-name>` | Write a step-by-step tutorial for an existing plugin |
 
 ### Data Flow
 
