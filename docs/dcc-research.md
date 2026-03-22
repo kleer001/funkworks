@@ -262,13 +262,16 @@ Maya plugin distribution is more institutional than community-driven.
 
 ---
 
-### Substance 3D — Substance Share + Adobe Community
+### Substance 3D — Substance 3D Community Assets (formerly Substance Share)
 
 | Venue | Type | Activity | Notes |
 |---|---|---|---|
-| **Substance Share** | Official free sharing | Active | Materials, smart materials, filters, generators. |
-| **Adobe Community Forums** | Official | Active | Discussion and sharing. |
+| **Substance 3D Community Assets** (formerly Substance Share) | Official free sharing | Active | Rebranded. Materials, smart materials, filters, generators. |
+| **Adobe Community Forums** | Official | Active | Discussion and sharing. GDC 2026 presence. |
 | **Gumroad/ArtStation** | Paid | Moderate | Custom nodes and material packs. |
+| **GitHub** | Free | Small | `substance-designer` topic. Python tools, node packs. |
+
+**Key trend:** Adobe gave all Substance 3D subscribers unmetered (unlimited) access to the full premium asset library (20k+ assets) as of Jan 2025. Designer 16.0 previewed at GDC 2026 with SDF-based shape scattering. 95%+ of AAA game projects use Substance 3D.
 
 ---
 
