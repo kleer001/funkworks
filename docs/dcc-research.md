@@ -302,11 +302,20 @@ Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any c
 
 8. **YouTube** matters for discovery — tutorial creators who bundle free tools in video descriptions drive significant addon adoption. Not a distribution platform per se, but an important marketing channel.
 
+### Emerging Platforms
+
+- **Fab** (Epic Games) — Unifying 2.5M assets from Unreal Marketplace, ArtStation, Sketchfab, and Quixel into one storefront. 88% royalty. Anti-AI-training policy. The biggest marketplace consolidation in DCC tools. ArtStation marketplace assets migrating into Fab.
+- **D5 Works** — New 3D marketplace with 0% commission.
+
+### YouTube as Discovery Channel
+
+YouTube is a critical addon discovery channel, especially for Blender. Channels like InspirationTuts produce regular "addons you missed" roundup videos covering 10–15 addons with timestamps and download links. These function as curated addon discovery — creators link to GitHub, Superhive, or Gumroad in descriptions. For Houdini, YouTube is more education-focused (Entagma, Junichiro Horikawa, SideFX HIVE recordings). Maya addon discovery via YouTube is minimal.
+
 ### Dead or Stale Venues (Do NOT Waste Time Here)
 
 - **Orbolt** — Dead. Login broken, no updates since 2022.
 - **FlippedNormals Marketplace** — Closing March 31, 2026.
-- **Twitter/X** — DCC communities have migrated away.
+- **Twitter/X** — DCC communities have migrated away (BlenderNation left Nov 2024, conference speakers list Bluesky/Threads/LinkedIn now).
 - **Highend3D** — Alive but unreliable. Has gone offline before.
 
 ### Where to Post for Maximum Community Impact (by DCC)
