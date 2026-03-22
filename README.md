@@ -1,6 +1,7 @@
-<p align="center">
-  <img src="docs/images/banner.svg" alt="Funkworks — Addons built from real problems." width="700"/>
-</p>
+<table align="center" border="0" cellspacing="0" cellpadding="0"><tr>
+  <td><img src="docs/images/mascot.png" alt="Funkworks mascot" height="200"/></td>
+  <td><img src="docs/images/banner-text.svg" alt="Funkworks — Addons built from real problems." width="460"/></td>
+</tr></table>
 
 <p align="center">
   <a href="https://github.com/kleer001/funkworks/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kleer001/funkworks?color=blue" alt="License"/></a>

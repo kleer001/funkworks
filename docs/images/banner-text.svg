@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <text x="0" y="55" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="48" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
+  <text x="0" y="110" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#CC2200">Addons built from real problems.</text>
+  <text x="0" y="155" font-family="Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
+  <rect x="0" y="175" width="120" height="2" rx="1" fill="#CC2200" opacity="0.6"/>
+</svg>
