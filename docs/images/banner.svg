@@ -136,8 +136,8 @@
 <path d="M0 0 C-4 15.56 -12.76 26.44 -24.61 36.98 C-27.12 39.22 -29.12 41.18 -31 44 C-33.62 44.69 -33.62 44.69 -36 45 C-36 41 -36 41 -34.53 39.39 C-34.2 39.13 -34.2 39.13 -32.5 37.81 C-23.39 30.28 -15.59 21.13 -11.07 10.18 C-8.97 5.89 -5.26 0 0 0 Z " fill="#BA8D76" transform="translate(386,611)"/>
 <path d="M0 0 C0 4.29 0 8.58 0 13 C-0.99 13 -1.98 13 -3 13 C-3.22 13.46 -3.22 13.46 -4.36 15.78 C-5.91 18.95 -7.5 22.1 -9.11 25.25 C-9.86 26.72 -10.58 28.22 -11.3 29.71 C-12.39 31.79 -13.27 33.41 -15 35 C-17.95 35.67 -19.94 35.41 -23 35 C-23.17 34.5 -23.17 34.5 -24 32 C-23.02 30.19 -23.02 30.19 -21.38 28 C-20.74 27.13 -20.1 26.26 -19.45 25.37 C-19.07 24.86 -18.69 24.35 -18.31 23.82 C-14.94 19.13 -11.76 14.3 -8.53 9.51 C-7.99 8.72 -7.45 7.92 -6.89 7.1 C-6.41 6.38 -5.92 5.66 -5.42 4.93 C-1.78 0 -1.78 0 0 0 Z " fill="#EAEEEF" transform="translate(316,667)"/>
   </g>
-  <text x="195" y="80" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="40" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
-  <text x="195" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#CC2200">Addons built from real problems.</text>
-  <text x="195" y="185" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
-  <rect x="195" y="210" width="120" height="2" rx="1" fill="#CC2200" opacity="0.6"/>
+  <text x="50" y="80" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="40" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
+  <text x="50" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#CC2200">Addons built from real problems.</text>
+  <text x="50" y="185" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
+  <rect x="50" y="210" width="120" height="2" rx="1" fill="#CC2200" opacity="0.6"/>
 </svg>
