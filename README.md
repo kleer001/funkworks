@@ -28,7 +28,7 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 
 | Plugin | Description |
 |--------|-------------|
-| [Fluid Domain Auto-Visibility](plugins/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
+| [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
 
 ## Research Pipeline
 
@@ -60,7 +60,7 @@ pytest
 
 ## Adding a New Plugin
 
-1. Write the addon: `plugins/[plugin_name].py`
-2. Copy `plugins/_template/` to `plugins/[plugin_name]/`
+1. Write the addon: `plugins/blender/src/[plugin_name].py`
+2. Copy `plugins/blender/_template/` to `plugins/blender/docs/[plugin_name]/`
 3. Fill in `README.md`, `listing.md`, and `announce.md`
 4. Add a row to the table above

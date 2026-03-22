@@ -53,15 +53,25 @@ Two-stage pipeline: crawl → classify.
 
 **Config** (`src/config.py`): Frozen dataclass, loaded from `.env` via `python-dotenv`. `REDDIT_USER_AGENT` is the only required env var.
 
-### Blender Plugins
+### DCC Plugins
 
-Each plugin lives in two forms:
-- `plugins/<name>.py` — the distributable single-file addon
-- `plugins/<name>/` — docs directory: `README.md`, `listing.md` (marketplace copy), `announce.md` (social templates)
+Plugins are organized by target application under `plugins/<dcc>/`:
 
-Plugins register an `Operator` class and a `Panel` class, following standard Blender addon conventions. Use `plugins/_template/` when creating a new one.
+```
+plugins/
+└── blender/
+    ├── src/              # distributable single-file .py addons
+    ├── docs/
+    │   ├── <name>/       # per-plugin docs: README.md, listing.md, announce.md
+    │   ├── specs/        # design specs for planned plugins
+    │   ├── tutorials/
+    │   └── images/
+    └── _template/        # copy when creating a new plugin
+```
 
-Specs for planned plugins live in `specs/`.
+Future DCC targets (Houdini, Nuke, etc.) follow the same layout under `plugins/<dcc>/`.
+
+Blender plugins register an `Operator` class and a `Panel` class, following standard Blender addon conventions. Use `plugins/blender/_template/` when creating a new one.
 
 ### Data Flow
 
@@ -70,5 +80,5 @@ Reddit → crawler → raw JSON → digest agent → Claude → opportunities JS
                                                             ↓
                                                    developer picks idea
                                                             ↓
-                                                   plugins/<name>.py
+                                                   plugins/<dcc>/src/<name>.py
 ```
