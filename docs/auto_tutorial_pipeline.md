@@ -284,11 +284,11 @@ This means the tutorial is derived directly from the code, not from a human writ
 
 ## Crop Decision Workflow
 
-The Tutorial Agent decides what to crop when it generates the screenshot manifest. This is a deliberate design step, not an afterthought — the crop target is chosen *before* any screenshot is taken.
+Cropping is a two-phase process: **capture wide, then ask Claude where to cut**. The Tutorial Agent does *not* guess crop coordinates up front — it captures the full UI area first, uploads the uncropped image to Claude, and Claude returns precise crop coordinates based on what it actually sees.
 
-### Decision Process
+### Phase 1 — Intent (Tutorial Agent, before capture)
 
-For each screenshot in the manifest, the agent follows this sequence:
+When generating the screenshot manifest, the agent records *what* to crop to, but not *where* (no pixel coordinates yet):
 
 ```
 1. What is this screenshot illustrating?
@@ -299,58 +299,108 @@ For each screenshot in the manifest, the agent follows this sequence:
    → Enough surrounding context to orient the reader (where am I in the app?).
    → Nothing else. No unrelated panels, no timeline, no toolbar clutter.
 
-3. Which capture + crop method achieves that?
-   → If the DCC's area-level capture matches the target region → area_only.
-   → If the target is smaller than a full area → area capture + bbox crop.
-   → Specify the crop in the manifest.
-
-4. Write the description field to state what the reader should see.
-   → This doubles as the QA check — if the captured image doesn't match
-     the description, it fails validation.
+3. Write the description and crop_subject fields.
+   → description: what the reader should see in the final image.
+   → crop_subject: what Claude should look for when deciding where to crop.
 ```
 
-### Crop Target Examples
-
-| Tutorial step | Subject | Crop target | Why not wider? |
-|---------------|---------|-------------|----------------|
-| "Find the panel in the sidebar" | Plugin's panel | Sidebar area, cropped to just the plugin's panel section | Full Properties editor shows dozens of unrelated panels |
-| "Click the Toggle button" | A single button/control | Tight crop: the button + its label + the panel header for context | Even the full sidebar panel is too much — the reader needs to find *one* control |
-| "The domain box is now hidden" | Viewport showing the result | 3D viewport area only | Surrounding editors (Properties, Outliner, Timeline) are irrelevant to the result |
-| "Select your fluid domain object" | An object in the viewport | 3D viewport area, possibly cropped to center on the object | Full viewport is acceptable here — spatial context matters for selection |
-| "Open Edit > Preferences" | A menu | The menu dropdown + enough of the menu bar to show where it came from | Full window behind the menu is noise |
-
-### What the Agent Records
-
-Each manifest entry includes:
-
-- **`description`** — what the reader should see in the final image (human-readable, used for QA)
-- **`crop.method`** — `area_only` or `bbox`
-- **`crop.region`** — pixel coordinates for `bbox` crops (estimated from typical DCC layouts; adjusted during QA if wrong)
-- **`crop.rationale`** — one sentence explaining *why* this crop target was chosen (helps future re-runs and debugging)
+At this stage the manifest entry has no `crop.region` — just the intent:
 
 ```json
 {
   "id": "02_panel",
   "description": "The Auto-Visibility toggle in the Physics tab of the Properties sidebar",
+  "crop_subject": "The Physics sub-panel containing the Auto-Visibility toggle button",
   "setup": ["..."],
-  "capture": { "..." : "..." },
+  "capture": {
+    "method": "screenshot_area",
+    "area_type": "PROPERTIES",
+    "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel_full.png"
+  },
   "crop": {
-    "method": "bbox",
-    "region": [0, 120, 320, 280],
-    "rationale": "Full Properties area includes Object, Modifiers, etc. — crop to just the Physics sub-panel where the plugin lives."
+    "method": "pending"
   }
 }
 ```
+
+### Phase 2 — Crop Coordinates (Claude, after capture)
+
+After the Screenshot Runner captures each full-area image, the pipeline uploads it to Claude with the `crop_subject` and asks for coordinates:
+
+```
+Prompt to Claude:
+
+  Here is a screenshot of [area_type] from [dcc].
+  The tutorial step is: "[description]"
+
+  I need to crop this image to show only: "[crop_subject]"
+
+  Return the crop bounding box as [x, y, width, height] in pixels.
+  Include enough context that the reader can orient themselves
+  (e.g. keep the panel header visible, keep surrounding labels),
+  but exclude unrelated UI elements.
+
+  Also return:
+  - rationale: one sentence explaining why you chose these bounds.
+  - confidence: high / medium / low.
+    Use "low" if the subject isn't clearly visible or the crop is ambiguous.
+```
+
+Claude returns:
+
+```json
+{
+  "region": [12, 108, 310, 185],
+  "rationale": "Cropped to the Physics sub-panel header through the Auto-Visibility toggle. Excluded Modifiers and Object panels above and below.",
+  "confidence": "high"
+}
+```
+
+The pipeline writes this back into the manifest and performs the crop:
+
+```json
+{
+  "id": "02_panel",
+  "crop": {
+    "method": "bbox",
+    "region": [12, 108, 310, 185],
+    "rationale": "Cropped to the Physics sub-panel header through the Auto-Visibility toggle. Excluded Modifiers and Object panels above and below.",
+    "confidence": "high"
+  }
+}
+```
+
+**If confidence is "low"**, the screenshot is flagged for manual review rather than auto-cropped — Claude is saying "I'm not sure I'm looking at the right thing."
+
+### Why This Order
+
+| Approach | Problem |
+|----------|---------|
+| Guess coordinates before capture | DCC layouts vary by screen size, user prefs, and panel state. Guesses are wrong more often than right. |
+| Hardcode coordinates per DCC | Brittle. Breaks when the user resizes anything or a DCC update shifts the UI. |
+| **Capture wide → ask Claude → crop** | Claude sees the *actual* rendered UI. Coordinates are precise. Works regardless of layout. |
+
+### Crop Target Examples
+
+| Tutorial step | Subject | crop_subject sent to Claude | Expected crop |
+|---------------|---------|----------------------------|---------------|
+| "Find the panel in the sidebar" | Plugin's panel | "The [Plugin Name] panel in the sidebar" | Just the plugin's panel section with its header |
+| "Click the Toggle button" | A single button/control | "The Toggle button and its label" | Tight crop: button + label + panel header for context |
+| "The domain box is now hidden" | Viewport result | *(area_only — no Claude crop needed, full viewport is the target)* | 3D viewport area as captured |
+| "Select your fluid domain object" | Object in viewport | *(area_only — spatial context matters)* | Full 3D viewport |
+| "Open Edit > Preferences" | A menu | "The Edit menu dropdown" | Menu dropdown + enough menu bar to show origin |
+
+Note: when the full captured area *is* the crop target (e.g. viewport screenshots), `crop.method` stays `area_only` and Phase 2 is skipped — no point asking Claude to crop an image to itself.
 
 ---
 
 ## Screenshot QA/QC
 
-After the Screenshot Runner captures and crops all images, the pipeline runs a validation pass before the tutorial is finalized. Screenshots that fail QA are flagged for retry or manual review.
+After capture and cropping, the pipeline validates each screenshot before the tutorial is finalized. QA has two tiers: automated checks by the Runner, then visual review by the Tutorial Agent.
 
 ### Automated Checks (Screenshot Runner)
 
-These run immediately after each capture, before moving to the next screenshot:
+These run immediately after each capture and crop, before moving to the next screenshot:
 
 | Check | How | Fail action |
 |-------|-----|-------------|
@@ -358,6 +408,7 @@ These run immediately after each capture, before moving to the next screenshot:
 | **Minimum dimensions** | Image width and height ≥ 100px after crop | Retry with wider crop region |
 | **Not mostly blank** | Pixel variance check — reject images that are >95% single color | Retry with scene reset (the DCC may not have rendered) |
 | **Aspect ratio sanity** | Width/height ratio between 0.3 and 4.0 | Flag — likely a bad crop region |
+| **Crop confidence** | Check Claude's confidence from Phase 2 | If "low", skip auto-crop and flag for manual review |
 
 ### Agent Review (Tutorial Agent)
 
@@ -402,9 +453,10 @@ Stage 3 — Test Agent (smoke tests pass)
     ↓
 Stage 4 — Tutorial Agent (THIS PIPELINE)
   ├── Writes tutorial.md
-  ├── Writes screenshot_manifest.json (with crop decisions + rationale)
-  ├── Screenshot Runner captures + crops images via MCP
-  ├── Runner automated QA (file exists, dimensions, not blank, aspect ratio)
+  ├── Writes screenshot_manifest.json (crop intent — no coordinates yet)
+  ├── Screenshot Runner captures full-area images via MCP
+  ├── Claude crop pass: upload each full image → get crop coordinates
+  ├── Runner crops images and runs automated QA checks
   ├── Tutorial Agent visual QA (image matches description? crop tight enough?)
   ├── Retry loop for failed screenshots (up to 3 cycles)
   └── Tutorial Agent finalizes markdown with verified images
