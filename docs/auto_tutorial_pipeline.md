@@ -282,6 +282,117 @@ This means the tutorial is derived directly from the code, not from a human writ
 
 ---
 
+## Crop Decision Workflow
+
+The Tutorial Agent decides what to crop when it generates the screenshot manifest. This is a deliberate design step, not an afterthought — the crop target is chosen *before* any screenshot is taken.
+
+### Decision Process
+
+For each screenshot in the manifest, the agent follows this sequence:
+
+```
+1. What is this screenshot illustrating?
+   → A tutorial step always has a subject: a panel, a result, a control, a menu.
+
+2. What is the minimum UI region that shows the subject in context?
+   → The subject must be clearly visible.
+   → Enough surrounding context to orient the reader (where am I in the app?).
+   → Nothing else. No unrelated panels, no timeline, no toolbar clutter.
+
+3. Which capture + crop method achieves that?
+   → If the DCC's area-level capture matches the target region → area_only.
+   → If the target is smaller than a full area → area capture + bbox crop.
+   → Specify the crop in the manifest.
+
+4. Write the description field to state what the reader should see.
+   → This doubles as the QA check — if the captured image doesn't match
+     the description, it fails validation.
+```
+
+### Crop Target Examples
+
+| Tutorial step | Subject | Crop target | Why not wider? |
+|---------------|---------|-------------|----------------|
+| "Find the panel in the sidebar" | Plugin's panel | Sidebar area, cropped to just the plugin's panel section | Full Properties editor shows dozens of unrelated panels |
+| "Click the Toggle button" | A single button/control | Tight crop: the button + its label + the panel header for context | Even the full sidebar panel is too much — the reader needs to find *one* control |
+| "The domain box is now hidden" | Viewport showing the result | 3D viewport area only | Surrounding editors (Properties, Outliner, Timeline) are irrelevant to the result |
+| "Select your fluid domain object" | An object in the viewport | 3D viewport area, possibly cropped to center on the object | Full viewport is acceptable here — spatial context matters for selection |
+| "Open Edit > Preferences" | A menu | The menu dropdown + enough of the menu bar to show where it came from | Full window behind the menu is noise |
+
+### What the Agent Records
+
+Each manifest entry includes:
+
+- **`description`** — what the reader should see in the final image (human-readable, used for QA)
+- **`crop.method`** — `area_only` or `bbox`
+- **`crop.region`** — pixel coordinates for `bbox` crops (estimated from typical DCC layouts; adjusted during QA if wrong)
+- **`crop.rationale`** — one sentence explaining *why* this crop target was chosen (helps future re-runs and debugging)
+
+```json
+{
+  "id": "02_panel",
+  "description": "The Auto-Visibility toggle in the Physics tab of the Properties sidebar",
+  "setup": ["..."],
+  "capture": { "..." : "..." },
+  "crop": {
+    "method": "bbox",
+    "region": [0, 120, 320, 280],
+    "rationale": "Full Properties area includes Object, Modifiers, etc. — crop to just the Physics sub-panel where the plugin lives."
+  }
+}
+```
+
+---
+
+## Screenshot QA/QC
+
+After the Screenshot Runner captures and crops all images, the pipeline runs a validation pass before the tutorial is finalized. Screenshots that fail QA are flagged for retry or manual review.
+
+### Automated Checks (Screenshot Runner)
+
+These run immediately after each capture, before moving to the next screenshot:
+
+| Check | How | Fail action |
+|-------|-----|-------------|
+| **File exists and non-empty** | `os.path.exists()` + `os.path.getsize() > 0` | Retry capture (up to 2 retries) |
+| **Minimum dimensions** | Image width and height ≥ 100px after crop | Retry with wider crop region |
+| **Not mostly blank** | Pixel variance check — reject images that are >95% single color | Retry with scene reset (the DCC may not have rendered) |
+| **Aspect ratio sanity** | Width/height ratio between 0.3 and 4.0 | Flag — likely a bad crop region |
+
+### Agent Review (Tutorial Agent)
+
+After all screenshots pass automated checks, the Tutorial Agent reviews each image against its manifest entry:
+
+```
+For each screenshot:
+  1. Read the image.
+  2. Compare to the description field in the manifest.
+  3. Answer three questions:
+     a. Does the image show what the description says it should show?
+     b. Is the subject clearly visible and not cut off by the crop?
+     c. Is there excessive irrelevant UI visible that should be cropped tighter?
+  4. Verdict: pass, retry (with adjusted crop/setup), or flag for manual review.
+```
+
+The agent can adjust crop coordinates and re-run the Screenshot Runner for specific entries — it doesn't need to redo the entire manifest.
+
+### QA Verdicts
+
+| Verdict | What happens |
+|---------|--------------|
+| **Pass** | Image is used in the final tutorial |
+| **Retry — adjust crop** | Agent updates `crop.region` in the manifest and re-runs that one screenshot |
+| **Retry — adjust setup** | Agent updates `setup` commands (e.g. wrong frame, wrong selection) and re-captures |
+| **Flag for manual review** | Image is kept with a `[needs review]` annotation in the manifest; tutorial ships with the image but it's marked for human check |
+
+### QA Limits
+
+- Maximum 3 retry cycles per screenshot (to avoid infinite loops on fundamentally broken setups)
+- If >50% of screenshots fail QA after retries, the entire tutorial is flagged — something is wrong with the scene file or MCP connection, not individual crops
+- The agent logs every QA decision (verdict + reasoning) to `data/tutorial_logs/<plugin>_qa.json` for debugging
+
+---
+
 ## Pipeline Integration
 
 ### Where This Fits in the Plugin Factory
@@ -291,9 +402,12 @@ Stage 3 — Test Agent (smoke tests pass)
     ↓
 Stage 4 — Tutorial Agent (THIS PIPELINE)
   ├── Writes tutorial.md
-  ├── Writes screenshot_manifest.json
-  ├── Screenshot Runner captures images via MCP
-  └── Tutorial Agent verifies images and finalizes markdown
+  ├── Writes screenshot_manifest.json (with crop decisions + rationale)
+  ├── Screenshot Runner captures + crops images via MCP
+  ├── Runner automated QA (file exists, dimensions, not blank, aspect ratio)
+  ├── Tutorial Agent visual QA (image matches description? crop tight enough?)
+  ├── Retry loop for failed screenshots (up to 3 cycles)
+  └── Tutorial Agent finalizes markdown with verified images
     ↓
 Stage 5 — Publish
   ├── GitHub Release (plugin source)
