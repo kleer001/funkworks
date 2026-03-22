@@ -412,7 +412,7 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 - **Maya** — 30-day trial only. Indie: ~$320/yr (<$100K revenue). Full: $1,945/yr. Less open-source culture, but GT Tools, maya-usd, mGear all live here.
 - **3ds Max** — 30-day trial only. Indie: ~$250/yr (<$100K revenue). Full: $1,545/yr. Growing. Open-source Max tools use GitHub alongside ScriptSpot.
 - **Cinema 4D** — 14-day trial only, no indie tier. $719/yr (now bundled with Redshift). Maxon One: $1,265/yr. Less common in C4D culture but increasing.
-- **Nuke** — Non-Commercial: free (learning only, watermarked, limited scripting). Indie: $499/yr (<$100K revenue, 4K cap). Full: $3,839/yr. Nuke Survival Toolkit, SpinVFX gizmos, jedypod configs. Healthy presence.
+- **Nuke** — Non-Commercial: free, non-watermarked, but 1080p cap, no third-party plugins, encrypted files (can't open in commercial Nuke), limited Python, and each version expires 180 days after build. Indie: $499/yr (<$100K revenue, 4K cap). Full: $3,839/yr. Nuke Survival Toolkit, SpinVFX gizmos, jedypod configs. Healthy presence.
 - **DaVinci Resolve / Fusion** — Free version: $0, no watermark, very capable. Studio: $295 one-time perpetual. Individual fuse collections. Smaller but real.
 - **After Effects** — 7-day trial only. Single app: ~$264/yr. All Apps: ~$660/yr. Moderate. Some open-source scripts and expressions.
 - **Substance 3D** — 30-day trial only. Texturing plan: ~$250/yr. Collection: ~$600/yr. Not included in CC All Apps. Small. Python tools and node packs under `substance-designer` topic.
