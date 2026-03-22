@@ -2,7 +2,7 @@
 
 ## Goal
 
-When a plugin passes smoke tests, automatically generate a complete tutorial document with real screenshots — no human screenshotting, no placeholder images. The Doc Agent writes the text, the MCP captures the screenshots, and the output is a publish-ready markdown page with images.
+When a plugin passes smoke tests, automatically generate a complete tutorial document with real screenshots — no human screenshotting, no placeholder images. The Tutorial Agent writes the text, the Screenshot Runner captures the images via MCP, and the output is a publish-ready markdown page. This pipeline is DCC-agnostic: the architecture is the same regardless of target application, with only the screenshot API and scene file format varying per DCC.
 
 ---
 
@@ -15,130 +15,56 @@ Tutorial Agent receives:
   - Plugin brief (from Stage 1)
   - Plugin source code
   - Acceptance criteria + test results
+  - DCC target identifier (blender, houdini, nuke, etc.)
     ↓
 Tutorial Agent writes:
   - Tutorial markdown (text)
-  - Screenshot script (Blender Python commands for MCP)
+  - Screenshot manifest (DCC-specific Python commands for MCP)
     ↓
 Screenshot Runner executes via MCP:
+  - Connects to the running DCC session
   - Sets up scene state for each screenshot
   - Captures viewport / UI at each step
-  - Saves images to docs/images/<plugin>/
+  - Saves images to plugins/<dcc>/docs/images/<plugin>/
     ↓
 Tutorial Agent inserts image references into markdown
     ↓
-Output: docs/<plugin>/tutorial.md + docs/images/<plugin>/*.png
+Output: plugins/<dcc>/docs/tutorials/<plugin>.md + plugins/<dcc>/docs/images/<plugin>/*.png
 ```
 
 ---
 
-## Screenshot Automation via Blender MCP
+## Screenshot Automation via MCP
 
-### How Blender Screenshots Work
+### How It Works
 
-Blender exposes everything needed through its Python API:
+Each DCC exposes a Python API that the Screenshot Runner uses to set up scenes and capture images. The runner sends commands through an MCP connection to a running DCC session. The specific API calls differ per application, but the pattern is always the same:
 
-| Task | Blender Python API |
-|------|-------------------|
-| Render viewport to image | `bpy.ops.render.opengl(write_still=True)` — renders the active viewport |
-| Save screenshot of full window | `bpy.ops.screen.screenshot(filepath=...)` — captures the entire Blender window |
-| Save screenshot of a specific area | `bpy.ops.screen.screenshot_area(filepath=...)` — captures just the active area (3D viewport, Properties panel, etc.) |
-| Set viewport shading | `context.space_data.shading.type = 'SOLID'` / `'MATERIAL'` / `'RENDERED'` |
-| Set camera/view angle | `bpy.ops.view3d.view_axis(type='FRONT')` or set `region_3d.view_rotation` |
-| Navigate to a specific frame | `context.scene.frame_set(N)` |
-| Select objects | `obj.select_set(True)` / `context.view_layer.objects.active = obj` |
-| Open a specific editor/panel | `bpy.ops.screen.area_type_set(type='PROPERTIES')`, navigate to tab |
+1. **Open/reset** the demo scene
+2. **Set up** the viewport state (camera angle, frame, selection, panel focus)
+3. **Capture** a screenshot of a specific UI area
+4. **Verify** the output file exists and is non-empty
 
-### MCP Screenshot Commands
+DCC-specific API details are in the [appendices](#appendix-a--blender) below.
 
-The Screenshot Runner sends Python commands to Blender through MCP. Each screenshot is a sequence:
+### Screenshot Manifest Format
 
-```python
-# Example: capture the plugin's panel in the Properties editor
-
-# 1. Set up the scene state
-bpy.ops.wm.open_mainfile(filepath="/tmp/tutorial_scene.blend")
-domain = bpy.data.objects["Fluid Domain"]
-bpy.context.view_layer.objects.active = domain
-domain.select_set(True)
-
-# 2. Navigate to the correct UI location
-# (ensure Properties editor is visible, Physics tab is active)
-
-# 3. Capture
-bpy.ops.screen.screenshot_area(filepath="/path/to/docs/images/plugin/panel.png")
-```
-
-### Screenshot Script Format
-
-The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial markdown:
+The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial markdown. The manifest is DCC-agnostic in structure — only the `setup` commands and `capture.method` values are DCC-specific.
 
 ```json
 {
+  "dcc": "blender",
   "plugin": "fluid_domain_visibility",
   "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
   "screenshots": [
     {
       "id": "01_problem",
       "description": "Viewport showing domain box visible before sim starts",
-      "setup": [
-        "bpy.context.scene.frame_set(1)",
-        "bpy.ops.view3d.view_axis(type='FRONT')",
-        "bpy.context.space_data.shading.type = 'SOLID'"
-      ],
+      "setup": ["<DCC-specific setup commands>"],
       "capture": {
-        "method": "screenshot_area",
+        "method": "<DCC-specific capture method>",
         "area_type": "VIEW_3D",
-        "filepath": "docs/images/fluid_domain_visibility/01_problem.png"
-      }
-    },
-    {
-      "id": "02_panel",
-      "description": "Auto-Visibility panel in Properties editor",
-      "setup": [
-        "domain = bpy.data.objects['Fluid Domain']",
-        "bpy.context.view_layer.objects.active = domain",
-        "domain.select_set(True)"
-      ],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "PROPERTIES",
-        "filepath": "docs/images/fluid_domain_visibility/02_panel.png"
-      }
-    },
-    {
-      "id": "03_click",
-      "description": "Panel showing frame preview before clicking the button",
-      "setup": [],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "PROPERTIES",
-        "filepath": "docs/images/fluid_domain_visibility/03_click.png"
-      }
-    },
-    {
-      "id": "04_result",
-      "description": "Viewport at sim start frame — domain now visible",
-      "setup": [
-        "bpy.ops.fluid.auto_keyframe_visibility()",
-        "bpy.context.scene.frame_set(24)"
-      ],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "VIEW_3D",
-        "filepath": "docs/images/fluid_domain_visibility/04_result.png"
-      }
-    },
-    {
-      "id": "05_hidden",
-      "description": "Viewport at frame 1 — domain now hidden",
-      "setup": [
-        "bpy.context.scene.frame_set(1)"
-      ],
-      "capture": {
-        "method": "screenshot_area",
-        "area_type": "VIEW_3D",
-        "filepath": "docs/images/fluid_domain_visibility/05_hidden.png"
+        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/01_problem.png"
       }
     }
   ]
@@ -150,31 +76,32 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
 The runner is a small Python script that:
 
 1. Reads the screenshot manifest JSON
-2. Opens the scene file via MCP (`bpy.ops.wm.open_mainfile`)
-3. Installs and enables the plugin via MCP
-4. For each screenshot entry:
+2. Selects the correct MCP adapter based on `dcc` field
+3. Opens the scene file via MCP
+4. Installs and enables the plugin via MCP
+5. For each screenshot entry:
    - Executes the `setup` commands in sequence
    - Executes the `capture` command
    - Verifies the output file exists and is non-empty
-5. Reports success/failure per screenshot
+6. Reports success/failure per screenshot
 
 ```
 src/tutorials/screenshot_runner.py
     ↓ reads
 data/tutorial_manifests/<plugin>.json
-    ↓ executes via MCP
-Blender session
+    ↓ selects adapter for
+<dcc> MCP session
     ↓ writes
-plugins/blender/docs/images/<plugin>/*.png
+plugins/<dcc>/docs/images/<plugin>/*.png
 ```
 
-If a screenshot fails (Blender error, empty file, wrong area type), the runner logs the error and continues. The Tutorial Agent can retry failed screenshots with adjusted setup commands.
+If a screenshot fails (DCC error, empty file, wrong area type), the runner logs the error and continues. The Tutorial Agent can retry failed screenshots with adjusted setup commands.
 
 ---
 
 ## Tutorial Scene Files
 
-Each plugin needs a demonstration scene — a `.blend` file that shows the problem the plugin solves.
+Each plugin needs a demonstration scene — a file in the DCC's native format that shows the problem the plugin solves.
 
 ### Scene Requirements
 
@@ -182,49 +109,39 @@ Each plugin needs a demonstration scene — a `.blend` file that shows the probl
 |-------------|-----|
 | Minimal — only what's needed to demonstrate the plugin | Small file size, fast to load, no distractions in screenshots |
 | Deterministic — opens to the same state every time | Screenshots are reproducible across runs |
-| Named objects — descriptive names, not "Cube.003" | Setup commands reference objects by name |
+| Named objects — descriptive names, not defaults like "Cube.003" or "geo1" | Setup commands reference objects by name |
 | Pre-configured viewport — camera angle, shading mode set | Less setup needed per screenshot |
 
 ### Scene Generation
 
 Two approaches, depending on plugin complexity:
 
-**Simple plugins:** The Tutorial Agent generates the scene programmatically via MCP.
+**Simple plugins:** The Tutorial Agent generates the scene programmatically via MCP using the DCC's Python API.
 
-```python
-# Create a demo scene for Fluid Domain Auto-Visibility
-bpy.ops.wm.read_homefile(use_empty=True)
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0))
-domain = bpy.context.active_object
-domain.name = "Fluid Domain"
-bpy.ops.object.modifier_add(type='FLUID')
-domain.modifiers["Fluid"].fluid_type = 'DOMAIN'
-domain.modifiers["Fluid"].domain_settings.cache_frame_start = 24
-bpy.ops.wm.save_as_mainfile(filepath="/path/to/tutorial_scenes/fluid_domain_demo.blend")
-```
-
-**Complex plugins:** A manually created `.blend` file stored in the repo under `plugins/blender/docs/<plugin>/demo.blend`. Some plugins require scene setups that are hard to script (specific geometry, materials, animation curves).
+**Complex plugins:** A manually created scene file stored in the repo under `plugins/<dcc>/docs/<plugin>/demo.<ext>`. Some plugins require scene setups that are hard to script (specific geometry, materials, animation curves).
 
 ### Storage
 
 ```
-plugins/blender/docs/
+plugins/<dcc>/docs/
 ├── <plugin>/
-│   ├── tutorial.md          ← generated by Tutorial Agent
-│   ├── demo.blend           ← tutorial scene (generated or manual)
-│   └── screenshot_manifest.json  ← generated by Tutorial Agent
+│   ├── tutorial.md                ← generated by Tutorial Agent
+│   ├── demo.<ext>                 ← tutorial scene (generated or manual)
+│   └── screenshot_manifest.json   ← generated by Tutorial Agent
 └── images/
     └── <plugin>/
-        ├── 01_problem.png   ← captured by Screenshot Runner
+        ├── 01_problem.png         ← captured by Screenshot Runner
         ├── 02_panel.png
         └── ...
 ```
+
+Scene file extensions by DCC: `.blend` (Blender), `.hip`/`.hiplc` (Houdini), `.nk` (Nuke), `.ma`/`.mb` (Maya).
 
 ---
 
 ## Tutorial Markdown Template
 
-The Tutorial Agent generates markdown following this structure. Image references use relative paths to the captured screenshots.
+The Tutorial Agent generates markdown following this structure. Image references use relative paths to the captured screenshots. The installation section adapts to the DCC's plugin installation workflow.
 
 ```markdown
 # [Plugin Name] — Tutorial
@@ -240,9 +157,7 @@ The Tutorial Agent generates markdown following this structure. Image references
 
 ## Installation
 
-1. Download `[filename].py` from [GitHub Releases](link)
-2. In Blender: **Edit > Preferences > Add-ons > Install**
-3. Select the downloaded file and enable the addon
+[DCC-specific installation steps — see appendices for per-DCC templates.]
 
 ## Using [Plugin Name]
 
@@ -288,8 +203,9 @@ The Tutorial Agent generates markdown following this structure. Image references
 The Tutorial Agent receives:
 
 1. **Plugin brief** — problem statement, solution description, UI location, edge cases
-2. **Plugin source code** — reads `bl_info`, operator/panel classes, property definitions
+2. **Plugin source code** — reads DCC-specific metadata, operator/panel classes, property definitions
 3. **Smoke test results** — confirms which features work
+4. **DCC target** — determines which API patterns and installation instructions to use
 
 From these, the agent produces:
 
@@ -299,15 +215,16 @@ From these, the agent produces:
 
 ### What the Agent Infers from Source Code
 
+The specific metadata fields vary by DCC. See the appendices for per-DCC mappings. The general pattern:
+
 | Source Code Element | Tutorial Content It Generates |
 |--------------------|------------------------------|
-| `bl_info["location"]` | "Find the plugin at **[location]**" |
-| `bl_info["blender"]` | Compatibility requirements |
-| Panel class with `bl_space_type`, `bl_region_type`, `bl_context` | Screenshot area type + navigation instructions |
-| Operator `poll()` method | Prerequisites ("Select a fluid domain object first") |
-| Operator properties (e.g., `bpy.props.EnumProperty`) | Options table in the tutorial |
-| `self.report()` calls | Expected feedback messages |
-| `bl_options = {'REGISTER', 'UNDO'}` | "You can undo this with Ctrl+Z" |
+| Plugin metadata (name, version, location) | Title, compatibility requirements, "Find it at **[location]**" |
+| UI registration (panel/shelf/menu) | Screenshot area type + navigation instructions |
+| Guard/validation logic (poll methods, callbacks) | Prerequisites ("Select a domain object first") |
+| User-facing properties (enums, sliders, toggles) | Options table in the tutorial |
+| Status/feedback messages | Expected feedback messages |
+| Undo registration | "You can undo this with Ctrl+Z" |
 
 This means the tutorial is derived directly from the code, not from a human writing documentation separately. When the code changes, re-running the pipeline produces updated docs.
 
@@ -327,7 +244,7 @@ Stage 4 — Tutorial Agent (THIS PIPELINE)
   └── Tutorial Agent verifies images and finalizes markdown
     ↓
 Stage 5 — Publish
-  ├── GitHub Release (plugin .py)
+  ├── GitHub Release (plugin source)
   ├── Docs site (tutorial.md + images)
   ├── YouTube (video — still manual for now)
   └── Announcements (announce.md — existing template)
@@ -345,22 +262,31 @@ The Doc Agent from the build pipeline doc becomes the Tutorial Agent here. Same 
 
 | Requirement | Status |
 |-------------|--------|
-| Blender MCP (send Python commands to running Blender) | **Required — critical path** (same as Build/Test agents) |
-| `bpy.ops.screen.screenshot_area` support via MCP | Needs verification — MCP must be able to capture from specific editor areas |
-| Headless Blender for CI | Optional — screenshots need a display. Use `xvfb` (virtual framebuffer) on Linux for headless screenshot capture |
+| DCC MCP adapter (send Python commands to running DCC session) | **Required — critical path** (one adapter per DCC) |
+| Screenshot capture support via MCP | Needs verification per DCC — MCP must be able to capture from specific UI areas |
+| Headless mode for CI | Optional — screenshots need a display. Use `xvfb` on Linux for headless capture |
 | Tutorial Agent prompt | To be written when first plugin reaches this stage |
 | Screenshot Runner script | To be written — straightforward once MCP is working |
 
 ### Headless Screenshot Capture
 
-For CI/automated runs where no display is available:
+For CI/automated runs where no display is available, use `xvfb` to provide a virtual framebuffer on Linux (Ubuntu/KDE):
 
 ```bash
-# Linux: use xvfb to provide a virtual display
+# Generic pattern — substitute the DCC launch command
+xvfb-run -a -s "-screen 0 1920x1080x24" <dcc-command> <args>
+
+# Blender example
 xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
+
+# Houdini example
+xvfb-run -a -s "-screen 0 1920x1080x24" hython screenshot_runner.py
+
+# Nuke example
+xvfb-run -a -s "-screen 0 1920x1080x24" nuke -t screenshot_runner.py
 ```
 
-This gives Blender a virtual screen to render into. Screenshots capture from this virtual display. Resolution is configurable via the `-screen` argument.
+This gives the DCC a virtual screen to render into. Screenshots capture from this virtual display. Resolution is configurable via the `-screen` argument.
 
 ---
 
@@ -368,11 +294,11 @@ This gives Blender a virtual screen to render into. Screenshots capture from thi
 
 | Failure | Recovery |
 |---------|----------|
-| Screenshot is blank or wrong area captured | Runner retries with explicit area focus (`bpy.context.area.type = 'VIEW_3D'`) |
+| Screenshot is blank or wrong area captured | Runner retries with explicit area focus (DCC-specific reset command) |
 | Scene file missing or corrupt | Tutorial Agent generates scene programmatically as fallback |
-| Plugin not installed correctly | Runner re-installs via `bpy.ops.preferences.addon_install` before retrying |
+| Plugin not installed correctly | Runner re-installs via DCC's plugin install API before retrying |
 | MCP connection lost mid-capture | Runner reconnects and resumes from the last successful screenshot |
-| Screenshot shows unexpected UI state (wrong panel open, etc.) | Runner resets to a clean state (`bpy.ops.wm.revert_mainfile()`) and retries the full sequence |
+| Screenshot shows unexpected UI state | Runner resets to a clean state (revert scene file) and retries the full sequence |
 | All retries exhausted | Flag for manual screenshot capture; tutorial.md ships with `[screenshot pending]` placeholders |
 
 ---
@@ -381,8 +307,175 @@ This gives Blender a virtual screen to render into. Screenshots capture from thi
 
 | Extension | When | What |
 |-----------|------|------|
-| **Animated GIF capture** | Phase 2 | Capture short viewport animations (5-10 frames → GIF) showing before/after. More compelling than static screenshots. |
-| **Video clip capture** | Phase 3 | Record 10-30s viewport clips via `bpy.ops.render.opengl(animation=True)`. These become raw material for YouTube Shorts. |
-| **Multi-DCC support** | Phase 3+ | Houdini MCP already exists — same pattern. Screenshot via `hou.ui.saveScreenshot()`. Nuke via `nuke.screenshot()`. |
+| **Animated GIF capture** | Phase 2 | Capture short viewport animations (5-10 frames to GIF) showing before/after. More compelling than static screenshots. |
+| **Video clip capture** | Phase 3 | Record 10-30s viewport clips for YouTube Shorts raw material. |
 | **Auto-thumbnail generation** | Phase 2 | Composite before/after screenshots into a split-screen thumbnail for YouTube and docs site. |
 | **Tutorial diffing** | Phase 3 | When a plugin updates, re-run the pipeline and diff the screenshots. Flag visual regressions. |
+
+---
+
+## Appendix A — Blender
+
+### Screenshot API
+
+| Task | Blender Python API |
+|------|-------------------|
+| Render viewport to image | `bpy.ops.render.opengl(write_still=True)` |
+| Screenshot full window | `bpy.ops.screen.screenshot(filepath=...)` |
+| Screenshot specific area | `bpy.ops.screen.screenshot_area(filepath=...)` |
+| Set viewport shading | `context.space_data.shading.type = 'SOLID'` / `'MATERIAL'` / `'RENDERED'` |
+| Set camera/view angle | `bpy.ops.view3d.view_axis(type='FRONT')` or set `region_3d.view_rotation` |
+| Navigate to frame | `context.scene.frame_set(N)` |
+| Select objects | `obj.select_set(True)` / `context.view_layer.objects.active = obj` |
+| Open editor/panel | `bpy.ops.screen.area_type_set(type='PROPERTIES')` |
+
+### Scene File Format
+
+`.blend` — opened via `bpy.ops.wm.open_mainfile(filepath=...)`, reset via `bpy.ops.wm.revert_mainfile()`.
+
+### Plugin Installation (Tutorial Template)
+
+```markdown
+1. Download `[filename].py` from [GitHub Releases](link)
+2. In Blender: **Edit > Preferences > Add-ons > Install**
+3. Select the downloaded file and enable the addon
+```
+
+### Plugin Install via Runner
+
+`bpy.ops.preferences.addon_install(filepath=...)` + `bpy.ops.preferences.addon_enable(module=...)`
+
+### Source Code Metadata Mapping
+
+| Source Code Element | Tutorial Content |
+|--------------------|-----------------|
+| `bl_info["location"]` | "Find the plugin at **[location]**" |
+| `bl_info["blender"]` | Compatibility requirements |
+| Panel class `bl_space_type`, `bl_region_type`, `bl_context` | Screenshot area type + navigation instructions |
+| Operator `poll()` method | Prerequisites |
+| `bpy.props.*Property` definitions | Options table |
+| `self.report()` calls | Expected feedback messages |
+| `bl_options = {'REGISTER', 'UNDO'}` | "You can undo this with Ctrl+Z" |
+
+### Example Manifest
+
+```json
+{
+  "dcc": "blender",
+  "plugin": "fluid_domain_visibility",
+  "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
+  "screenshots": [
+    {
+      "id": "01_problem",
+      "description": "Viewport showing domain box visible before sim starts",
+      "setup": [
+        "bpy.context.scene.frame_set(1)",
+        "bpy.ops.view3d.view_axis(type='FRONT')",
+        "bpy.context.space_data.shading.type = 'SOLID'"
+      ],
+      "capture": {
+        "method": "screenshot_area",
+        "area_type": "VIEW_3D",
+        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/01_problem.png"
+      }
+    },
+    {
+      "id": "02_panel",
+      "description": "Auto-Visibility panel in Properties editor",
+      "setup": [
+        "domain = bpy.data.objects['Fluid Domain']",
+        "bpy.context.view_layer.objects.active = domain",
+        "domain.select_set(True)"
+      ],
+      "capture": {
+        "method": "screenshot_area",
+        "area_type": "PROPERTIES",
+        "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel.png"
+      }
+    }
+  ]
+}
+```
+
+### Example Scene Generation
+
+```python
+bpy.ops.wm.read_homefile(use_empty=True)
+bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0))
+domain = bpy.context.active_object
+domain.name = "Fluid Domain"
+bpy.ops.object.modifier_add(type='FLUID')
+domain.modifiers["Fluid"].fluid_type = 'DOMAIN'
+domain.modifiers["Fluid"].domain_settings.cache_frame_start = 24
+bpy.ops.wm.save_as_mainfile(filepath="/path/to/tutorial_scenes/fluid_domain_demo.blend")
+```
+
+---
+
+## Appendix B — Houdini
+
+### Screenshot API
+
+| Task | Houdini Python API |
+|------|-------------------|
+| Screenshot desktop/pane | `hou.ui.savePaneTabsScreenshot(filepath)` |
+| Set viewport shading | `viewport.settings().displaySet(hou.displaySetType.SceneObject)` |
+| Set camera/view angle | `viewport.homeAll()` or set camera transform |
+| Navigate to frame | `hou.setFrame(N)` |
+| Select objects | `node.setSelected(True)` |
+| Open network editor / pane tab | `pane.setCurrentTab(tab)` |
+
+### Scene File Format
+
+`.hip` / `.hiplc` — opened via `hou.hipFile.load(filepath)`, reset via `hou.hipFile.clear()`.
+
+### Plugin Installation (Tutorial Template)
+
+```markdown
+1. Download the HDA or shelf tool from [GitHub Releases](link)
+2. Copy to your Houdini preferences directory, or:
+3. In Houdini: **File > Install Digital Asset Library** (for HDAs)
+```
+
+### Source Code Metadata Mapping
+
+| Source Code Element | Tutorial Content |
+|--------------------|-----------------|
+| HDA `TypeProperties` (label, icon, help) | Title, "Find the plugin at **[shelf/tab]**" |
+| Parameter template definitions | Options table |
+| Input/output connectors | Prerequisites ("Connect a SOP network first") |
+| `hou.NodeWarning` / status messages | Expected feedback messages |
+
+---
+
+## Appendix C — Nuke
+
+### Screenshot API
+
+| Task | Nuke Python API |
+|------|----------------|
+| Screenshot viewer | `nuke.activeViewer().capture(filepath)` or widget grab |
+| Set viewer state | `nuke.activeViewer().node().knob('channels').setValue(...)` |
+| Navigate to frame | `nuke.frame(N)` |
+| Select nodes | `node.setSelected(True)` |
+| Open Properties panel | `nuke.show(node)` |
+
+### Scene File Format
+
+`.nk` — opened via `nuke.scriptOpen(filepath)`, reset via `nuke.scriptClear()`.
+
+### Plugin Installation (Tutorial Template)
+
+```markdown
+1. Download `[filename].py` or `[filename].gizmo` from [GitHub Releases](link)
+2. Place in your `.nuke` directory
+3. Add to your `menu.py` or `init.py` to register
+```
+
+### Source Code Metadata Mapping
+
+| Source Code Element | Tutorial Content |
+|--------------------|-----------------|
+| Gizmo knob definitions | Options table |
+| Menu registration (`menu.addCommand`) | "Find the plugin at **[menu path]**" |
+| `nuke.message()` / `nuke.alert()` calls | Expected feedback messages |
