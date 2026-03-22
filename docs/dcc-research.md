@@ -609,7 +609,11 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 
 **Does MIT work?** MIT is GPL-compatible, so MIT-licensed *third-party code* can be included in a GPL addon. But if you publish on extensions.blender.org, the addon itself must be labeled GPL 3.0+. On **Superhive** (formerly Blender Market), addons can be licensed as either GPL or MIT — those are the only two options.
 
-**The practical reality:** You can sell GPL addons (selling the download/service), but buyers receive the code under GPL and can legally redistribute it. This is by design. The community has debated this endlessly, but the Blender Foundation's stance is firm.
+**The practical reality:** You can sell GPL addons (selling the download/service), but buyers receive the code under GPL and can legally redistribute it. This is by design. Per-seat licensing is unenforceable since any recipient can legally redistribute. The community has debated this endlessly, but the Blender Foundation's stance is firm. In 2024, the Foundation edited its FAQ to remove ambiguous language, signaling stricter enforcement expectations.
+
+**The "separate binary" workaround:** Proprietary code can coexist alongside a GPL addon if architecturally separated — the GPL Python addon communicates with a separate non-GPL executable via files, sockets, or subprocess calls. Better FBX Importer is a well-known example. The proprietary component must be a truly independent program, not linked into the Python addon.
+
+**Real-world gotcha:** Epic was called out on GitHub in 2024 for not properly licensing their BlenderTools addons as GPL despite using the `bpy` API. Even large companies stumble on this.
 
 **For funkworks:** Since we're distributing free tools, GPL 3.0+ on extensions.blender.org is the path. MIT would also work on Superhive/GitHub. No licensing friction for free, open-source distribution.
 
@@ -627,6 +631,23 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 | **Godot** | Engine is MIT-licensed. Plugins can be any license. Most permissive of all. | None |
 | **Unity** | No royalties or revenue share (Runtime Fee cancelled Sep 2024). Plugins sold on Asset Store: Unity takes 30% commission. | Asset Store: 30% to Unity |
 | **Unreal Engine** | Free for <$1M revenue. 5% royalty above $1M (3.5% via "Launch Everywhere with Epic"). Marketplace plugins: 88% to creator, 12% to Epic. | Marketplace: 12% to Epic. Game royalty: 5%/3.5% |
+
+### Indie License Traps
+
+- **Maya Indie** ($250/yr) — $100K annual revenue cap. If your plugin business exceeds $100K, you need a full commercial Maya license for development/testing.
+- **Houdini Indie** (~$269/yr) — Under $100K revenue restriction. Plugins developed under Indie may have distribution constraints. **Houdini Apprentice** (free) cannot load third-party plugins at all.
+- **Nuke Non-Commercial** — Cannot load third-party plugins at all. **Nuke Indie** only supports OFX plugins (from v12.2v3); NDK plugin support is limited. You need a commercial Nuke license to develop and test NDK plugins.
+- **3ds Max** — Student/educational licenses cannot be used for commercial plugin distribution.
+
+### Marketplace Revenue Share Comparison
+
+| Platform | Developer Share | Platform Cut | Notes |
+|---|---|---|---|
+| **extensions.blender.org** | 100% | 0% | Free only (must be GPL-3.0+) |
+| **Gumroad** | 90% | 10% flat | Platform fee, not a license restriction |
+| **Superhive** (Blender Market) | ~75% | ~25% | Historically ~25% commission |
+| **Unreal Marketplace** | 88% | 12% | Best major marketplace split |
+| **Unity Asset Store** | 70% | 30% | Standard app store split |
 
 **Key takeaway:** Outside of Blender's GPL requirement and game engine revenue shares, most DCCs impose zero licensing restrictions on plugins. Godot is the most permissive (MIT engine, no constraints). Blender is the most restrictive (GPL required).
 
