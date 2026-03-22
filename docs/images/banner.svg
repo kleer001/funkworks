@@ -1,17 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260">
   <defs>
     <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600&amp;display=swap');</style>
-    <clipPath id="mascotClip">
-      <circle cx="150" cy="130" r="94"/>
-    </clipPath>
   </defs>
   <rect width="900" height="260" rx="12" fill="#ffffff"/>
   <rect width="900" height="260" rx="12" fill="none" stroke="#e0e0e0" stroke-width="1"/>
-  <circle cx="150" cy="130" r="94" fill="#f8f8f8"/>
-  <image href="mascot.png" x="56" y="36" width="188" height="188" clip-path="url(#mascotClip)" preserveAspectRatio="xMidYMin slice"/>
-  <circle cx="150" cy="130" r="94" stroke="#C0392B" stroke-width="2" fill="none"/>
-  <text x="290" y="80" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="40" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
-  <text x="290" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#C0392B">Addons built from real problems.</text>
-  <text x="290" y="185" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
-  <rect x="290" y="210" width="120" height="2" rx="1" fill="#C0392B" opacity="0.6"/>
+  <image href="mascot.svg" x="20" y="10" width="145" height="240" preserveAspectRatio="xMidYMid meet"/>
+  <text x="195" y="80" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="40" fill="#1a1a1a" letter-spacing="1">Funkworks</text>
+  <text x="195" y="140" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="28" fill="#C0392B">Addons built from real problems.</text>
+  <text x="195" y="185" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="300" font-size="20" fill="#555555">Small tools. Big difference.</text>
+  <rect x="195" y="210" width="120" height="2" rx="1" fill="#C0392B" opacity="0.6"/>
 </svg>
