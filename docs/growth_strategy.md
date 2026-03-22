@@ -229,11 +229,10 @@ New users arrive pre-trusting ("my friend uses their tools")
     ↓
 Lower barrier to adoption for every subsequent plugin
     ↓
-Eventually: users will pay for premium plugins
-   because free ones already proved the quality
+Funkworks becomes the default answer to "is there a plugin for that?"
 ```
 
-**This is the strategic reason to start free.** Every free plugin is an investment in trust. The paid phase works because users already know we ship things that work.
+**Everything is free, always.** The plugins are free. The source is open. The tutorials are free. This isn't a freemium funnel — it's the mission. We build tools because the community needs them, not because we need revenue from them.
 
 ### The Pipeline Speed Loop
 
@@ -313,13 +312,11 @@ The Research Pipeline should weight signals accordingly. A GitHub Issue requesti
 - [ ] Compilation content ("10 Blender annoyances we fixed")
 - [ ] Measure pipeline speed: days from opportunity detection to published plugin
 
-### Phase 4 — Monetize (15+ plugins)
+### Phase 4 — Scale (15+ plugins)
 
-- [ ] Introduce first paid plugin (premium feature set, complex tool)
-- [ ] Free plugins continue — they feed the trust flywheel
-- [ ] Gumroad or Blender Market for paid distribution
-- [ ] Pricing experiments ($5–15 starting range)
 - [ ] AE and Nuke expansion based on accumulated signal
+- [ ] Community contributors submitting plugin ideas via structured templates
+- [ ] Pipeline fully autonomous: opportunity → plugin → docs → publish with minimal human checkpoints
 
 ---
 
@@ -342,7 +339,7 @@ The Research Pipeline should weight signals accordingly. A GitHub Issue requesti
 | 1 | First plugin downloaded by a stranger | 1 download from someone who isn't you |
 | 2 | Repeat users | >10% of plugin 1 users also install plugin 2+ |
 | 3 | Inbound signal exceeds outbound research | More ideas from our audience than from crawling |
-| 4 | Revenue covers API costs | Paid plugin revenue > Claude API + hosting costs |
+| 4 | Community self-sustaining | More plugin ideas come from our audience than from crawling |
 
 ---
 
@@ -350,9 +347,8 @@ The Research Pipeline should weight signals accordingly. A GitHub Issue requesti
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Spreading too thin across channels | Nothing done well | Phase gates enforce focus — don't start email until Phase 3, don't start paid until Phase 4 |
+| Spreading too thin across channels | Nothing done well | Phase gates enforce focus — don't start email until Phase 3, don't add new DCCs until Phase 4 |
 | Plugin quality drops as speed increases | Trust flywheel reverses — users stop installing | Smoke tests are a hard gate. No plugin ships without passing. Manual spot-check every 5th plugin. |
 | Single-DCC dependency (Blender only) | Vulnerable to Blender API changes or community shifts | Expand to Houdini in Phase 3 (MCP exists). Architecture already supports multi-DCC. |
-| Free plugins set price expectations to zero | Users resist paying later | Frame free plugins as "core tools." Paid plugins are "pro tools" with deeper features. Different tier, not a price hike. |
-| Community perceives us as exploitative (mining forums for profit) | Reputation damage | Everything starts free and open-source. We solve the problems people stated publicly. We post solutions back to the threads. Transparent, not extractive. |
+| Community perceives us as extractive (mining forums for ideas) | Reputation damage | Everything is free and open-source. We solve problems people stated publicly. We post solutions back to the threads. Transparent, not extractive. |
 | GitHub goes down / changes terms | Lose distribution hub | Docs site is independent. Blender Extensions is independent. Don't put all distribution on one platform. |

@@ -327,29 +327,20 @@ The tutorial page title should include the host application name and the problem
 
 ## Stage 5 — Publish
 
-### Free / Open-Source Phase (MVP)
+### Distribution
+
+Everything is free and open-source. Always.
 
 | Component | Approach |
 |-----------|----------|
 | **Code hosting** | GitHub — one repo per plugin, or a monorepo with subdirectories per plugin |
 | **Documentation** | GitHub Pages or a simple static site (Hugo, Astro, or plain HTML) |
 | **Distribution** | Direct download from GitHub Releases; link from the tutorial page |
+| **In-app distribution** | Blender Extensions Platform (when plugins are mature enough for review process) |
 | **Licensing** | GPL for Blender addons (required by Blender's license); MIT or Apache 2.0 for others |
-
-The Doc Agent's tutorial page links to the repo. The repo's README links back to the tutorial page. That's the distribution loop. No marketplace friction.
-
-### Paid Phase (Later)
-
-When the loop is proven and producing quality plugins:
-
-| Component | Approach |
-|-----------|----------|
-| **Marketplace** | Gumroad (simple, low fees) or aescripts.com (AE-specific, established audience) or Blender Market |
-| **Pricing** | Start low ($5–15) to validate demand; increase for complex tools |
-| **Packaging** | Add a zip packaging step at the end of the pipeline; include a license file and README |
 | **Support** | Tutorial page serves as self-service support; GitHub Issues for bug reports |
 
-The pipeline doesn't change for paid plugins — just add a packaging and upload step after Stage 5.
+The Doc Agent's tutorial page links to the repo. The repo's README links back to the tutorial page. That's the distribution loop. No marketplace friction, no paywalls.
 
 ---
 
@@ -402,7 +393,7 @@ For Houdini and Nuke, the MCP already exists, so the critical path is just build
 | **Phase 3** | Houdini plugins via existing MCP | Adapt Build and Test agents for HDA workflow; Houdini smoke test suite |
 | **Phase 4** | AE plugins via semi-manual loop | Build Agent writes ExtendScript; human-in-the-loop testing until AE MCP exists |
 | **Phase 5** | Nuke plugins via existing MCP | Adapt agents for Nuke Python API; Nuke smoke test suite |
-| **Phase 6** | Paid distribution | Add packaging step; set up Gumroad/marketplace accounts; pricing experiments |
+| **Phase 6** | Multi-DCC maturity | All four host apps producing plugins through the full agent loop |
 
 ---
 
@@ -415,4 +406,4 @@ For Houdini and Nuke, the MCP already exists, so the critical path is just build
 | Host app API changes break existing plugins | Published plugins stop working | Pin minimum version in specs; monitor release notes for breaking changes |
 | AE scripting landscape shifts (UXP becomes required) | ExtendScript plugins become obsolete | Monitor Adobe's UXP rollout for AE; delay major AE investment until the target is stable |
 | Loop takes too long (>1 day per plugin) | Not economically viable | Profile each stage; the Build-Test loop is usually the bottleneck — improve prompts and increase MCP feedback granularity |
-| Generated plugins are too similar to existing paid tools | Legal or competitive issues | Novelty check is in the Research pipeline (Tier 2); Review Agent should also check for existing tools before publishing |
+| Generated plugins are too similar to existing tools | Redundancy, wasted effort | Novelty check is in the Research pipeline (Tier 2); Review Agent should also check for existing free tools before publishing |

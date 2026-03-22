@@ -202,7 +202,7 @@ Estimated time per plugin: 2–4 hours of video production. This is the only man
 | **Phase 1** | First plugin launch | Ship walkthrough + short for Fluid Domain Auto-Visibility. Gauge response. |
 | **Phase 2** | Plugins 2–5 | Establish the three-pillar pattern. Start monitoring our own comments for Loop 1. |
 | **Phase 3** | Plugins 6–10 | Integrate YouTube comments into the research pipeline (automated). First deep dive video. |
-| **Phase 4** | 10+ plugins | Compilation videos ("10 Blender annoyances we fixed"), community spotlights, paid plugin teasers |
+| **Phase 4** | 10+ plugins | Compilation videos ("10 Blender annoyances we fixed"), community spotlights, behind-the-pipeline deep dives |
 
 ---
 
