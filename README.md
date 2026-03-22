@@ -1,28 +1,23 @@
-<table>
-<tr>
-<td><img src="docs/images/mascot.png" alt="Funkworks Mascot" width="180"/></td>
-<td>
-<h1>Funkworks</h1>
-<p><strong>Addons built from real problems.</strong><br>
-<em>Small tools. Big difference.</em></p>
-</td>
-</tr>
-</table>
+<p align="center">
+  <img src="docs/images/mascot.png" alt="Funkworks" width="300"/>
+</p>
 
-![License](https://img.shields.io/github/license/kleer001/funkworks)
-![Python](https://img.shields.io/badge/python-3.10+-blue)
-![Platform](https://img.shields.io/badge/platform-Linux%20|%20macOS%20|%20Windows-lightgrey)
-![Blender](https://img.shields.io/badge/Blender-4.2+-orange?logo=blender)
-![Tests](https://img.shields.io/github/actions/workflow/status/kleer001/funkworks/test.yml?label=tests)
-![GitHub stars](https://img.shields.io/github/stars/kleer001/funkworks)
-![GitHub forks](https://img.shields.io/github/forks/kleer001/funkworks)
-![GitHub last commit](https://img.shields.io/github/last-commit/kleer001/funkworks)
-![GitHub repo size](https://img.shields.io/github/repo-size/kleer001/funkworks)
-![Contains Ants](https://img.shields.io/badge/Contains-🐜%20Ants-red)
-![Works on my machine](https://img.shields.io/badge/Works%20on-my%20machine-success)
-![Blender Addons](https://img.shields.io/badge/🎨-Blender%20Addons-blue)
-![WIP](https://img.shields.io/badge/Status-WIP%20🚧-yellow)
-![Badges](https://img.shields.io/badge/Badges-14-ff69b4)
+<p align="center">
+  <a href="https://github.com/kleer001/funkworks/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kleer001/funkworks?color=blue" alt="License"/></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white" alt="Python 3.10+"/></a>
+  <a href="https://www.blender.org/"><img src="https://img.shields.io/badge/Blender-4.2%20LTS-E87D0D?logoColor=white" alt="Blender 4.2 LTS"/></a>
+  <a href="https://github.com/kleer001/funkworks/commits/main"><img src="https://img.shields.io/github/last-commit/kleer001/funkworks" alt="Last Commit"/></a>
+  <a href="https://github.com/kleer001/funkworks/issues"><img src="https://img.shields.io/github/issues/kleer001/funkworks" alt="Issues"/></a>
+  <a href="https://github.com/kleer001/funkworks/network/members"><img src="https://img.shields.io/github/forks/kleer001/funkworks?style=social" alt="Forks"/></a>
+  <a href="https://github.com/kleer001/funkworks/watchers"><img src="https://img.shields.io/github/watchers/kleer001/funkworks?style=social" alt="Watchers"/></a>
+  <a href="https://github.com/kleer001/funkworks/stargazers"><img src="https://img.shields.io/github/stars/kleer001/funkworks?style=social" alt="Stars"/></a>
+</p>
+
+<p align="center">
+  <strong>Addons built from real problems.</strong> &middot; <em>Small tools. Big difference.</em>
+</p>
+
+---
 
 Free addons that eliminate repetitive workflow steps for digital artists.
 
