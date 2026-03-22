@@ -433,9 +433,11 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 
 **Community hubs:**
 - **r/godot** — Very large and active. Primary discovery channel.
-- **Godot Discord** — Major community hub.
-- **Godot Forums** — Official discussion.
+- **Godot Engine Discord** (~66k members) — Official, run by the Foundation.
+- **Godot Cafe Discord** (~85k members) — Community-run, predates official server.
+- **Godot Forum** (forum.godotengine.org) — Discourse-based, well-indexed.
 - **GDQuest** — Prominent educational resource and community.
+- **Fab.com** (Epic) — Cross-engine store now supports Godot assets alongside Unity/Unreal/Blender.
 
 **Key trend:** Godot 4.6 (Jan 2026) added plugin shortcut registration via `add_shortcut()`. Asset Store consolidation underway. AI-assisted GDScript generation growing.
 
@@ -460,8 +462,11 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 
 **Community hubs:**
 - **Derivative.ca Forum** — Official. Primary sharing and Q&A venue.
-- **TouchDesigner Discord** — Active real-time community.
+- **TouchDesigner Discord** (unofficial, via td-discord.com) — Most active real-time chat.
+- **SARV Discord** (official, Dec 2025) — Newer official server from Derivative.
+- **r/TouchDesigner** — Active, beginner-friendly.
 - **Interactive & Immersive HQ** — Blog/education.
+- **Touch Jam / meetups** — In-person events in Amsterdam, Barcelona, etc.
 
 **Key trend:** TD 2025 introduced Point Operators (POPs). AI/ML integration tools (StreamDiffusion, MediaPipe) are the hottest community contributions. Drag-and-drop .tox culture makes sharing frictionless.
 
@@ -509,7 +514,7 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 
 1. **SketchUcation** — Easy. Upload .rbz files. Community audience.
 2. **GitHub** — Easy. Push Ruby scripts.
-3. **Extension Warehouse** — Moderate. Trimble review process. But once listed, directly installable from SketchUp.
+3. **Extension Warehouse** — Moderate-hard. Must apply as a developer first. Ruby-only (.rbz packages) with strict packaging requirements. SketchUp team reviews every submission and tests for conflicts with other extensions. But once listed, directly installable from SketchUp.
 
 ---
 
@@ -544,7 +549,53 @@ GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researc
 **Ease of Entry — Ranked by Friction:**
 
 1. **GitHub** — Easiest. Push TypeScript/JS plugin code.
-2. **Figma Community** — Easy. Publish from the Figma developer console. Light review. Once listed, one-click install for millions of users.
+2. **Figma Community** — Moderate. Publish from the Figma developer console. Review officially 5-10 business days but frequently stretches to weeks/months in practice (2025 reports). No monetization — you cannot sell plugins on the platform. Re-review required for material updates.
+
+---
+
+### GIMP — Distribution Dead Zone
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| ~~**registry.gimp.org**~~ | ~~Official registry~~ | **Dead** | Old Drupal site. No longer maintained. This was the central plugin hub — it's gone. |
+| **GitHub / GitLab** | Self-publish | Medium | Primary venue now. Scattered across repos. |
+| **Debian gimp-plugin-registry** | Linux package | Low | Curated subset for Debian/Ubuntu. |
+| **Blog posts / personal sites** | Self-publish | Low | Discovery is ad-hoc. Google is the main search tool. |
+
+**Community hubs:**
+- **GIMP forums** (gimp-forum.net) — Small but active.
+- **r/GIMP** — Moderate.
+- **IRC / Matrix** (#gimp on irc.gimp.org / GNOME Matrix) — Developer-oriented.
+
+**Key issue:** The old plugin registry is dead and the replacement (planned in-app asset browser) has not shipped yet. Writing a Python-Fu or Script-Fu plugin is straightforward, but there is no centralized distribution channel. Discovery is terrible — users Google for plugins and hope they find working ones.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest to publish. Zero gatekeeping.
+2. **Finding an audience** — Hardest part. No registry, no marketplace, no in-app browser. You are on your own.
+
+---
+
+### Krita — Forum-Based, Warm Community
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Krita Artists Forum** (Plugins section) | Community forum | Medium | Dedicated plugins subcategory. Devs post downloads directly. |
+| **GitHub** (`krita-plugin` topic) | Self-publish | Medium | Primary code hosting. AI diffusion tools, pixel art tools, etc. |
+| **Official Resources Page** | Docs listing | Low | Lists some third-party plugins with disclaimers. |
+| **Built-in Plugin Manager** | In-app | Low | Manages installed plugins but does NOT browse/download. |
+
+**Community hubs:**
+- **Krita Artists** (krita-artists.org) — Discourse forum. Monthly art challenges, plugin discussion.
+- **Krita Discord** (~17k members, unofficial) — General art + Krita.
+- **r/krita** — Active for art sharing and questions.
+- **KDE Bugzilla** — For bug reports against Krita core.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push Python plugin with `.desktop` manifest.
+2. **Krita Artists Forum** — Easy. Post in plugins section. No gatekeeping. Small but engaged and appreciative community.
+3. **Official Resources Page** — Hard. Must be noticed/curated by Krita team.
 
 ---
 
