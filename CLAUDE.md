@@ -77,6 +77,15 @@ Future DCC targets (Houdini, Nuke, etc.) follow the same layout under `plugins/<
 
 Blender plugins register an `Operator` class and a `Panel` class, following standard Blender addon conventions. Use `plugins/blender/_template/` when creating a new one.
 
+### Skills
+
+Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `SKILL.md` file.
+
+| Skill | Invocation | Purpose |
+|-------|-----------|---------|
+| `new-plugin` | `/new-plugin <name>` | Build and document a new Blender addon end-to-end |
+| `tutorial` | `/tutorial <plugin-name>` | Write a step-by-step tutorial for an existing plugin |
+
 ### Data Flow
 
 ```
