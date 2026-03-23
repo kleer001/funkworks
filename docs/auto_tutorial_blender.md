@@ -45,10 +45,34 @@ Blender's `screenshot_area` captures the entire area including headers and sideb
 
 ---
 
-## Headless Screenshot Capture
+## Launch Command
+
+Always launch Blender with `--factory-startup` to bypass user preferences and get the deterministic factory "Layout" workspace. Combined with `--window-geometry` this gives consistent area sizes for cropping.
 
 ```bash
-xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
+# Windowed (local dev)
+blender --factory-startup --window-geometry 0 0 1920 1080 --python screenshot_runner.py
+
+# Headless (CI)
+xvfb-run -a -s "-screen 0 1920x1080x24" \
+  blender --factory-startup --window-geometry 0 0 1920 1080 --python screenshot_runner.py
+```
+
+**Why `--factory-startup`:** Blender's `area.width` and `area.height` are read-only in the Python API — you cannot resize areas after launch. If the user's saved layout has different panel sizes, area-level captures will be the wrong dimensions and crop coordinates from one machine won't work on another. Factory startup is the only reliable way to get deterministic areas.
+
+### Factory Default "Layout" Workspace Areas
+
+| Area | Type constant | Position |
+|------|--------------|----------|
+| 3D Viewport | `VIEW_3D` | Top-left (largest) |
+| Outliner | `OUTLINER` | Top-right |
+| Properties | `PROPERTIES` | Bottom-right |
+| Timeline | `DOPESHEET_EDITOR` | Bottom |
+
+To verify area sizes at runtime (useful for debugging):
+```python
+for area in bpy.context.screen.areas:
+    print(area.type, area.x, area.y, area.width, area.height)
 ```
 
 ---
@@ -69,9 +93,12 @@ xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
 
 ## Example Screenshot Manifest
 
+This example follows the two-phase crop flow from the [main pipeline doc](auto_tutorial_pipeline.md#crop-decision-workflow). Phase 1 records `crop_subject` with `"method": "pending"` — no pixel coordinates yet. Phase 2 (the Claude crop pass) fills in the coordinates after the full-area capture.
+
 ```json
 {
   "dcc": "blender",
+  "resolution": [1920, 1080],
   "plugin": "fluid_domain_visibility",
   "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
   "screenshots": [
@@ -93,6 +120,7 @@ xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
     {
       "id": "02_panel",
       "description": "Close-up of Auto-Visibility toggle in Properties panel",
+      "crop_subject": "The Physics sub-panel containing the Auto-Visibility toggle button",
       "setup": [
         "domain = bpy.data.objects['Fluid Domain']",
         "bpy.context.view_layer.objects.active = domain",
@@ -104,9 +132,7 @@ xvfb-run -a -s "-screen 0 1920x1080x24" blender --python screenshot_runner.py
         "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel.png"
       },
       "crop": {
-        "method": "bbox",
-        "region": [0, 120, 320, 280],
-        "comment": "Crop to just the plugin's sub-panel within the full Properties area"
+        "method": "pending"
       }
     }
   ]

@@ -44,25 +44,32 @@ _Last updated: 2026-03-22_
    - Outputs `tutorial.md` + `screenshot_manifest.json` with `crop_subject` fields (no coordinates yet)
    - Start with Fluid Domain Visibility as the first test case
 
-2. **Build the Screenshot Runner**
+2. **Create the Fluid Domain Visibility demo scene**
+   - Either script it via `bpy.ops` (see example in `auto_tutorial_blender.md`) or hand-build a minimal `.blend`
+   - Must meet scene requirements: minimal, deterministic, named objects, pre-configured viewport
+   - Store at `plugins/blender/docs/fluid_domain_visibility/demo.blend`
+
+3. **Build the Screenshot Runner**
    - Python script that reads a manifest, connects to Blender via MCP, runs setup commands, calls `bpy.ops.screen.screenshot_area()`
+   - Launches Blender with `--factory-startup --window-geometry 0 0 1920 1080` for deterministic area sizes
    - Saves full-area captures to the paths specified in the manifest
 
-3. **Implement the Claude crop pass**
+4. **Implement the Claude crop pass**
    - After each full-area capture, upload the image to Claude with the `crop_subject`
-   - Parse the returned `[x, y, width, height]` + confidence
+   - Uses the Anthropic SDK with image content blocks and structured JSON output
+   - Parse the returned `[x, y, width, height]` + confidence + rationale
    - Crop the image (Pillow) and write the final file
    - Skip crop + flag for manual review if confidence is "low"
 
-4. **Wire up automated QA checks**
+5. **Wire up automated QA checks**
    - File exists / non-empty, minimum dimensions, blank detection, aspect ratio
    - Confidence gate from the crop pass
 
-5. **Run the full pipeline end-to-end on Fluid Domain Visibility**
+6. **Run the full pipeline end-to-end on Fluid Domain Visibility**
    - Tutorial Agent → manifest → Runner → crop pass → QA → final tutorial.md with images
    - This is the proof-of-concept: one plugin, one DCC, real screenshots
 
-6. **Agent visual QA review**
+7. **Agent visual QA review**
    - Tutorial Agent reads each cropped image, compares to manifest description
    - Pass / retry-adjust-crop / retry-adjust-setup / flag for manual review
    - Wire retry loop (max 3 cycles per screenshot)

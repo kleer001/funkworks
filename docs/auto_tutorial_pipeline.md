@@ -54,6 +54,34 @@ All screenshots are captured at **1920×1080** (HD / 2K). This is the pipeline's
 | Windowed (local dev) | Launch the DCC at a fixed window size. Blender: `blender --window-geometry 0 0 1920 1080`. Other DCCs have equivalent flags. |
 | High-DPI / Retina | Disable display scaling for the DCC process so 1920×1080 means 1920×1080 pixels, not logical points. On Linux: `QT_SCALE_FACTOR=1` / `GDK_SCALE=1` as needed. |
 
+### Workspace Standardization
+
+The DCC must launch with its **factory default workspace**, not the user's saved layout. Area sizes within the 1920×1080 window depend on which workspace is active and how panels are arranged — if the user has customized their layout, area captures will be different sizes and crop coordinates won't transfer between machines.
+
+**For Blender**, this means launching with `--factory-startup`, which bypasses the user's saved preferences and startup file. The factory default "Layout" workspace has four areas:
+
+| Area | Position | Contents |
+|------|----------|----------|
+| 3D Viewport | Top-left (largest) | Scene view — most screenshot subjects live here |
+| Outliner | Top-right | Object hierarchy |
+| Properties | Bottom-right | Plugin panels, modifiers, physics settings |
+| Timeline | Bottom | Animation timeline, keyframe display |
+
+Since `area.width` and `area.height` are **read-only** in Blender's Python API, you cannot resize areas programmatically after launch. The factory startup is the only reliable way to get deterministic area sizes.
+
+**Standard Blender launch command for the Runner:**
+
+```bash
+# Windowed (local dev)
+blender --factory-startup --window-geometry 0 0 1920 1080 --python screenshot_runner.py
+
+# Headless (CI)
+xvfb-run -a -s "-screen 0 1920x1080x24" \
+  blender --factory-startup --window-geometry 0 0 1920 1080 --python screenshot_runner.py
+```
+
+Other DCCs should use their equivalent "ignore user prefs" flags. See the per-DCC docs for details.
+
 The manifest records this at the top level so downstream tools know what they're working with:
 
 ```json
@@ -159,14 +187,20 @@ The runner is a small Python script that:
 
 1. Reads the screenshot manifest JSON
 2. Selects the correct MCP adapter based on `dcc` field
-3. Opens the scene file via MCP
-4. Installs and enables the plugin via MCP
-5. For each screenshot entry:
+3. Launches the DCC with factory defaults at 1920×1080 (see [Workspace Standardization](#workspace-standardization))
+4. Opens the scene file via MCP — **once, at the start**
+5. Installs and enables the plugin via MCP
+6. For each screenshot entry **in manifest order**:
    - Executes the `setup` commands in sequence
    - Executes the `capture` command
-   - Applies `crop` if specified (bbox crop via Pillow)
+   - Uploads to Claude for crop coordinates (Phase 2) if `crop.method` is `pending`
+   - Applies crop (Pillow) and runs automated QA checks
    - Verifies the output file exists and is non-empty
-6. Reports success/failure per screenshot
+7. Reports success/failure per screenshot
+
+**Ordering matters.** Screenshots are executed in the order they appear in the manifest. The scene is loaded once at the start and **not reset between screenshots** — each entry's `setup` commands build on the state left by the previous entry. This allows the tutorial to show a progression (e.g. screenshot 01 shows the problem, 02 shows clicking the button, 03 shows the result).
+
+If a screenshot needs a clean scene state, its `setup` commands must explicitly reset it (e.g. `bpy.ops.wm.revert_mainfile()` in Blender). The Tutorial Agent should note this in the manifest when generating it. The default assumption is: state accumulates.
 
 ```
 src/tutorials/screenshot_runner.py
@@ -403,6 +437,60 @@ The pipeline writes this back into the manifest and performs the crop:
 
 **If confidence is "low"**, the screenshot is flagged for manual review rather than auto-cropped — Claude is saying "I'm not sure I'm looking at the right thing."
 
+### API Integration
+
+The crop pass is a vision API call using the Anthropic Python SDK. The Runner sends the uncropped image as a base64-encoded image content block alongside the text prompt, and parses structured JSON from the response.
+
+```python
+import anthropic
+import base64
+import json
+
+client = anthropic.Anthropic()
+
+def get_crop_coordinates(image_path: str, entry: dict) -> dict:
+    """Upload a full-area screenshot to Claude and get crop coordinates."""
+    with open(image_path, "rb") as f:
+        image_data = base64.standard_b64encode(f.read()).decode("utf-8")
+
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=512,
+        messages=[{
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": image_data,
+                    },
+                },
+                {
+                    "type": "text",
+                    "text": (
+                        f'This is a screenshot of {entry["capture"]["area_type"]} '
+                        f'from {entry.get("dcc", "blender")}.\n'
+                        f'The tutorial step is: "{entry["description"]}"\n\n'
+                        f'Crop this image to show only: "{entry["crop_subject"]}"\n\n'
+                        f'Return JSON with:\n'
+                        f'- "region": [x, y, width, height] in pixels\n'
+                        f'- "rationale": one sentence\n'
+                        f'- "confidence": "high" / "medium" / "low"'
+                    ),
+                },
+            ],
+        }],
+    )
+    return json.loads(response.content[0].text)
+```
+
+**Notes:**
+- Uses Sonnet for the crop pass (fast, cheap, vision is strong enough for UI element detection). Opus is overkill here.
+- The `ANTHROPIC_API_KEY` env var must be set. This is the same key used by the Digest Agent.
+- The response is parsed as raw JSON. A future refinement could use a Pydantic model for validation, but for MVP the structure is simple enough to parse directly.
+
 ### Why This Order
 
 | Approach | Problem |
@@ -523,10 +611,12 @@ For CI/automated runs where no display is available, use `xvfb` to provide a vir
 
 ```bash
 # Generic pattern — substitute the DCC launch command
-xvfb-run -a -s "-screen 0 1920x1080x24" <dcc-command> <args>
+# Always use factory-startup (or equivalent) to bypass user prefs
+xvfb-run -a -s "-screen 0 1920x1080x24" <dcc-command> --factory-startup <args>
 
 # Blender example
-xvfb-run -a -s "-screen 0 1920x1080x24" blender --window-geometry 0 0 1920 1080 --python screenshot_runner.py
+xvfb-run -a -s "-screen 0 1920x1080x24" \
+  blender --factory-startup --window-geometry 0 0 1920 1080 --python screenshot_runner.py
 
 # Houdini example
 xvfb-run -a -s "-screen 0 1920x1080x24" hython screenshot_runner.py
@@ -535,7 +625,7 @@ xvfb-run -a -s "-screen 0 1920x1080x24" hython screenshot_runner.py
 xvfb-run -a -s "-screen 0 1920x1080x24" nuke -t screenshot_runner.py
 ```
 
-This gives the DCC a virtual screen to render into. The framebuffer size must match the pipeline's standard resolution so crop coordinates are consistent between headless and windowed runs.
+This gives the DCC a virtual screen to render into. The framebuffer size must match the pipeline's standard resolution, and the factory startup must be used to get deterministic area sizes. See [Workspace Standardization](#workspace-standardization) for details.
 
 ---
 
