@@ -23,6 +23,12 @@ _Last updated: 2026-03-23_
 - [ ] Upload and fill in `[link]` placeholders in announce.md
 - [ ] Post announcements
 
+### Done (Pages/Tutorial)
+- `docs/_config.yml` — Jekyll/minima config, light skin, baseurl `/funkworks`
+- `docs/index.md` — site landing page with banner and plugin listing
+- `docs/fluid-domain-visibility.md` — tutorial page (problem, install, usage, notes)
+- GitHub Pages enabled on `main` branch `/docs` folder → `https://kleer001.github.io/funkworks/`
+
 ---
 
 ## Auto-Tutorial Pipeline

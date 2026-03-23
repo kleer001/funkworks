@@ -1,0 +1,8 @@
+title: Funkworks
+description: Free Blender addons built from real problems.
+theme: minima
+url: "https://kleer001.github.io"
+baseurl: "/funkworks"
+
+minima:
+  skin: classic

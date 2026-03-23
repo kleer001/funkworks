@@ -14,6 +14,14 @@ Build and document a new Blender addon plugin end-to-end.
    | [Plugin Display Name](plugins/blender/docs/$ARGUMENTS/) | One-line description |
    ```
 
+4. **Create the GitHub Pages tutorial** at `docs/$ARGUMENTS.md`:
+   - Front matter: `title` and `layout: page`
+   - Sections: The Problem, Installation, Usage (step-by-step with panel preview), Notes, Requirements
+   - Download link pointing to `plugins/$ARGUMENTS.py` on `main`
+   - Lead with the user's pain, not the feature
+
+5. **Add the plugin to the Pages index** — add an entry to `docs/index.md` under the Addons section matching the existing format.
+
 ## Conventions
 
 - Plugin file name and docs folder name are the same `snake_case` identifier

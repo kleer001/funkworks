@@ -30,6 +30,8 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 |--------|-------------|
 | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
 
+**Tutorials & docs:** [kleer001.github.io/funkworks](https://kleer001.github.io/funkworks)
+
 ## Research Pipeline
 
 Plugin ideas are sourced from r/blender using a two-stage pipeline:

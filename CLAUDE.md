@@ -77,6 +77,8 @@ Future DCC targets (Houdini, Nuke, etc.) follow the same layout under `plugins/<
 
 Blender plugins register an `Operator` class and a `Panel` class, following standard Blender addon conventions. Use `plugins/blender/_template/` when creating a new one.
 
+The GitHub Pages tutorial for each plugin lives at `docs/<name>.md` (problem, install, step-by-step usage, notes).
+
 ### Skills
 
 Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `SKILL.md` file.
@@ -93,5 +95,16 @@ Reddit → crawler → raw JSON → digest agent → Claude → opportunities JS
                                                             ↓
                                                    developer picks idea
                                                             ↓
-                                                   plugins/<dcc>/src/<name>.py
+                                                   /new-plugin command
+                                                   (addon + docs + tutorial page)
+                                                            ↓
+                                                   developer tests in Blender
+                                                            ↓
+                                                   /publish command (planned)
+                                                   - package zip
+                                                   - GitHub Release + attach zip
+                                                   - patch [link] in announce.md
+                                                   - post to Reddit
+                                                            ↓
+                                                   kleer001.github.io/funkworks
 ```
