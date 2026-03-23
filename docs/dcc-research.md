@@ -10,7 +10,7 @@ Software in each category sorted by size and activity of the plugin/extension-bu
 2. **Unity** — Enormous Asset Store ecosystem, tens of thousands of editor extensions and packages
 3. **Blender** — Exploding open-source community, thousands of add-ons on Superhive (formerly Blender Market), GitHub, and Gumroad
 4. **Maya** — Decades of studio pipeline scripts, massive MEL/Python library, Autodesk App Store
-5. **Houdini** — Orbolt marketplace, very active HDA-sharing community, deep technical users
+5. **Houdini** — No central marketplace (Orbolt is dead), active HDA-sharing via GitHub/Gumroad/SideFX Labs, deep technical users
 6. **3ds Max** — Large legacy plugin base (especially archviz), ScriptSpot community
 7. **Godot** — Fast-growing open-source community, Asset Library with thousands of plugins
 8. **Substance 3D Designer / Painter** — Active material-sharing community on Substance Share, growing plugin ecosystem
@@ -115,3 +115,589 @@ Software in each category sorted by size and activity of the plugin/extension-bu
 - **C/C++ SDKs** exist for deep/performance-critical extensions in nearly every major tool.
 - **Node-based tools** (Houdini, Nuke, Fusion, Natron) often let you package node groups as reusable assets (HDAs, Gizmos, Fuses, PyPlugs).
 - **JavaScript/TypeScript** dominates in the 2D/web-adjacent tools (After Effects, Figma, Clip Studio, Cavalry).
+
+---
+
+## Where People Actually Get Plugins & Addons (March 2026)
+
+Research date: 2026-03-22. Focused on where communities are *actually active*, not where they theoretically could be. Goal: identify the right venues for building community and reputation through free tools.
+
+### Blender — Best Ecosystem for Community Building
+
+Blender has the richest, most accessible plugin distribution ecosystem of any DCC tool.
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **extensions.blender.org** | Official, free/GPL only | Growing fast | Built into Blender since 4.2 LTS. Drag-and-drop install. **Best venue for free community addons.** |
+| **Superhive** (formerly Blender Market) | Paid marketplace | 62k+ products | Rebranded May 2025 (Blender Foundation trademark enforcement). Same team as CG Cookie. Dominant paid marketplace. |
+| **Gumroad** | Paid + free | Very active | Popular with solo devs. Low friction. Cross-listing with Superhive is common. |
+| **GitHub** | Free/open-source | Thousands of repos | `blender-addon` topic is huge. Distribute via Releases as .zip. Official blender-addons repo archived May 2025 (moved to projects.blender.org). |
+| **BlenderKit** | In-Blender library | Growing | Expanded into addon distribution Feb 2026. Free tier available. |
+| **itch.io** | Free + cheap | Small but real | Niche — procedural generators, retro shaders, game pipeline tools. |
+| **FlippedNormals** | Was a marketplace | **Closing March 31, 2026** | Purchases transferring to Superhive. |
+
+**Community hubs:**
+- **r/blender** — 1.4M members. Massive. Primary discovery channel for free tools.
+- **Blender Community Discord** — ~197k members. Very active Q&A and sharing.
+- **BlenderArtists.org** — Active forums, Python scripting support section.
+- **devtalk.blender.org** — Addon developer collaboration.
+- **BlenderNation** — News/aggregation. Left Twitter/X in Nov 2024, now on Bluesky.
+
+**Key trend:** AI-assisted addon creation (using Claude/ChatGPT to generate Python scripts) is a visible trend. Users generate and share scripts for tedious tasks.
+
+**Recommendation for funkworks:** Post free addons on **extensions.blender.org** (widest organic reach, built into Blender) + **GitHub** (credibility, open source cred). Announce on **r/blender** and **BlenderArtists**. This is the highest-ROI community for reputation building.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push a repo, tag a release as `.zip`, done. Zero gatekeeping.
+2. **Gumroad** — Easy. Create account, upload `.zip`, set price (or free). Live in minutes.
+3. **itch.io** — Easy. Similar to Gumroad, slightly more indie-game audience.
+4. **r/blender / BlenderArtists / Discord** — Easy. Just post. Large audiences. Moderation is light.
+5. **extensions.blender.org** — Moderate. Must pass review (GPL-compatible license, metadata requirements, basic quality checks). Review queue can take days. But once listed, the addon is installable directly from Blender's preferences — unbeatable distribution.
+6. **Superhive** — Moderate. Seller application + review process. ~25% commission. Best for paid addons.
+7. **BlenderKit** — Moderate. Requires account setup and asset approval. Free tier available.
+
+---
+
+### Houdini — Fragmented, No Central Marketplace
+
+Orbolt is effectively dead. The ecosystem is scattered but the community is technically deep and generous.
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Orbolt** | Was the marketplace | **Dead in practice** | Still technically online but login is broken, no updates since 2022, not tracking current Houdini features. Nobody uses it. |
+| **SideFX Labs** | Official, free | Active | Free community-driven HDAs maintained by SideFX. Installable via Houdini Launcher or GitHub. Includes Project Dryad, Vitruvius, Biome Tools. |
+| **Gumroad** | Paid + free | **De facto commercial marketplace** | Modeler 2025, Soft Boolean, AI Assistant, terrain tools all sell here. This is where the money changes hands. |
+| **GitHub** | Free/open-source | Growing | SideFX Labs repo is here. Community tools like MOPs, HNanoSolver, Simple Tree Tools. |
+| **ArtStation Marketplace** | Paid | Growing | HDAs at $1–$20 price points. Cloud generators, building tools, hair cards. |
+| **od|force forums** | Free sharing | Active (12 pages of tools) | Camera HDAs, slider tools, VEX builders. Recent posts Jan 2026. |
+
+**Community hubs:**
+- **SideFX Forums** — Official. Active for announcements and discussion, not primary download venue.
+- **Think Procedural Discord** — Main unofficial Houdini server. Extremely generous community — post a question with a HIP file, get multiple solutions.
+- **Official SideFX Discord** — Growing, Labs updates here.
+- **CGWiki Discord** (Matt Estela's) — Patreon-supported, masterclasses.
+- **r/Houdini** — ~7k subscribers. Small, niche, professional.
+
+**Snippet culture:** Houdini has the strongest VEX snippet-sharing culture of any DCC. CGWiki (tokeru.com/cgwiki) is the beloved community resource. VEX snippets are core workflow.
+
+**Key trend:** SideFX Project Skylark (mid-2025) released free HIP/HDA files for procedural environments. Houdini AI Assistant addon appeared on Gumroad (multi-provider: GPT, Claude, DeepSeek, Ollama).
+
+**Recommendation for funkworks:** Houdini community is small but deeply technical. Share HDAs on **GitHub** + announce on **SideFX forums** and **Think Procedural Discord**. Sell premium tools on **Gumroad**. Skip Orbolt entirely.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push HDAs/HIP files, done. Standard for free Houdini tools.
+2. **Gumroad** — Easy. Upload HDA `.zip`, set price. De facto paid marketplace since Orbolt died.
+3. **Think Procedural Discord / SideFX Forums / od|force** — Easy. Post and share. Small but generous community — you'll get feedback fast.
+4. **ArtStation Marketplace** — Low-moderate. Account setup + listing. Low price points ($1–$20) common for HDAs.
+5. **SideFX Labs** — Hard. Must be accepted by SideFX team as a contribution. High quality bar, code review, must fit their curation. But the payoff is massive — ships with Houdini Launcher.
+6. **Orbolt** — Don't bother. Dead.
+
+---
+
+### Maya — Studio-Centric, Less Open
+
+Maya plugin distribution is more institutional than community-driven.
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Autodesk App Store** | Official marketplace | Active (~141 plugins) | Small catalog. Publishers must target Maya 2026 for new submissions. |
+| **Highend3D** (formerly CreativeCrash) | Free + paid | Alive, rocky history | Went offline for a period, came back. Long-term reliability uncertain. Scripts updated through Nov 2025. |
+| **Gumroad** | Paid + free | Significant | Indie TDs sell here. Tiny Tools, Smart Layer, Mel Script bundles. Active through 2026. |
+| **GitHub** | Free/open-source | Moderate | GT Tools (182 stars), maya-usd (official), mGear rigging framework. Less open-source culture than Blender. |
+| **ArtStation Marketplace** | Paid | Emerging | Maya script listings with ratings/reviews. |
+
+**Community hubs:**
+- **Autodesk Community Forums** — Most active Maya discussion venue.
+- **Autodesk Maya Discord** — ~12.5k members.
+- **Tech-Artists.org** — Exists but modest activity. Maya tech discussions have shifted to Autodesk forums.
+
+**Open-source pipeline tools** are a major trend: AYON/OpenPype, Tik Manager 4, Prism Pipeline, Plex — studios sharing pipeline infrastructure publicly.
+
+**Recommendation for funkworks:** Maya community is harder to break into for community building. The audience is mostly studio TDs, not hobbyists. Lower priority unless targeting pipeline tools.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push scripts/plugins. Less open-source culture than Blender, but still the path of least resistance.
+2. **Gumroad** — Easy. Upload and sell. Indie TDs use this.
+3. **ArtStation Marketplace** — Low-moderate. Listing + review.
+4. **Highend3D** — Moderate. Account + upload. Has gone offline before — don't rely on it as sole distribution.
+5. **Autodesk App Store** — Hardest. Must target current Maya version (2026), pass Autodesk review, follow their packaging requirements. Small catalog (~141 plugins) but official visibility.
+6. **Autodesk Forums / Maya Discord** — Easy for announcements, but the audience is smaller and more studio-oriented. Less viral potential than Blender communities.
+
+---
+
+### 3ds Max — Legacy but Active
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **ScriptSpot** | Free + paid | Active | New scripts submitted as recently as March 2026 (PixPatch AI). The primary community hub for Max scripts. |
+| **MAXPlugins.de** | Database/directory | Active (maintained through March 2026) | Comprehensive database of all known freeware and commercial Max plugins. |
+| **Autodesk App Store** | Official (~122 plugins) | Active | Publishers must target Max 2026. Forest Pack Lite (free) is notable. |
+| **ArtStation Marketplace** | Paid | Growing | Scripts like "Align Pivot" (104 ratings, 5.0 stars). |
+| **Gumroad** | Paid | Moderate | Archviz-focused tools. |
+
+**Community:** Archviz-heavy. ScriptSpot is the heartbeat. Smaller indie/hobbyist scene than Blender.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **ScriptSpot** — Easiest. Create account, upload script. The community home base. Active moderation but low barrier.
+2. **GitHub** — Easy. Standard for open-source Max tools.
+3. **Gumroad** — Easy. Archviz tools sell well here.
+4. **ArtStation Marketplace** — Low-moderate. Listing + review.
+5. **Autodesk App Store** — Hardest. Same review process as Maya. Must target Max 2026. ~122 plugins in catalog.
+6. **MAXPlugins.de** — Not a distribution platform, but getting listed in this directory gives visibility. Submit your plugin info.
+
+---
+
+### Cinema 4D — No Central Marketplace
+
+Cinema 4D is the most fragmented of the major DCCs. Maxon does not operate any centralized marketplace.
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Direct from developers** | Paid | Active | INSYDIUM Fused/X-Particles, Greyscalegorilla, Redshift — all sold directly. This is the primary model. |
+| **Gumroad** | Paid | Moderate | Indie developers (Plugins 4D, etc.). |
+| **Toolfarm** | Third-party retailer | Active | Carries major C4D plugins. |
+| **Nitro4D** | Free + paid | Active | All plugins updated for C4D 2026. |
+| **developers.maxon.net** | Dev forums | Active | PluginCafe forums migrated here Nov 2023. Plugin ID registration only at plugincafe.maxon.net now. |
+| **Cineversity Forums** | Official community | Active | Dedicated Cinema 4D Assets & Plugins section. |
+
+**Community:** Tight-knit motion graphics community. Plugin developers like Rocket Lasso, Nitroman have loyal followings. Core 4D and C4Dzone are independent community forums. Plugin discovery is harder here than any other major DCC due to lack of central marketplace.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **Gumroad** — Easiest for paid tools. Upload and sell. Indie C4D devs use this.
+2. **GitHub** — Easy for free/open-source. Less common in C4D culture but growing.
+3. **Nitro4D** — Moderate. Independent developer site; if you're contributing free tools, community is receptive.
+4. **developers.maxon.net (PluginCafe)** — Moderate. Register plugin IDs here. Forum is the dev community hub. Not a marketplace but essential for visibility among plugin developers.
+5. **Cineversity Forums** — Low friction for sharing. Official community space.
+6. **Direct website** — The dominant model for serious C4D plugins (INSYDIUM, Greyscalegorilla). High friction — you need your own site, payment processing, marketing. But it's how the established players operate.
+7. **Toolfarm** — Hard. Third-party retailer. You'd need a relationship/business arrangement. Only for established commercial plugins.
+
+---
+
+### Nuke — Nukepedia is King
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Nukepedia** | Free community hub | Very active (2,000+ tools, 900k+ users) | 15 years old. **Nukepedia 2.0 rebuild announced** around SIGGRAPH 2025. |
+| **nuBridge** | In-Nuke browser | New ($5/mo) | Browse and install all 2,000+ Nukepedia tools from inside Nuke. |
+| **GitHub** | Free | Healthy | Nuke Survival Toolkit, SpinVFX gizmos, jedypod configs all actively maintained through Feb 2026. |
+| **Foundry Community Forums** | Official | Active | Discussion venue. Nuke 17.0 released Feb 2026 (Gaussian Splats, USD-based 3D). |
+
+**Key trend:** Foundry acquired Griptape (Feb 2026) for AI integration across VFX pipelines. Subscription-only licensing announced for 2027.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push gizmos/scripts. Nuke Survival Toolkit model.
+2. **Nukepedia** — Easy-moderate. Create account, submit tool. Light review process. Once listed, you reach 900k+ users. The canonical venue.
+3. **nuBridge** — Pulls from Nukepedia. Get on Nukepedia and you're automatically discoverable in-app for $5/mo subscribers.
+4. **Foundry Forums** — Easy for announcements. Not a distribution platform.
+
+---
+
+### DaVinci Resolve / Fusion — Reactor + We Suck Less
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Reactor** | Package manager | Very active (400k+ weekly users) | **Reactor Standalone** released — critical because Resolve Free v19.1+ removed scripting/GUI access, breaking the in-app installer. |
+| **We Suck Less** (steakunderwater.com) | Community forum | Very active (54k posts, 32k members) | Primary independent Fusion community. Peak 47k concurrent users Jul 2025. Patreon-funded. |
+| **Blackmagic Forums** | Official | Active | Master Plugins & Templates List thread. |
+| **Codeberg/GitHub** | Free | Small | Individual fuse collections. |
+
+**Key trend:** Resolve 20.0 (May 2025) was a massive release. The Reactor Standalone workaround for Resolve Free is important community infrastructure.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub/Codeberg** — Easiest. Push fuse collections.
+2. **We Suck Less (steakunderwater.com)** — Easy. Create account, post in the forum, share fuses. The community is welcoming and active (54k posts, 32k members).
+3. **Reactor** — Moderate. Submit a PR to the Reactor package list. Must follow packaging conventions. But once accepted, your tool reaches 400k+ weekly users via the in-app package manager.
+4. **Blackmagic Forums** — Easy for announcements. Official but less technical than WSL.
+
+---
+
+### After Effects — aescripts Dominates
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **aescripts.com** | Dominant marketplace | Very active | The #1 destination for AE scripts and plugins. Both paid and free. |
+| **Gumroad** | Paid + free | Active | Indie script developers. |
+| **GitHub** | Free | Moderate | Some open-source tools. |
+
+**Community:** Massive motion graphics community. aescripts.com is the undisputed hub.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push scripts/expressions.
+2. **Gumroad** — Easy. Upload and sell.
+3. **aescripts.com** — Moderate. Must apply as a developer and pass review. But this is *the* marketplace — if you're serious about AE tools, you need to be here. They handle distribution, licensing, and marketing.
+
+---
+
+### Substance 3D — Substance 3D Community Assets (formerly Substance Share)
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Substance 3D Community Assets** (formerly Substance Share) | Official free sharing | Active | Rebranded. Materials, smart materials, filters, generators. |
+| **Adobe Community Forums** | Official | Active | Discussion and sharing. GDC 2026 presence. |
+| **Gumroad/ArtStation** | Paid | Moderate | Custom nodes and material packs. |
+| **GitHub** | Free | Small | `substance-designer` topic. Python tools, node packs. |
+
+**Key trend:** Adobe gave all Substance 3D subscribers unmetered (unlimited) access to the full premium asset library (20k+ assets) as of Jan 2025. Designer 16.0 previewed at GDC 2026 with SDF-based shape scattering. 95%+ of AAA game projects use Substance 3D.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push node packs and Python tools.
+2. **Substance 3D Community Assets** — Easy-moderate. Upload materials, filters, generators to the official sharing platform (formerly Substance Share). Free sharing only.
+3. **Gumroad/ArtStation** — Easy. Sell custom nodes and material packs.
+4. **Adobe Community Forums** — Easy for announcements. Not a distribution platform.
+
+---
+
+## Cross-DCC Distribution Patterns (2026)
+
+### What Actually Works for Community Building
+
+1. **GitHub + Official Platform** is the winning combo for free tools. GitHub for credibility and open-source discoverability, official platform (extensions.blender.org, SideFX Labs, Nukepedia) for organic reach to actual users.
+
+2. **Gumroad** has become the universal indie marketplace across all DCCs. It's where solo developers sell regardless of which DCC they target. No curation, low friction.
+
+3. **Reddit** matters for Blender (1.4M members) but is negligible for Houdini (~7k) and Maya. For Houdini, use Discord (Think Procedural) and SideFX forums instead.
+
+4. **Discord** is the real-time community heartbeat. Blender Community (~197k), Think Procedural (Houdini), Maya Discord (~12.5k). This is where people ask "what addon does X?" and get answers.
+
+5. **Twitter/X is dead for DCC communities.** BlenderNation, Blender Artists, and conference speakers have moved to Bluesky, Threads, and LinkedIn. Nobody lists Twitter anymore.
+
+6. **itch.io** is a minor but real channel for Blender. Negligible for other DCCs.
+
+7. **ArtStation Marketplace** is emerging as a paid channel, especially for Houdini HDAs at low price points.
+
+8. **YouTube** matters for discovery — tutorial creators who bundle free tools in video descriptions drive significant addon adoption. Not a distribution platform per se, but an important marketing channel.
+
+### Emerging Platforms
+
+- **Fab** (Epic Games) — Unifying 2.5M assets from Unreal Marketplace, ArtStation, Sketchfab, and Quixel into one storefront. 88% royalty. Anti-AI-training policy. The biggest marketplace consolidation in DCC tools. ArtStation marketplace assets migrating into Fab.
+- **D5 Works** — New 3D marketplace with 0% commission.
+
+### YouTube as Discovery Channel
+
+YouTube is a critical addon discovery channel, especially for Blender. Channels like InspirationTuts produce regular "addons you missed" roundup videos covering 10–15 addons with timestamps and download links. These function as curated addon discovery — creators link to GitHub, Superhive, or Gumroad in descriptions. For Houdini, YouTube is more education-focused (Entagma, Junichiro Horikawa, SideFX HIVE recordings). Maya addon discovery via YouTube is minimal.
+
+### Dead or Stale Venues (Do NOT Waste Time Here)
+
+- **Orbolt** — Dead. Login broken, no updates since 2022.
+- **FlippedNormals Marketplace** — Closing March 31, 2026.
+- **Twitter/X** — DCC communities have migrated away (BlenderNation left Nov 2024, conference speakers list Bluesky/Threads/LinkedIn now).
+- **Highend3D** — Alive but unreliable. Has gone offline before.
+
+### Where to Post for Maximum Community Impact (by DCC)
+
+| DCC | Primary | Secondary | Announce On |
+|---|---|---|---|
+| **Blender** | extensions.blender.org | GitHub | r/blender, BlenderArtists, Blender Discord |
+| **Houdini** | GitHub | Gumroad (paid) | SideFX forums, Think Procedural Discord, od|force |
+| **Maya** | GitHub | Autodesk App Store | Autodesk forums, Maya Discord |
+| **Nuke** | Nukepedia | GitHub | Foundry forums |
+| **Resolve/Fusion** | Reactor (via We Suck Less) | GitHub | Blackmagic forums, WSL forum |
+| **After Effects** | aescripts.com | GitHub | AE community forums |
+
+### DCCs Reachable via GitHub Alone
+
+GitHub ranked as the easiest (or tied-easiest) entry point for every DCC researched:
+
+- **Blender** — Free, open source, no restrictions. Thousands of repos under `blender-addon` topic. Dominant free distribution channel.
+- **Houdini** — Apprentice: free (non-commercial, watermarked). Indie: ~$269/yr (<$100K revenue). FX: $4,495 perpetual. Standard for free HDAs/HIP files. SideFX Labs itself lives on GitHub.
+- **Maya** — 30-day trial only. Indie: ~$320/yr (<$100K revenue). Full: $1,945/yr. Less open-source culture, but GT Tools, maya-usd, mGear all live here.
+- **3ds Max** — 30-day trial only. Indie: ~$250/yr (<$100K revenue). Full: $1,545/yr. Growing. Open-source Max tools use GitHub alongside ScriptSpot.
+- **Cinema 4D** — 14-day trial only, no indie tier. $719/yr (now bundled with Redshift). Maxon One: $1,265/yr. Less common in C4D culture but increasing.
+- **Nuke** — Non-Commercial: free, non-watermarked, but 1080p cap, no third-party plugins, encrypted files (can't open in commercial Nuke), limited Python, and each version expires 180 days after build. Indie: $499/yr (<$100K revenue, 4K cap). Full: $3,839/yr. Nuke Survival Toolkit, SpinVFX gizmos, jedypod configs. Healthy presence.
+- **DaVinci Resolve / Fusion** — Free version: $0, no watermark, very capable. Studio: $295 one-time perpetual. Individual fuse collections. Smaller but real.
+- **After Effects** — 7-day trial only. Single app: ~$264/yr. All Apps: ~$660/yr. Moderate. Some open-source scripts and expressions.
+- **Substance 3D** — 30-day trial only. Texturing plan: ~$250/yr. Collection: ~$600/yr. Not included in CC All Apps. Small. Python tools and node packs under `substance-designer` topic.
+
+---
+
+## Additional DCC Venue Details
+
+### Godot — Fast-Growing, New Asset Store
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Godot Asset Library** | Official, free | Active (maintenance mode) | Built into Godot editor. Thousands of plugins across Tools, 2D, 3D, Scripts. Being deprecated in favor of new Asset Store. |
+| **Godot Asset Store** (new) | Official, free + paid planned | Early stage | Launched by Godot Foundation. Will replace Asset Library. Currently free assets only; paid assets planned for select creators then wider community. |
+| **GitHub** | Free/open-source | Very active | `awesome-godot` curated list. GDExtension repos. Standard for distribution. |
+| **itch.io** | Free + paid | Active | Popular for Godot game templates and tools. Natural fit for indie game engine. |
+| **gd-plug** | Plugin manager | Active | Community-built plugin manager with version freezing and parallel downloads. |
+
+**Community hubs:**
+- **r/godot** — Very large and active. Primary discovery channel.
+- **Godot Engine Discord** (~66k members) — Official, run by the Foundation.
+- **Godot Cafe Discord** (~85k members) — Community-run, predates official server.
+- **Godot Forum** (forum.godotengine.org) — Discourse-based, well-indexed.
+- **GDQuest** — Prominent educational resource and community.
+- **Fab.com** (Epic) — Cross-engine store now supports Godot assets alongside Unity/Unreal/Blender.
+
+**Key trend:** Godot 4.6 (Jan 2026) added plugin shortcut registration via `add_shortcut()`. Asset Store consolidation underway. AI-assisted GDScript generation growing.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push addon, done. Standard for Godot tools.
+2. **itch.io** — Easy. Natural fit for game engine ecosystem. Upload and sell/share.
+3. **Godot Asset Library** — Easy. Submit from within the editor. Light review process. Now in maintenance mode.
+4. **Godot Asset Store** — Early. Will be the future primary venue. Not yet open to all sellers.
+
+---
+
+### TouchDesigner — Forum-Centric, Tox Sharing Culture
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Derivative.ca Forum** (Shared .tox Components) | Official, free | Active | ASSET posts for sharing .tox files. OKLCH tools, audioreactive components, AI tools. |
+| **GitHub** | Free | Growing | TD-Toxes collections, MediaPipe plugin (GPU-accelerated, standalone .tox). |
+| **AllTouchDesigner (alltd.org)** | Community hub | Active | Patreon-supported components, colorpicker widgets, controller tools. |
+| **Interactive & Immersive HQ** | Community/education | Active | Roundups of community projects and tools. StreamDiffusionTD, Sora-2. |
+| **Patreon** | Paid | Common | Many TD creators gate premium toxes behind Patreon, release older ones free. |
+
+**Community hubs:**
+- **Derivative.ca Forum** — Official. Primary sharing and Q&A venue.
+- **TouchDesigner Discord** (unofficial, via td-discord.com) — Most active real-time chat.
+- **SARV Discord** (official, Dec 2025) — Newer official server from Derivative.
+- **r/TouchDesigner** — Active, beginner-friendly.
+- **Interactive & Immersive HQ** — Blog/education.
+- **Touch Jam / meetups** — In-person events in Amsterdam, Barcelona, etc.
+
+**Key trend:** TD 2025 introduced Point Operators (POPs). AI/ML integration tools (StreamDiffusion, MediaPipe) are the hottest community contributions. Drag-and-drop .tox culture makes sharing frictionless.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **Derivative.ca Forum** — Easiest. Post an ASSET thread with your .tox file. Immediate community feedback.
+2. **GitHub** — Easy. Push .tox collections.
+3. **Patreon** — Easy for paid. Common model in TD community.
+4. **AllTouchDesigner** — Moderate. Community-curated, may need outreach.
+
+---
+
+### Rhino / Grasshopper — Food4Rhino + Package Manager
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Food4Rhino** | Official marketplace | Very active | Thousands of plugins. Free + paid. Rhino Apps, Grasshopper components, scripts. |
+| **Rhino Package Manager** | Built-in installer | Active | Discover and install plugins from within Rhino. Integrated with Food4Rhino. |
+| **GitHub** | Free/open-source | Active | Standard for open-source GHA components. |
+| **McNeel Forum (Discourse)** | Official community | Very active | Developer discussion, plugin announcements, support. |
+
+**Key trend:** AI plugins exploding — Ant (AI copilot for Grasshopper) and Raven (conversational AI for Grasshopper/Rhino) both launched 2025-2026. Raven accesses 928+ community plugins. Food4Rhino has a moderation/review process.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push .gha/.rhp files.
+2. **McNeel Forum** — Easy. Post and announce.
+3. **Food4Rhino** — Moderate. Account + submission + review process. But once listed, discoverable via built-in Package Manager.
+
+---
+
+### SketchUp — Extension Warehouse + SketchUcation
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Extension Warehouse** | Official marketplace | Active (hundreds of extensions) | Built into SketchUp. Free + paid. One-click install from within the app. |
+| **SketchUcation PluginStore** | Community marketplace | Active | Free downloads. Hundreds of extensions. Community-driven. |
+| **GitHub** | Free | Small | Some open-source Ruby extensions. |
+
+**Community hubs:**
+- **SketchUp Community Forums** — Official Trimble forums.
+- **SketchUcation** — Independent community with forums + plugin store.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **SketchUcation** — Easy. Upload .rbz files. Community audience.
+2. **GitHub** — Easy. Push Ruby scripts.
+3. **Extension Warehouse** — Moderate-hard. Must apply as a developer first. Ruby-only (.rbz packages) with strict packaging requirements. SketchUp team reviews every submission and tests for conflicts with other extensions. But once listed, directly installable from SketchUp.
+
+---
+
+### Photoshop — Creative Cloud Marketplace + UXP
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Creative Cloud Marketplace** | Official | Active | UXP plugins distributed as .ccx files. Requires Developer Distribution portal ID. |
+| **GitHub** | Free | Moderate | Open-source UXP plugins and samples. |
+| **Gumroad** | Paid | Small | Some indie Photoshop scripts/plugins. |
+| **Creative Cloud Developer Forums** | Community | Active | Primary dev community (forums.creativeclouddeveloper.com). |
+
+**Key trend:** UXP v8.0 shipped with Photoshop 2025 (v26) — Spectrum Web Components, local HTML support, Action step recording, C++ SDK access from UXP Hybrid Plugins. EU Digital Services Act compliance required for EU-visible listings (Feb 2025). No .ccx encryption for external distribution — piracy concern for paid plugins outside Marketplace.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push UXP plugin code.
+2. **Gumroad** — Easy. Distribute .ccx files directly.
+3. **Creative Cloud Marketplace** — Moderate-hard. Must register on Developer Distribution portal, get plugin ID, pass Adobe review. But once listed, discoverable to all CC users.
+
+---
+
+### Figma — Massive Plugin Community
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Figma Community** | Official, centralized | Very active (5,000+ plugins) | One-click install. No downloads. Plugins run sandboxed in iframe. |
+| **GitHub** | Free | Moderate | Open-source Figma plugins. |
+
+**Community:** 13M+ monthly active users (two-thirds are non-designers). $749M revenue in 2024 (+48%). AI plugin category exploding. W3C Design Tokens spec (Oct 2025) enabling cross-tool portability.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push TypeScript/JS plugin code.
+2. **Figma Community** — Moderate. Publish from the Figma developer console. Review officially 5-10 business days but frequently stretches to weeks/months in practice (2025 reports). No monetization — you cannot sell plugins on the platform. Re-review required for material updates.
+
+---
+
+### GIMP — Distribution Dead Zone
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| ~~**registry.gimp.org**~~ | ~~Official registry~~ | **Dead** | Old Drupal site. No longer maintained. This was the central plugin hub — it's gone. |
+| **GitHub / GitLab** | Self-publish | Medium | Primary venue now. Scattered across repos. |
+| **Debian gimp-plugin-registry** | Linux package | Low | Curated subset for Debian/Ubuntu. |
+| **Blog posts / personal sites** | Self-publish | Low | Discovery is ad-hoc. Google is the main search tool. |
+
+**Community hubs:**
+- **GIMP forums** (gimp-forum.net) — Small but active.
+- **r/GIMP** — Moderate.
+- **IRC / Matrix** (#gimp on irc.gimp.org / GNOME Matrix) — Developer-oriented.
+
+**Key issue:** The old plugin registry is dead and the replacement (planned in-app asset browser) has not shipped yet. Writing a Python-Fu or Script-Fu plugin is straightforward, but there is no centralized distribution channel. Discovery is terrible — users Google for plugins and hope they find working ones.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest to publish. Zero gatekeeping.
+2. **Finding an audience** — Hardest part. No registry, no marketplace, no in-app browser. You are on your own.
+
+---
+
+### Krita — Forum-Based, Warm Community
+
+| Venue | Type | Activity | Notes |
+|---|---|---|---|
+| **Krita Artists Forum** (Plugins section) | Community forum | Medium | Dedicated plugins subcategory. Devs post downloads directly. |
+| **GitHub** (`krita-plugin` topic) | Self-publish | Medium | Primary code hosting. AI diffusion tools, pixel art tools, etc. |
+| **Official Resources Page** | Docs listing | Low | Lists some third-party plugins with disclaimers. |
+| **Built-in Plugin Manager** | In-app | Low | Manages installed plugins but does NOT browse/download. |
+
+**Community hubs:**
+- **Krita Artists** (krita-artists.org) — Discourse forum. Monthly art challenges, plugin discussion.
+- **Krita Discord** (~17k members, unofficial) — General art + Krita.
+- **r/krita** — Active for art sharing and questions.
+- **KDE Bugzilla** — For bug reports against Krita core.
+
+**Ease of Entry — Ranked by Friction:**
+
+1. **GitHub** — Easiest. Push Python plugin with `.desktop` manifest.
+2. **Krita Artists Forum** — Easy. Post in plugins section. No gatekeeping. Small but engaged and appreciative community.
+3. **Official Resources Page** — Hard. Must be noticed/curated by Krita team.
+
+---
+
+## Licensing for Plugin Developers
+
+### Blender — GPL is Mandatory (with Nuance)
+
+**The rule:** Blender's official position is that all addons using the `bpy` Python API are de facto GPL, because the API is an integral part of GPL-licensed Blender.
+
+**extensions.blender.org:** As of a recent policy change, all addons must now be licensed **GPL 3.0 or later** (SPDX: `GPL-3.0-or-later`). Previously they accepted any GPL-compatible license. Now it's specifically GPL 3.0+. Existing versions are grandfathered; new updates must comply.
+
+**Does MIT work?** MIT is GPL-compatible, so MIT-licensed *third-party code* can be included in a GPL addon. But if you publish on extensions.blender.org, the addon itself must be labeled GPL 3.0+. On **Superhive** (formerly Blender Market), addons can be licensed as either GPL or MIT — those are the only two options.
+
+**The practical reality:** You can sell GPL addons (selling the download/service), but buyers receive the code under GPL and can legally redistribute it. This is by design. Per-seat licensing is unenforceable since any recipient can legally redistribute. The community has debated this endlessly, but the Blender Foundation's stance is firm. In 2024, the Foundation edited its FAQ to remove ambiguous language, signaling stricter enforcement expectations.
+
+**The "separate binary" workaround:** Proprietary code can coexist alongside a GPL addon if architecturally separated — the GPL Python addon communicates with a separate non-GPL executable via files, sockets, or subprocess calls. Better FBX Importer is a well-known example. The proprietary component must be a truly independent program, not linked into the Python addon.
+
+**Real-world gotcha:** Epic was called out on GitHub in 2024 for not properly licensing their BlenderTools addons as GPL despite using the `bpy` API. Even large companies stumble on this.
+
+**For funkworks:** Since we're distributing free tools, GPL 3.0+ on extensions.blender.org is the path. MIT would also work on Superhive/GitHub. No licensing friction for free, open-source distribution.
+
+### Other DCCs
+
+| DCC | Plugin Licensing Restrictions | Revenue Share |
+|---|---|---|
+| **Maya** | No restrictions on plugin licensing. Autodesk App Store has its own terms. | None from Autodesk |
+| **Houdini** | No restrictions. HDAs can be any license. | None from SideFX |
+| **Nuke** | No restrictions. Gizmos/scripts can be any license. | None from Foundry |
+| **Cinema 4D** | No restrictions. Maxon doesn't dictate plugin licenses. | None from Maxon |
+| **3ds Max** | No restrictions. Same as Maya (Autodesk). | None from Autodesk |
+| **After Effects** | No restrictions on scripts/expressions. AEGP SDK has its own terms. | None from Adobe |
+| **DaVinci Resolve** | No restrictions on Fuses/scripts. | None from Blackmagic |
+| **Godot** | Engine is MIT-licensed. Plugins can be any license. Most permissive of all. | None |
+| **Unity** | No royalties or revenue share (Runtime Fee cancelled Sep 2024). Plugins sold on Asset Store: Unity takes 30% commission. | Asset Store: 30% to Unity |
+| **Unreal Engine** | Free for <$1M revenue. 5% royalty above $1M (3.5% via "Launch Everywhere with Epic"). Marketplace plugins: 88% to creator, 12% to Epic. | Marketplace: 12% to Epic. Game royalty: 5%/3.5% |
+
+### Indie License Traps
+
+- **Maya Indie** ($250/yr) — $100K annual revenue cap. If your plugin business exceeds $100K, you need a full commercial Maya license for development/testing.
+- **Houdini Indie** (~$269/yr) — Under $100K revenue restriction. Plugins developed under Indie may have distribution constraints. **Houdini Apprentice** (free) cannot load third-party plugins at all.
+- **Nuke Non-Commercial** — Cannot load third-party plugins at all. **Nuke Indie** only supports OFX plugins (from v12.2v3); NDK plugin support is limited. You need a commercial Nuke license to develop and test NDK plugins.
+- **3ds Max** — Student/educational licenses cannot be used for commercial plugin distribution.
+
+### Marketplace Revenue Share Comparison
+
+| Platform | Developer Share | Platform Cut | Notes |
+|---|---|---|---|
+| **extensions.blender.org** | 100% | 0% | Free only (must be GPL-3.0+) |
+| **Gumroad** | 90% | 10% flat | Platform fee, not a license restriction |
+| **Superhive** (Blender Market) | ~75% | ~25% | Historically ~25% commission |
+| **Unreal Marketplace** | 88% | 12% | Best major marketplace split |
+| **Unity Asset Store** | 70% | 30% | Standard app store split |
+
+**Key takeaway:** Outside of Blender's GPL requirement and game engine revenue shares, most DCCs impose zero licensing restrictions on plugins. Godot is the most permissive (MIT engine, no constraints). Blender is the most restrictive (GPL required).
+
+---
+
+## API Stability & Churn
+
+How often do DCC updates break existing plugins?
+
+### Churn Rankings (Most Stable → Least Stable)
+
+| Rank | DCC | Stability | Details |
+|---|---|---|---|
+| 1 | **Maya** | **Very Stable** | `maya.cmds` API rarely breaks. PySide2→PySide6 migration in Maya 2025 was the biggest disruption in years. Annual releases, but Python API changes are usually additive. Autodesk publishes API Update Guides per release. |
+| 2 | **Houdini** | **Stable** | Explicit ABI versioning via `HDK_API_VERSION`. Breaks mostly on major releases (~annually). HOM (Python) is very stable. HDK (C++) requires recompilation on major versions. SideFX documents all HDK changes per release. |
+| 3 | **After Effects** | **Very Stable** | AEGP API is one of the most stable DCC APIs. When changes happen (Multi-Frame Rendering in AE 2022-2024), they are significant but rare. Community-maintained C++ SDK Guide (docsforadobe.dev) fills Adobe's sparse official docs. |
+| 4 | **Unreal Engine** | **Stable** | Best-in-class for engine-level stability among game engines. Blueprint workflows are very stable. C++ plugins occasionally break — UE 5.6 controversially used Fortnite's codebase to decide which symbols to keep exporting. |
+| 5 | **3ds Max** | **Moderate** | Annual SDK-breaking releases require recompilation. C++17 upgrade in 2024, menu system overhaul in 2025. PySide2→PySide6 migration. MAXScript itself is stable. |
+| 6 | **DaVinci Resolve** | **Low Freq, High Pain** | Changes are infrequent but undocumented. Resolve 19.1 silently removed UIManager from the free version — broke all UI scripts including Reactor. Zero deprecation warnings. Official docs = single README. |
+| 7 | **Godot** | **Improving** | GDExtension broke on every release in 4.0.x (even patches caused crashes). Stabilized significantly from 4.2+. Now has compatibility methods system — extensions compiled against 4.2 auto-bind to shims in 4.5. Community tracks all breaks in a GitHub Gist. |
+| 8 | **Unity** | **Moderate (Worsening)** | Breaking changes in nearly every Unity 6.x point release (6.3, 6.4, 6.5). Render Graph Compatibility Mode removed after 2yr deprecation. New C# runtime in 6.5 conflicts with third-party DLLs. Usage at Global Game Jam dropped from 61% (2023) to 36% (2024). API Updater tool helps. |
+| 9 | **Cinema 4D** | **High Churn** | ABI breaks every major version — no cross-version binary compatibility. C4D 2024 overhauled const-ness across the entire C++ API (every NodeData plugin needed updating). C4D 2025 introduced `cinema` namespace, moving all Classic API types. Good migration guides partially offset the pain. |
+| 10 | **Blender** | **High Churn** | Notorious for API breakage. Blender Extensions team estimated "9 out of 10 add-ons" needed updates for 5.0 — 40 of the top 120 most-downloaded add-ons affected. Blender 4.4 broke UILists and operator subclassing. Deprecation cycle is 1-2 major versions before removal. LTS versions provide stability islands. |
+| 11 | **Nuke (NDK)** | **Extreme Churn** | Worst of all DCCs. C++ NDK breaks on *every minor version* — even 15.0→15.1 and 15.1→15.2. Only patch versions (15.1v1→15.1v9) are binary-compatible. Nuke 15.0 added four new required libraries. Foundry recommends OFX as the stable alternative. Python API more stable but PySide2→PySide6 in Nuke 16. |
+
+### Blender API Churn — Specific Examples
+
+- **4.0 (Nov 2023):** Massive overhaul. `bpy.ops` context override removed; `blf.size()` dpi argument removed; face maps removed entirely; bone layers/groups replaced with bone collections; node group API moved from `NodeTree` to `NodeTree.interface`; Principled BSDF node inputs renamed + reordered; bevel weights moved to generic attributes. Sketchfab plugin broke entirely (only empties imported). Official breaking changes tracker listed dozens of items.
+- **4.2 LTS (Jul 2024):** EEVEE identifier changed to `BLENDER_EEVEE_NEXT`; material `blend_method` renamed to `surface_render_method`; IDProperty type enforcement added. Dropped external add-ons repository — all moved to Extensions Platform requiring manifest changes.
+- **4.4 (2024):** Broke UILists and operators due to changes in subclassing Blender types. IfcOpenShell filed a dedicated tracking issue.
+- **5.0 (2025):** Legacy Action API removed; `Image.bindcode` removed; compositor nodes replaced with shader counterparts; deprecated dict-like user properties removed ("will fully break forward compatibility"). Octane plugin needed multiple patches just to load. Blender 5.1 will compound it by upgrading to a new Python version.
+
+**Mitigation:** Target Blender LTS versions (4.2, 4.5) for maximum stability window. Use `blender_version_min`/`blender_version_max` in extension manifests. No automated migration tools — developers must manually find and fix breakage.
+
+**The flip side — churn = opportunity:** Many developers abandon their add-ons after breaking changes. This creates opportunity for maintained alternatives. If you stay on top of API changes, you inherit the users of abandoned addons.
+
+---
+
+## Python API Quality Comparison
+
+| DCC | Docs | Stability | Dev Experience | Community | Summary |
+|---|---|---|---|---|---|
+| **Blender** | Good | Poor | Good | Excellent | Auto-generated docs, built-in scripting workspace with autocomplete, tooltips link to API. Template examples in text editor. But API churn is punishing (~9/10 addons needed updates for 5.0). Huge community compensates. |
+| **Maya** | Moderate | Good | Moderate | Good | Three confusing API layers: `maya.cmds` (fast, un-Pythonic), PyMEL (Pythonic, slow, 475MB RAM), OpenMaya (powerful, complex). Docs fragmented across APIs. `mayapy` standalone is useful. Stable thanks to MEL heritage. |
+| **Houdini** | Good | Good | Moderate | Moderate | HOM is the best-designed Python API of any DCC. Clean, unified, well-documented. `hython` standalone. Steep conceptual curve (procedural paradigm) even though API is clean. VEX preferred for performance. |
+| **Nuke** | Moderate | Good | Moderate | Moderate | API is "not looking friendly but invaluable." Reasonably stable, but PySide2→PySide6 in Nuke 16 forced rewrites. Focused on node manipulation and pipeline integration. NDK (C++) for heavy lifting. |
+| **Cinema 4D** | Good | Moderate | Moderate | Moderate | Dedicated dev portal with Sphinx docs, GitHub examples, registered developer program with email support. Plugin hooks (CommandData, ObjectData) integrate cleanly. Some features C++-only. PluginCafe forum is active. |
+| **3ds Max** | Poor | Moderate | Poor | Poor | `pymxs` is a thin MAXScript wrapper — Autodesk "skipped on the docs completely." Almost never throws errors on incorrect syntax. No way to list methods properly. `MaxPlus` predecessor was removed entirely in 2022, forcing full rewrites. Community is small and shrinking. |
+| **Substance Designer** | Moderate | Moderate | Moderate | Poor | Python API for automation, Python 3.9. Docs on GitHub Pages. Small plugin dev community — one of the only comprehensive resources is a single tutorial series. Narrow scope limits both risk and capability. |
+| **TouchDesigner** | Moderate | Moderate | Poor | Moderate | Python deeply integrated, 100+ built-in examples. But learning external data integration takes 20-40 hours. Scattered scripts, random crashes, poor debuggability. IDE integration weak. Improving rapidly in 2025. |
+| **DaVinci Resolve** | Poor | Moderate | Poor | Poor | Scripting API is "an afterthought." Official docs = single README. Stated Python version (3.6) contradicts what ships. Developers rely on `dir()` and `help()` introspection. Free version restricts scripting to Fusion page only. |
+| **Krita** | Poor | Moderate | Poor | Moderate | Auto-generated from C++ via SIP bindings — reads like C++ docs, no docstrings. Signals/events limited, forces polling hacks. Unit testing requires mock objects. Krita 6.0 (2026 beta) adds brush-stroke APIs. Community tools fill gaps. |
+| **GIMP** | Poor | Poor | Poor | Poor | GIMP 3.0 completely rewrote the Python API, breaking all Python-Fu plugins. New API uses GObject Introspection (`gi`), maps 1:1 to C — powerful but verbose. Docs are "naturally still sparse." Hot-reload works (no restart needed). |
