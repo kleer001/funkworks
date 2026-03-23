@@ -21,7 +21,7 @@
 
 Always use `screenshot_area` (not `screenshot`) — it captures a single editor area instead of the full Blender window. For tighter crops (e.g. a single sub-panel within Properties), the Screenshot Runner post-crops with Pillow using the `crop.region` from the manifest.
 
-Blender's `screenshot_area` captures the entire area including headers and sidebars. To crop to just a sub-panel or specific control, estimate pixel coordinates from the area's layout. These coordinates are relative to the captured area image, not the full screen.
+Blender's `screenshot_area` captures the entire area including headers and sidebars. For tighter crops (e.g. a single sub-panel within Properties), the Runner uploads the full-area capture to Claude, which returns precise crop coordinates based on the `crop_subject` field in the manifest. See [Crop Decision Workflow](auto_tutorial_pipeline.md#crop-decision-workflow) for the full Phase 1 → Phase 2 flow. Coordinates are relative to the captured area image, not the full screen.
 
 ---
 
@@ -100,7 +100,7 @@ This example follows the two-phase crop flow from the [main pipeline doc](auto_t
   "dcc": "blender",
   "resolution": [1920, 1080],
   "plugin": "fluid_domain_visibility",
-  "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
+  "scene_file": "plugins/blender/docs/fluid_domain_visibility/demo.blend",
   "screenshots": [
     {
       "id": "01_problem",
@@ -151,7 +151,7 @@ domain.name = "Fluid Domain"
 bpy.ops.object.modifier_add(type='FLUID')
 domain.modifiers["Fluid"].fluid_type = 'DOMAIN'
 domain.modifiers["Fluid"].domain_settings.cache_frame_start = 24
-bpy.ops.wm.save_as_mainfile(filepath="/path/to/tutorial_scenes/fluid_domain_demo.blend")
+bpy.ops.wm.save_as_mainfile(filepath="plugins/blender/docs/fluid_domain_visibility/demo.blend")
 ```
 
 ---

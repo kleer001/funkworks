@@ -93,7 +93,7 @@ The manifest records this at the top level so downstream tools know what they're
 }
 ```
 
-If a captured image doesn't match the expected resolution, the Runner flags it as a setup error before proceeding to the crop pass.
+If the DCC window doesn't match the expected 1920×1080 resolution (e.g. the launch flags were wrong or display scaling interfered), the Runner should detect this before proceeding to captures. In Blender, check with `bpy.context.window.width` and `bpy.context.window.height`.
 
 ### How It Works
 
@@ -138,8 +138,9 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
 ```json
 {
   "dcc": "blender",
+  "resolution": [1920, 1080],
   "plugin": "fluid_domain_visibility",
-  "scene_file": "tutorial_scenes/fluid_domain_demo.blend",
+  "scene_file": "plugins/blender/docs/fluid_domain_visibility/demo.blend",
   "screenshots": [
     {
       "id": "01_problem",
@@ -157,6 +158,7 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
     {
       "id": "02_panel_detail",
       "description": "Close-up of the Auto-Visibility toggle in the Properties panel",
+      "crop_subject": "The plugin's sub-panel within Properties",
       "setup": ["<DCC-specific setup commands>"],
       "capture": {
         "method": "<DCC-specific capture method>",
@@ -164,9 +166,7 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
         "filepath": "plugins/blender/docs/images/fluid_domain_visibility/02_panel_detail.png"
       },
       "crop": {
-        "method": "bbox",
-        "region": [x, y, width, height],
-        "comment": "Crop to just the plugin's sub-panel within Properties"
+        "method": "pending"
       }
     }
   ]
@@ -177,9 +177,9 @@ The Tutorial Agent generates a JSON screenshot manifest alongside the tutorial m
 
 | Method | Behavior |
 |--------|----------|
-| `area_only` | Use the DCC's area-level screenshot — no further cropping. Suitable when an entire editor area *is* the subject. |
-| `bbox` | Post-capture crop to `[x, y, width, height]` pixels. The runner uses Pillow (`PIL.Image.crop`). Coordinates are relative to the captured image, not the full screen. |
-| `auto` | *(future)* The runner uses edge detection or UI element recognition to auto-crop to the relevant widget. Not yet implemented. |
+| `area_only` | Use the DCC's area-level screenshot — no further cropping. Suitable when an entire editor area *is* the subject. Phase 2 is skipped. |
+| `pending` | Phase 1 placeholder — the entry has a `crop_subject` but no coordinates yet. The Runner will upload the full-area capture to Claude (Phase 2) to get a `bbox` region. After Phase 2, this becomes `bbox`. |
+| `bbox` | Post-capture crop to `[x, y, width, height]` pixels. Set by Claude in Phase 2, not by the Tutorial Agent. The runner uses Pillow (`PIL.Image.crop`). Coordinates are relative to the captured area image, not the full screen. |
 
 ### Screenshot Runner (Python Script)
 
@@ -448,7 +448,7 @@ import json
 
 client = anthropic.Anthropic()
 
-def get_crop_coordinates(image_path: str, entry: dict) -> dict:
+def get_crop_coordinates(image_path: str, entry: dict, dcc: str) -> dict:
     """Upload a full-area screenshot to Claude and get crop coordinates."""
     with open(image_path, "rb") as f:
         image_data = base64.standard_b64encode(f.read()).decode("utf-8")
@@ -471,7 +471,7 @@ def get_crop_coordinates(image_path: str, entry: dict) -> dict:
                     "type": "text",
                     "text": (
                         f'This is a screenshot of {entry["capture"]["area_type"]} '
-                        f'from {entry.get("dcc", "blender")}.\n'
+                        f'from {dcc}.\n'
                         f'The tutorial step is: "{entry["description"]}"\n\n'
                         f'Crop this image to show only: "{entry["crop_subject"]}"\n\n'
                         f'Return JSON with:\n'
