@@ -6,7 +6,7 @@ Tired of manually keyframing your fluid domain visibility every single sim?
 
 New free Blender addon: Auto-Keyframe Visibility. Select your fluid domain, click once, done. Hides the empty box before your sim starts automatically.
 
-[link]
+https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
 
 #Blender #b3d #VFX #fluidsimulation
 
@@ -20,7 +20,7 @@ Every fluid sim setup has the same tedious step: keyframe the domain hidden one 
 
 I built a small addon to eliminate it. Select your fluid domain, go to Physics > Fluid > Auto-Visibility, and click the button. That's it. The panel even previews the exact frames before you commit.
 
-Free download: [link]
+Free download: https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
 
 Works on Blender 4.0+. Full undo support, works on baked and unbaked sims.
 
@@ -38,4 +38,4 @@ So I built a small addon that does it in one click.
 
 **Fluid Domain Auto-Visibility** reads the simulation start frame directly from your fluid modifier and inserts the hide/show keyframes automatically. The panel previews exactly what it's about to do — "Hidden at frame 23, Visible at frame 24" — so there's no guesswork. Click the button, done.
 
-Download it free: [link]
+Download it free: https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
