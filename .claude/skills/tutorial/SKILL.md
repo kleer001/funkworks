@@ -87,7 +87,13 @@ Image references use the Jekyll `relative_url` filter — required for correct p
 For every screenshot referenced in the tutorial, create an entry in
 `data/tutorial_manifests/$ARGUMENTS.json`.
 
-Read `src/tutorials/screenshot_runner.py` to understand the manifest format before writing it.
+Read these two files before writing any setup code:
+- `src/tutorials/screenshot_runner.py` — manifest format and runner behaviour
+- `src/tutorials/BLENDER_SCREENSHOT_BEST_PRACTICES.md` — blocked MCP patterns, area
+  management, capture methods, scroll gotchas, and ready-to-use code snippets
+
+**When you hit a new gotcha and solve it, add it to `BLENDER_SCREENSHOT_BEST_PRACTICES.md`
+before moving on.** This keeps the document current for the next Claude Code instance.
 
 ### Manifest structure
 
