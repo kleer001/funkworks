@@ -274,6 +274,8 @@ def run(manifest: dict, client, shot_ids: list[str] | None = None) -> list[dict]
     # One-time setup (skipped when --shot targets specific shots)
     if shot_ids is None and manifest.get("pre_run"):
         try:
+            # Inject PROJECT_ROOT so manifests can reference FUNKWORKS_ROOT
+            execute_commands(client, [f"import os; os.environ['FUNKWORKS_ROOT'] = {str(PROJECT_ROOT)!r}"])
             execute_commands(client, manifest["pre_run"])
         except Exception as e:
             print(f"  WARNING: pre_run failed: {e}", file=sys.stderr)
