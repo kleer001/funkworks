@@ -209,3 +209,6 @@ __marimo__/
 # Crawl data (raw posts and digests only — tutorial_manifests is tracked)
 data/raw/
 data/digests/
+
+# Generated Blender demo scenes (recreated by pre_run)
+plugins/blender/docs/**/demo.blend
