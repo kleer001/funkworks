@@ -1,0 +1,92 @@
+{
+  "dcc": "blender",
+  "resolution": [1920, 1080],
+  "plugin": "fluid_domain_visibility",
+  "plugin_file": "plugins/blender/src/fluid_domain_visibility.py",
+  "scene_file": "plugins/blender/docs/fluid_domain_visibility/demo.blend",
+  "scene_setup": [
+    "import bmesh",
+    "for obj in list(bpy.data.objects): bpy.data.objects.remove(obj, do_unlink=True)",
+    "mesh = bpy.data.meshes.new('FluidDomainMesh')",
+    "bm = bmesh.new(); bmesh.ops.create_cube(bm, size=2.0); bm.to_mesh(mesh); bm.free()",
+    "domain = bpy.data.objects.new('Fluid Domain', mesh)",
+    "bpy.context.collection.objects.link(domain)",
+    "bpy.context.view_layer.objects.active = domain",
+    "domain.select_set(True)",
+    "fluid_mod = domain.modifiers.new(name='Fluid', type='FLUID')",
+    "fluid_mod.fluid_type = 'DOMAIN'",
+    "fluid_mod.domain_settings.cache_frame_start = 24",
+    "bpy.context.scene.frame_start = 1",
+    "bpy.context.scene.frame_end = 100",
+    "screen = bpy.context.window_manager.windows[0].screen\nall_areas = list(screen.areas)\nif not any(a.type == 'VIEW_3D' for a in all_areas):\n    max(all_areas, key=lambda a: a.width * a.height).type = 'VIEW_3D'",
+    "screen = bpy.context.window_manager.windows[0].screen\nall_areas = list(screen.areas)\nif not any(a.type == 'PROPERTIES' for a in all_areas):\n    non_v3d = [a for a in all_areas if a.type != 'VIEW_3D']\n    (min(non_v3d, key=lambda a: a.width) if non_v3d else min(all_areas, key=lambda a: a.width * a.height)).type = 'PROPERTIES'"
+  ],
+  "screenshots": [
+    {
+      "id": "01_domain_before",
+      "description": "The fluid domain box is visible in the viewport at frame 1, before the simulation starts — illustrating the problem the addon solves",
+      "crop_subject": "The Blender 3D Viewport showing the fluid domain cube visible at frame 1 in a perspective 3/4 view",
+      "setup": [
+        "screen = bpy.context.window_manager.windows[0].screen\nif not any(a.type == 'VIEW_3D' for a in screen.areas):\n    max(screen.areas, key=lambda a: a.width * a.height).type = 'VIEW_3D'",
+        "bpy.context.scene.frame_set(1)",
+        "bpy.data.objects['Fluid Domain'].select_set(True)",
+        "bpy.context.view_layer.objects.active = bpy.data.objects['Fluid Domain']",
+        "r3d = next(a for a in bpy.context.window_manager.windows[0].screen.areas if a.type == 'VIEW_3D').spaces.active.region_3d",
+        "r3d.view_perspective = 'PERSP'",
+        "r3d.view_rotation = mathutils.Quaternion((0.8227, 0.4227, 0.1786, 0.3420))"
+      ],
+      "capture": {
+        "method": "system",
+        "area_type": "VIEW_3D",
+        "filepath": "docs/images/fluid_domain_visibility/01_domain_before.png"
+      },
+      "crop": { "method": "area_only" }
+    },
+    {
+      "id": "02_panel_preview",
+      "description": "The Auto-Visibility sub-panel in Physics > Fluid properties, showing the frame preview before clicking the button",
+      "crop_subject": "The Auto-Visibility sub-panel showing 'Hidden at frame: 23' and 'Visible at frame: 24' labels and the Auto-Keyframe Visibility button",
+      "setup": [
+        "props_area = None\nprops_window = None\nfor w in bpy.context.window_manager.windows:\n    for a in w.screen.areas:\n        if a.type == 'PROPERTIES':\n            props_area = a\n            props_window = w\n            break\n    if props_area:\n        break\nif props_area is None:\n    props_window = bpy.context.window_manager.windows[0]\n    candidates = [a for a in props_window.screen.areas if a.type not in ('VIEW_3D', 'OUTLINER')]\n    props_area = min(candidates, key=lambda a: a.width) if candidates else min(props_window.screen.areas, key=lambda a: a.width * a.height)\n    props_area.type = 'PROPERTIES'",
+        "bpy.data.objects['Fluid Domain'].select_set(True)",
+        "bpy.context.view_layer.objects.active = bpy.data.objects['Fluid Domain']",
+        "for space in props_area.spaces:\n    if space.type == 'PROPERTIES':\n        space.context = 'PHYSICS'\n        break",
+        "with bpy.context.temp_override(window=props_window, area=props_area):\n    bpy.ops.screen.screen_full_area(use_hide_panels=False)",
+        "props_area = next(a for a in props_window.screen.areas if a.type == 'PROPERTIES')",
+        "props_region = next(r for r in props_area.regions if r.type == 'WINDOW')",
+        "for _ in range(60):\n    with bpy.context.temp_override(window=props_window, area=props_area, region=props_region):\n        bpy.ops.view2d.scroll_down(deltay=9999)"
+      ],
+      "capture": {
+        "method": "system",
+        "area_type": "PROPERTIES",
+        "filepath": "docs/images/fluid_domain_visibility/02_panel_preview.png"
+      },
+      "crop": { "method": "area_only" }
+    },
+    {
+      "id": "04_keyframes",
+      "description": "The Action Editor showing keyframe diamonds on the Fluid Domain's hide_viewport and hide_render FCurves at frames 1, 23, and 24",
+      "crop_subject": "The Action Editor channel rows showing hide_viewport and hide_render FCurves with keyframe diamonds at frames 1, 23, and 24",
+      "setup": [
+        "try:\n    bpy.ops.screen.back_to_previous()\nexcept:\n    pass",
+        "obj = bpy.data.objects['Fluid Domain']",
+        "bpy.context.view_layer.objects.active = obj",
+        "obj.select_set(True)",
+        "bpy.ops.fluid.auto_keyframe_visibility()",
+        "bpy.context.scene.frame_set(1)",
+        "screen = bpy.context.window_manager.windows[0].screen\ntimeline_areas = [a for a in screen.areas if a.type == 'TIMELINE']\ndope_area = max(timeline_areas, key=lambda a: a.width) if timeline_areas else max((a for a in screen.areas if a.type not in ('PROPERTIES', 'OUTLINER')), key=lambda a: a.width * a.height)\ndope_area.type = 'DOPESHEET_EDITOR'",
+        "for space in dope_area.spaces:\n    if space.type == 'DOPESHEET_EDITOR':\n        space.mode = 'ACTION'\n        if obj.animation_data and obj.animation_data.action:\n            space.action = obj.animation_data.action\n        space.dopesheet.show_only_selected = True\n        break",
+        "dope_region = next(r for r in dope_area.regions if r.type == 'WINDOW')",
+        "window = bpy.context.window_manager.windows[0]",
+        "with bpy.context.temp_override(window=window, area=dope_area, region=dope_region):\n    bpy.ops.anim.channels_expand(all=True)\n    bpy.ops.action.select_all(action='SELECT')\n    bpy.ops.action.view_all()",
+        "with bpy.context.temp_override(window=window, area=dope_area):\n    bpy.ops.screen.screen_full_area(use_hide_panels=True)"
+      ],
+      "capture": {
+        "method": "system",
+        "area_type": "DOPESHEET_EDITOR",
+        "filepath": "docs/images/fluid_domain_visibility/04_keyframes.png"
+      },
+      "crop": { "method": "area_only" }
+    }
+  ]
+}
