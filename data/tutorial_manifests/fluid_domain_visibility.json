@@ -1,10 +1,8 @@
 {
-  "dcc": "blender",
-  "resolution": [1920, 1080],
-  "plugin": "fluid_domain_visibility",
-  "plugin_file": "plugins/blender/src/fluid_domain_visibility.py",
-  "scene_file": "plugins/blender/docs/fluid_domain_visibility/demo.blend",
-  "scene_setup": [
+  "tutorial": "fluid_domain_visibility",
+  "app": "blender",
+  "app_window": "Blender",
+  "pre_run": [
     "import bmesh",
     "for obj in list(bpy.data.objects): bpy.data.objects.remove(obj, do_unlink=True)",
     "mesh = bpy.data.meshes.new('FluidDomainMesh')",
@@ -18,14 +16,18 @@
     "fluid_mod.domain_settings.cache_frame_start = 24",
     "bpy.context.scene.frame_start = 1",
     "bpy.context.scene.frame_end = 100",
-    "screen = bpy.context.window_manager.windows[0].screen\nall_areas = list(screen.areas)\nif not any(a.type == 'VIEW_3D' for a in all_areas):\n    max(all_areas, key=lambda a: a.width * a.height).type = 'VIEW_3D'",
-    "screen = bpy.context.window_manager.windows[0].screen\nall_areas = list(screen.areas)\nif not any(a.type == 'PROPERTIES' for a in all_areas):\n    non_v3d = [a for a in all_areas if a.type != 'VIEW_3D']\n    (min(non_v3d, key=lambda a: a.width) if non_v3d else min(all_areas, key=lambda a: a.width * a.height)).type = 'PROPERTIES'"
+    "bpy.ops.preferences.addon_install(filepath=str(__import__('pathlib').Path(__import__('os').environ['FUNKWORKS_ROOT']) / 'plugins/blender/src/fluid_domain_visibility.py'))",
+    "bpy.ops.preferences.addon_enable(module='fluid_domain_visibility')",
+    "bpy.context.scene.render.resolution_x = 1920",
+    "bpy.context.scene.render.resolution_y = 1080",
+    "bpy.context.scene.render.resolution_percentage = 100"
   ],
   "screenshots": [
     {
       "id": "01_domain_before",
-      "description": "The fluid domain box is visible in the viewport at frame 1, before the simulation starts — illustrating the problem the addon solves",
-      "crop_subject": "The Blender 3D Viewport showing the fluid domain cube visible at frame 1 in a perspective 3/4 view",
+      "description": "The fluid domain box visible in the viewport at frame 1, before the simulation starts",
+      "prompt": "At frame 1, with the Fluid Domain object selected (orange outline), set the viewport to perspective 3/4 view so the cube fills most of the frame",
+      "mode": "auto",
       "setup": [
         "screen = bpy.context.window_manager.windows[0].screen\nif not any(a.type == 'VIEW_3D' for a in screen.areas):\n    max(screen.areas, key=lambda a: a.width * a.height).type = 'VIEW_3D'",
         "bpy.context.scene.frame_set(1)",
@@ -36,8 +38,7 @@
         "r3d.view_rotation = mathutils.Quaternion((0.8227, 0.4227, 0.1786, 0.3420))"
       ],
       "capture": {
-        "method": "system",
-        "area_type": "VIEW_3D",
+        "method": "viewport",
         "filepath": "docs/images/fluid_domain_visibility/01_domain_before.png"
       },
       "crop": { "method": "area_only" }
@@ -45,45 +46,21 @@
     {
       "id": "02_panel_preview",
       "description": "The Auto-Visibility sub-panel in Physics > Fluid properties, showing the frame preview before clicking the button",
-      "crop_subject": "The Auto-Visibility sub-panel showing 'Hidden at frame: 23' and 'Visible at frame: 24' labels and the Auto-Keyframe Visibility button",
-      "setup": [
-        "props_area = None\nprops_window = None\nfor w in bpy.context.window_manager.windows:\n    for a in w.screen.areas:\n        if a.type == 'PROPERTIES':\n            props_area = a\n            props_window = w\n            break\n    if props_area:\n        break\nif props_area is None:\n    props_window = bpy.context.window_manager.windows[0]\n    candidates = [a for a in props_window.screen.areas if a.type not in ('VIEW_3D', 'OUTLINER')]\n    props_area = min(candidates, key=lambda a: a.width) if candidates else min(props_window.screen.areas, key=lambda a: a.width * a.height)\n    props_area.type = 'PROPERTIES'",
-        "bpy.data.objects['Fluid Domain'].select_set(True)",
-        "bpy.context.view_layer.objects.active = bpy.data.objects['Fluid Domain']",
-        "for space in props_area.spaces:\n    if space.type == 'PROPERTIES':\n        space.context = 'PHYSICS'\n        break",
-        "with bpy.context.temp_override(window=props_window, area=props_area):\n    bpy.ops.screen.screen_full_area(use_hide_panels=False)",
-        "props_area = next(a for a in props_window.screen.areas if a.type == 'PROPERTIES')",
-        "props_region = next(r for r in props_area.regions if r.type == 'WINDOW')",
-        "for _ in range(60):\n    with bpy.context.temp_override(window=props_window, area=props_area, region=props_region):\n        bpy.ops.view2d.scroll_down(deltay=9999)"
-      ],
+      "prompt": "In Physics Properties, scroll to the bottom of the Fluid panel until the Auto-Visibility sub-panel is visible, showing 'Hidden at frame: 23', 'Visible at frame: 24', and the Auto-Keyframe Visibility button",
+      "mode": "manual",
       "capture": {
-        "method": "system",
-        "area_type": "PROPERTIES",
+        "method": "window",
         "filepath": "docs/images/fluid_domain_visibility/02_panel_preview.png"
       },
       "crop": { "method": "area_only" }
     },
     {
       "id": "04_keyframes",
-      "description": "The Action Editor showing keyframe diamonds on the Fluid Domain's hide_viewport and hide_render FCurves at frames 1, 23, and 24",
-      "crop_subject": "The Action Editor channel rows showing hide_viewport and hide_render FCurves with keyframe diamonds at frames 1, 23, and 24",
-      "setup": [
-        "try:\n    bpy.ops.screen.back_to_previous()\nexcept:\n    pass",
-        "obj = bpy.data.objects['Fluid Domain']",
-        "bpy.context.view_layer.objects.active = obj",
-        "obj.select_set(True)",
-        "bpy.ops.fluid.auto_keyframe_visibility()",
-        "bpy.context.scene.frame_set(1)",
-        "screen = bpy.context.window_manager.windows[0].screen\ntimeline_areas = [a for a in screen.areas if a.type == 'TIMELINE']\ndope_area = max(timeline_areas, key=lambda a: a.width) if timeline_areas else max((a for a in screen.areas if a.type not in ('PROPERTIES', 'OUTLINER')), key=lambda a: a.width * a.height)\ndope_area.type = 'DOPESHEET_EDITOR'",
-        "for space in dope_area.spaces:\n    if space.type == 'DOPESHEET_EDITOR':\n        space.mode = 'ACTION'\n        if obj.animation_data and obj.animation_data.action:\n            space.action = obj.animation_data.action\n        space.dopesheet.show_only_selected = True\n        break",
-        "dope_region = next(r for r in dope_area.regions if r.type == 'WINDOW')",
-        "window = bpy.context.window_manager.windows[0]",
-        "with bpy.context.temp_override(window=window, area=dope_area, region=dope_region):\n    bpy.ops.anim.channels_expand(all=True)\n    bpy.ops.action.select_all(action='SELECT')\n    bpy.ops.action.view_all()",
-        "with bpy.context.temp_override(window=window, area=dope_area):\n    bpy.ops.screen.screen_full_area(use_hide_panels=True)"
-      ],
+      "description": "The Action Editor showing keyframe diamonds on the Fluid Domain's Disable in Viewports and Disable in Renders FCurves at frames 1, 23, and 24",
+      "prompt": "Run the Auto-Keyframe Visibility operator on the Fluid Domain, then open the Action Editor in ACTION mode showing the Fluid Domain's action. Expand all channels so 'Disable in Viewports' and 'Disable in Renders' rows are visible with keyframe diamonds at frames 1, 23, and 24",
+      "mode": "manual",
       "capture": {
-        "method": "system",
-        "area_type": "DOPESHEET_EDITOR",
+        "method": "window",
         "filepath": "docs/images/fluid_domain_visibility/04_keyframes.png"
       },
       "crop": { "method": "area_only" }

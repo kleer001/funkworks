@@ -2,16 +2,20 @@
 """
 Screenshot runner for the Funkworks tutorial pipeline.
 
-Two modes:
-  MCP (default)  — connect to a running Blender with MCP plugin active
-  Launch         — spawn Blender as a subprocess (add --headless for xvfb)
+Each shot in the manifest has a mode:
+  auto    — runner executes setup[] commands via the app client, then captures
+  manual  — runner prints a prompt, waits for the operator to set up the app,
+            then captures on Enter
 
 Usage:
-  # MCP mode (Blender already running, MCP on port 9334):
+  # MCP mode (app already running):
   python -m src.tutorials.screenshot_runner data/tutorial_manifests/fluid_domain_visibility.json
 
-  # Launch mode (headless):
-  python -m src.tutorials.screenshot_runner data/tutorial_manifests/fluid_domain_visibility.json \
+  # Retake one shot (skips pre_run, scene already set up):
+  python -m src.tutorials.screenshot_runner data/tutorial_manifests/fluid_domain_visibility.json --shot 02_panel_preview
+
+  # Launch Blender headlessly:
+  python -m src.tutorials.screenshot_runner data/tutorial_manifests/fluid_domain_visibility.json \\
     --launch /usr/bin/blender --headless
 """
 
@@ -22,10 +26,9 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
+import time
 from pathlib import Path
 
-import anthropic
 from dotenv import load_dotenv
 from PIL import Image
 
@@ -47,7 +50,6 @@ class BlenderMCPClient:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(30)
             s.connect((self.host, self.port))
-            # Consume the handshake the server sends on connect
             data = b""
             while True:
                 chunk = s.recv(4096)
@@ -59,10 +61,8 @@ class BlenderMCPClient:
                     break
                 except json.JSONDecodeError:
                     continue
-            # Send the actual command
             payload = json.dumps({"type": cmd_type, "params": params})
             s.sendall((payload + "\n").encode())
-            # Read the response
             data = b""
             while True:
                 chunk = s.recv(4096)
@@ -99,181 +99,74 @@ class BlenderMCPClient:
 
 
 # ---------------------------------------------------------------------------
-# Blender launch client (subprocess, uses --python)
+# Window capture (universal — works for any app)
 # ---------------------------------------------------------------------------
 
-# This script runs inside Blender (has access to bpy).
-_BLENDER_CAPTURE_SCRIPT = '''\
-import bpy, json, os, sys
-
-results_path, manifest_path = sys.argv[sys.argv.index("--") + 1:]
-with open(manifest_path) as f:
-    manifest = json.load(f)
-
-root = os.environ["FUNKWORKS_ROOT"]
-
-
-def abs_path(rel):
-    return os.path.join(root, rel)
-
-
-def get_area(area_type):
-    return next((a for a in bpy.context.screen.areas if a.type == area_type), None)
-
-
-# Install plugin
-bpy.ops.preferences.addon_install(filepath=abs_path(manifest["plugin_file"]))
-bpy.ops.preferences.addon_enable(module=manifest["plugin"])
-
-# Set up demo scene (generate if .blend doesn\'t exist yet)
-scene_path = abs_path(manifest["scene_file"])
-if os.path.exists(scene_path):
-    bpy.ops.wm.open_mainfile(filepath=scene_path)
-else:
-    for cmd in manifest.get("scene_setup", []):
-        exec(cmd)
-    os.makedirs(os.path.dirname(scene_path), exist_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=scene_path)
-
-results = []
-for shot in manifest["screenshots"]:
-    try:
-        for cmd in shot.get("setup", []):
-            exec(cmd)
-        filepath = abs_path(shot["capture"]["filepath"])
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        area = get_area(shot["capture"]["area_type"])
-        if area is None:
-            raise RuntimeError(f"No {shot[\'capture\'][\'area_type\']} area found")
-        with bpy.context.temp_override(area=area):
-            bpy.ops.screen.screenshot_area(filepath=filepath)
-        results.append({"id": shot["id"], "success": True, "filepath": filepath})
-    except Exception as e:
-        results.append({"id": shot["id"], "success": False, "error": str(e)})
-
-with open(results_path, "w") as f:
-    json.dump(results, f)
-
-bpy.ops.wm.quit_blender()
-'''
-
-
-class BlenderLaunchClient:
-    def __init__(self, blender_path: str = "blender", headless: bool = False):
-        self.blender_path = blender_path
-        self.headless = headless
-
-    def run_captures(self, manifest: dict) -> list[dict]:
-        results_file = Path(tempfile.mktemp(suffix=".json"))
-        manifest_file = Path(tempfile.mktemp(suffix=".json"))
-        script_file = Path(tempfile.mktemp(suffix=".py"))
-        try:
-            manifest_file.write_text(json.dumps(manifest))
-            script_file.write_text(_BLENDER_CAPTURE_SCRIPT)
-
-            prefix = []
-            if self.headless:
-                prefix = ["xvfb-run", "-a", "-s", "-screen 0 1920x1080x24"]
-
-            cmd = prefix + [
-                self.blender_path,
-                "--factory-startup",
-                "--window-geometry", "0", "0", "1920", "1080",
-                "--python", str(script_file),
-                "--", str(results_file), str(manifest_file),
-            ]
-            env = {**os.environ, "FUNKWORKS_ROOT": str(PROJECT_ROOT)}
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=180, env=env)
-            if not results_file.exists():
-                raise RuntimeError(f"Blender exited without results.\nstderr:\n{proc.stderr[-2000:]}")
-            return json.loads(results_file.read_text())
-        finally:
-            for p in (results_file, manifest_file, script_file):
-                p.unlink(missing_ok=True)
-
-
-# ---------------------------------------------------------------------------
-# MCP capture path
-# ---------------------------------------------------------------------------
-
-def _blender_window_id() -> str:
-    """Return the X11 window ID of the running Blender instance (hex string)."""
-    import subprocess
+def _find_window_id(app_name: str) -> str:
+    """Return the X11 window ID of a running app window (hex string)."""
     result = subprocess.run(["wmctrl", "-l"], capture_output=True, text=True, check=True)
     for line in result.stdout.splitlines():
-        if "Blender" in line:
-            return line.split()[0]  # e.g. "0x05800002"
-    raise RuntimeError("No Blender window found via wmctrl. Is Blender running?")
+        if app_name in line:
+            return line.split()[0]
+    raise RuntimeError(f"No window containing '{app_name}' found via wmctrl.")
 
 
-def _capture_blender_window(filepath: str) -> None:
-    """Capture the Blender window at its natural size using xwd."""
-    import subprocess, time
-    win_id = _blender_window_id()
+def capture_window(filepath: str, app_name: str = "Blender") -> None:
+    """Capture an app window at its natural X11 pixel size using xwd."""
+    win_id = _find_window_id(app_name)
     subprocess.run(["wmctrl", "-ia", win_id], check=True, capture_output=True)
     time.sleep(0.5)
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(
+    subprocess.run(
         f"xwd -id {win_id} -silent | convert xwd:- {filepath}",
         shell=True, check=True, capture_output=True,
     )
 
 
-def _mcp_capture(client: BlenderMCPClient, manifest: dict) -> list[dict]:
-    root = PROJECT_ROOT
+# ---------------------------------------------------------------------------
+# App command execution (extensible per-client)
+# ---------------------------------------------------------------------------
 
-    # Install plugin
-    plugin_file = str(root / manifest["plugin_file"])
-    client.execute(
-        f"import bpy\n"
-        f"bpy.ops.preferences.addon_install(filepath={plugin_file!r})\n"
-        f"bpy.ops.preferences.addon_enable(module={manifest['plugin']!r})"
-    )
-
-    # Set up demo scene
-    scene_path = root / manifest["scene_file"]
-    if scene_path.exists():
-        client.execute(f"import bpy\nbpy.ops.wm.open_mainfile(filepath={str(scene_path)!r})")
-    else:
-        scene_path.parent.mkdir(parents=True, exist_ok=True)
-        setup = (
-            "import bpy, bmesh\n"
-            + "\n".join(manifest.get("scene_setup", []))
-            + f"\nbpy.context.scene.render.resolution_x = 1920"
-            + f"\nbpy.context.scene.render.resolution_y = 1080"
-            + f"\nbpy.context.scene.render.resolution_percentage = 100"
-            + f"\nbpy.ops.wm.save_as_mainfile(filepath={str(scene_path)!r})"
-        )
-        client.execute(setup)
-
-    results = []
-    for shot in manifest["screenshots"]:
-        try:
-            if shot.get("setup"):
-                client.execute("import bpy, bmesh\n" + "\n".join(shot["setup"]))
-            filepath = str(root / shot["capture"]["filepath"])
-            Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-            area_type = shot["capture"]["area_type"]
-            if area_type == "VIEW_3D":
-                client._send("frame_all", {})
-                client.capture_viewport(filepath)
-            else:
-                _capture_blender_window(filepath)
-            results.append({"id": shot["id"], "success": True, "filepath": filepath})
-        except Exception as e:
-            results.append({"id": shot["id"], "success": False, "error": str(e)})
-
-    return results
+def execute_commands(client, commands: list[str]) -> None:
+    """Execute a list of setup commands via the app client."""
+    if not commands or client is None:
+        return
+    code = "\n".join(commands)
+    if isinstance(client, BlenderMCPClient):
+        client.execute(code)
+    # Future clients: elif isinstance(client, HoudiniMCPClient): ...
 
 
 # ---------------------------------------------------------------------------
-# Phase 2: Claude crop pass
+# Pixel QA
+# ---------------------------------------------------------------------------
+
+def qa_check(image_path: Path, allow_blank: bool = False) -> tuple[bool, str]:
+    if not image_path.exists():
+        return False, "File not found"
+    img = Image.open(image_path)
+    w, h = img.size
+    if w < 100 or h < 100:
+        return False, f"Too small: {w}x{h}"
+    if not allow_blank:
+        from collections import Counter
+        pixels = list(img.convert("RGB").getdata())
+        most_common_count = Counter(pixels).most_common(1)[0][1]
+        if most_common_count / len(pixels) > 0.95:
+            return False, "Image is mostly blank"
+    if not (0.3 <= w / h <= 4.0):
+        return False, f"Unusual aspect ratio {w/h:.2f}"
+    return True, "ok"
+
+
+# ---------------------------------------------------------------------------
+# Optional Claude crop pass (requires ANTHROPIC_API_KEY in .env)
 # ---------------------------------------------------------------------------
 
 def get_crop_bbox(image_path: Path, description: str, crop_subject: str, area_type: str) -> dict:
+    import anthropic
     with open(image_path, "rb") as f:
         image_data = base64.standard_b64encode(f.read()).decode()
-
     client = anthropic.Anthropic()
     resp = client.messages.create(
         model="claude-sonnet-4-6",
@@ -300,117 +193,133 @@ def get_crop_bbox(image_path: Path, description: str, crop_subject: str, area_ty
     return json.loads(text)
 
 
-# ---------------------------------------------------------------------------
-# Phase 3: Pillow crop + QA
-# ---------------------------------------------------------------------------
-
 def apply_crop(image_path: Path, region: list[int]) -> None:
     x, y, w, h = region
     img = Image.open(image_path)
     img.crop((x, y, x + w, y + h)).save(image_path)
 
 
-def qa_check(image_path: Path, allow_blank: bool = False) -> tuple[bool, str]:
-    if not image_path.exists():
-        return False, "File not found"
-    img = Image.open(image_path)
-    w, h = img.size
-    if w < 100 or h < 100:
-        return False, f"Too small: {w}x{h}"
-    if not allow_blank:
-        from collections import Counter
-        pixels = list(img.convert("RGB").getdata())
-        most_common_count = Counter(pixels).most_common(1)[0][1]
-        if most_common_count / len(pixels) > 0.95:
-            return False, "Image is mostly blank"
-    if not (0.3 <= w / h <= 4.0):
-        return False, f"Unusual aspect ratio {w/h:.2f}"
-    return True, "ok"
+# ---------------------------------------------------------------------------
+# Per-shot execution
+# ---------------------------------------------------------------------------
 
+def run_shot(shot: dict, client, app_name: str = "Blender") -> dict:
+    """Process one shot: setup or prompt → capture → QA. Returns a result dict."""
+    shot_id = shot["id"]
+    filepath = PROJECT_ROOT / shot["capture"]["filepath"]
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    mode = shot.get("mode", "auto")
+
+    if mode == "manual":
+        print(f"\n  [{shot_id}] Manual setup required:")
+        print(f"  → {shot.get('prompt', shot['description'])}")
+        try:
+            response = input("  Press Enter to capture, or 's' to skip: ").strip().lower()
+        except EOFError:
+            response = ""
+        if response == "s":
+            return {"id": shot_id, "status": "skipped"}
+    else:
+        if shot.get("setup"):
+            try:
+                execute_commands(client, shot["setup"])
+            except Exception as e:
+                return {"id": shot_id, "status": "failed", "error": f"Setup: {e}"}
+
+    # Capture
+    try:
+        capture_method = shot.get("capture", {}).get("method", "window")
+        if capture_method == "viewport" and isinstance(client, BlenderMCPClient):
+            client._send("frame_all", {})
+            client.capture_viewport(str(filepath))
+        else:
+            capture_window(str(filepath), app_name=app_name)
+    except Exception as e:
+        return {"id": shot_id, "status": "failed", "error": f"Capture: {e}"}
+
+    # Pixel QA
+    passed, reason = qa_check(filepath, allow_blank=shot.get("allow_blank", False))
+    entry = {"id": shot_id, "status": "pass" if passed else "needs_review"}
+    if not passed:
+        entry["reason"] = reason
+
+    # Optional Claude crop pass
+    if entry["status"] == "pass" and shot.get("crop", {}).get("method") == "pending":
+        try:
+            bbox = get_crop_bbox(
+                filepath,
+                shot["description"],
+                shot.get("crop_subject", ""),
+                shot["capture"].get("area_type", ""),
+            )
+            if bbox["confidence"] == "low":
+                entry.update(status="needs_review", reason=f"Low crop confidence: {bbox['rationale']}")
+            else:
+                apply_crop(filepath, bbox["region"])
+                entry["crop"] = bbox
+        except Exception as e:
+            entry.update(status="failed", error=f"Crop pass: {e}")
+
+    return entry
 
 
 # ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
 
-def run(manifest: dict, client) -> list[dict]:
-    if isinstance(client, BlenderMCPClient):
-        capture_results = _mcp_capture(client, manifest)
-    else:
-        capture_results = client.run_captures(manifest)
+def run(manifest: dict, client, shot_ids: list[str] | None = None) -> list[dict]:
+    app_name = manifest.get("app_window", "Blender")
 
-    shot_by_id = {s["id"]: s for s in manifest["screenshots"]}
-    final = []
+    # One-time setup (skipped when --shot targets specific shots)
+    if shot_ids is None and manifest.get("pre_run"):
+        try:
+            execute_commands(client, manifest["pre_run"])
+        except Exception as e:
+            print(f"  WARNING: pre_run failed: {e}", file=sys.stderr)
 
-    for cap in capture_results:
-        shot = shot_by_id[cap["id"]]
-        entry = {"id": cap["id"]}
+    shots = manifest["screenshots"]
+    if shot_ids:
+        shots = [s for s in shots if s["id"] in shot_ids]
 
-        if not cap["success"]:
-            entry.update(status="failed", error=cap.get("error"))
-            final.append(entry)
-            continue
+    sym = {"pass": "✓", "failed": "✗", "needs_review": "?", "skipped": "—"}
+    results = []
+    for shot in shots:
+        result = run_shot(shot, client, app_name=app_name)
+        tail = f" — {result.get('error') or result.get('reason', '')}" if result.get("error") or result.get("reason") else ""
+        print(f"  {sym.get(result['status'], '?')} {result['id']}: {result['status']}{tail}")
+        results.append(result)
 
-        filepath = PROJECT_ROOT / shot["capture"]["filepath"]
-        crop_method = shot.get("crop", {}).get("method", "area_only")
-
-        if crop_method == "pending":
-            try:
-                bbox = get_crop_bbox(
-                    filepath,
-                    shot["description"],
-                    shot["crop_subject"],
-                    shot["capture"]["area_type"],
-                )
-                if bbox["confidence"] == "low":
-                    entry.update(status="needs_review", reason=f"Low crop confidence: {bbox['rationale']}")
-                    final.append(entry)
-                    continue
-                apply_crop(filepath, bbox["region"])
-                entry["crop"] = bbox
-            except Exception as e:
-                entry.update(status="failed", error=f"Crop pass: {e}")
-                final.append(entry)
-                continue
-
-        passed, reason = qa_check(filepath, allow_blank=shot.get("allow_blank", False))
-        entry["status"] = "pass" if passed else "needs_review"
-        if not passed:
-            entry["reason"] = reason
-        final.append(entry)
-
-    return final
+    return results
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Funkworks tutorial screenshot runner")
+    parser = argparse.ArgumentParser(description="Tutorial screenshot runner")
     parser.add_argument("manifest", help="Path to screenshot manifest JSON")
+    parser.add_argument("--shot", metavar="SHOT_ID", action="append", dest="shots",
+                        help="Retake only this shot ID (repeatable). Skips pre_run.")
     parser.add_argument("--mcp-host", default="localhost")
     parser.add_argument("--mcp-port", type=int, default=9334)
-    parser.add_argument("--launch", metavar="BLENDER_PATH",
-                        help="Launch Blender at this path instead of connecting via MCP")
-    parser.add_argument("--headless", action="store_true",
-                        help="Wrap Blender launch in xvfb-run (requires --launch)")
+    parser.add_argument("--no-mcp", action="store_true",
+                        help="Skip MCP connection entirely (manual shots only)")
     args = parser.parse_args()
 
     manifest = json.loads(Path(args.manifest).read_text())
 
-    if args.launch:
-        client = BlenderLaunchClient(blender_path=args.launch, headless=args.headless)
+    if args.no_mcp:
+        client = None
     else:
         client = BlenderMCPClient(host=args.mcp_host, port=args.mcp_port)
         if not client.ping():
-            sys.exit(f"ERROR: Cannot connect to Blender MCP at {args.mcp_host}:{args.mcp_port}")
+            print(f"WARNING: Cannot connect to MCP at {args.mcp_host}:{args.mcp_port}. Auto shots will fail; manual shots still work.")
+            client = None
 
-    results = run(manifest, client)
+    results = run(manifest, client, shot_ids=args.shots)
 
-    sym = {"pass": "✓", "failed": "✗", "needs_review": "?"}
-    for r in results:
-        tail = f" — {r.get('error') or r.get('reason', '')}" if r.get("error") or r.get("reason") else ""
-        print(f"  {sym.get(r['status'], '?')} {r['id']}: {r['status']}{tail}")
-
-    counts = {s: sum(1 for r in results if r["status"] == s) for s in ("pass", "failed", "needs_review")}
-    print(f"\n{counts['pass']} passed, {counts['failed']} failed, {counts['needs_review']} need review")
+    counts = {s: sum(1 for r in results if r.get("status") == s)
+              for s in ("pass", "failed", "needs_review", "skipped")}
+    print(f"\n{counts['pass']} passed, {counts['failed']} failed, "
+          f"{counts['needs_review']} need review, {counts['skipped']} skipped")
     sys.exit(0 if counts["failed"] == 0 else 1)
 
 
