@@ -175,7 +175,28 @@ After each run, read the output images directly to verify each one shows what it
 
 ---
 
-## After Writing
+## Step 4: Human Review
+
+After the pipeline completes, present the work for review:
+
+1. List every screenshot with a one-line description of what it shows.
+2. Give the path to the published tutorial page (`docs/$ARGUMENTS.md`).
+3. Explicitly ask:
+
+> "Please review the tutorial page and screenshots. Name any images that need a retake and describe what's wrong, or any sections that need rewriting. I'll wait."
+
+Then stop and wait for the human's response.
+
+When feedback arrives:
+- **Image retake:** Ask the human to set up the app to the correct state, then use `--shot <id>` to retake just that image. Read the result and confirm it's right before moving on.
+- **Text fix:** Edit the tutorial page directly.
+- **Multiple fixes:** Work through them one at a time, confirming each before starting the next.
+
+Repeat until the human approves.
+
+---
+
+## Final Checks
 
 1. Verify every UI element name against the plugin source.
 2. Verify the Blender version matches `bl_info["blender"]` in the plugin.
