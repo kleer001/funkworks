@@ -206,23 +206,17 @@ def _blender_window_id() -> str:
     raise RuntimeError("No Blender window found via wmctrl. Is Blender running?")
 
 
-def _spectacle_screenshot(filepath: str) -> None:
-    """Maximize the Blender window, capture full screen, then restore."""
+def _capture_blender_window(filepath: str) -> None:
+    """Capture the Blender window at its natural size using xwd."""
     import subprocess, time
     win_id = _blender_window_id()
     subprocess.run(["wmctrl", "-ia", win_id], check=True, capture_output=True)
-    subprocess.run(["wmctrl", "-ir", win_id, "-b", "add,maximized_vert,maximized_horz"],
-                   check=True, capture_output=True)
-    time.sleep(1.0)  # let maximize animation settle and Blender redraw
+    time.sleep(0.5)
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["spectacle", "-b", "-n", "-f", "-o", filepath], check=True, capture_output=True)
-    subprocess.run(["wmctrl", "-ir", win_id, "-b", "remove,maximized_vert,maximized_horz"],
-                   check=True, capture_output=True)
-    # HiDPI: Spectacle captures at physical pixels; scale back to logical resolution
-    img = Image.open(filepath)
-    if img.width > 1920:
-        img = img.resize((img.width // 2, img.height // 2), Image.LANCZOS)
-        img.save(filepath)
+    result = subprocess.run(
+        f"xwd -id {win_id} -silent | convert xwd:- {filepath}",
+        shell=True, check=True, capture_output=True,
+    )
 
 
 def _mcp_capture(client: BlenderMCPClient, manifest: dict) -> list[dict]:
@@ -264,7 +258,7 @@ def _mcp_capture(client: BlenderMCPClient, manifest: dict) -> list[dict]:
                 client._send("frame_all", {})
                 client.capture_viewport(filepath)
             else:
-                _spectacle_screenshot(filepath)
+                _capture_blender_window(filepath)
             results.append({"id": shot["id"], "success": True, "filepath": filepath})
         except Exception as e:
             results.append({"id": shot["id"], "success": False, "error": str(e)})
