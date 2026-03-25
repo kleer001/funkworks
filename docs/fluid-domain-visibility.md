@@ -68,7 +68,7 @@ The addon's poll function checks the active object for a Fluid modifier set to D
 
 > **Checkpoint:** The domain object is highlighted in the viewport with an orange outline indicating it is the active selection.
 
-![Fluid domain cube visible in the viewport at frame 1, before the addon has run](images/fluid_domain_visibility/01_domain_before.png)
+![Fluid domain cube visible in the viewport at frame 1, before the addon has run]({{ "/images/fluid_domain_visibility/" | relative_url }}01_domain_before.png)
 
 ---
 
@@ -88,7 +88,7 @@ This panel is injected by the addon and only appears when the active object is a
 
 > **Checkpoint:** The **Auto-Visibility** panel is visible and shows two lines of text followed by a button.
 
-![The Auto-Visibility sub-panel showing frame preview labels and the Auto-Keyframe Visibility button](images/fluid_domain_visibility/02_panel_preview.png)
+![The Auto-Visibility sub-panel showing frame preview labels and the Auto-Keyframe Visibility button]({{ "/images/fluid_domain_visibility/" | relative_url }}02_panel_preview.png)
 
 ---
 
@@ -121,7 +121,7 @@ Open the **Dope Sheet** and select your domain object. You should see keyframes 
 
 > **Checkpoint:** The domain object is invisible in the viewport at the hide frame and visible at the sim start frame.
 
-![Action Editor showing Disable in Viewports and Disable in Renders FCurves with keyframe diamonds at frames 1, 23, and 24](images/fluid_domain_visibility/04_keyframes.png)
+![Action Editor showing Disable in Viewports and Disable in Renders FCurves with keyframe diamonds at frames 1, 23, and 24]({{ "/images/fluid_domain_visibility/" | relative_url }}04_keyframes.png)
 
 ---
 
