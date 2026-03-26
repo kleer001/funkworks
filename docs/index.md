@@ -1,5 +1,5 @@
 ---
-title: Funkworks
+title: All Addons
 layout: home
 ---
 
