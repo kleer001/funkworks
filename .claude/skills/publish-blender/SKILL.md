@@ -90,13 +90,10 @@ Before printing, audit the announce.md copy against these two checks:
 Then print the three tiers, clearly labelled:
 
 ```
-=== SHORT (Twitter / Mastodon / LinkedIn) ===
-[copy]
-
 === MEDIUM (BlenderArtists / Reddit r/blender) ===
 [copy]
 
-=== LONG (Newsletter / Blog) ===
+=== LONG (BlenderNation / Blog) ===
 [copy]
 ```
 

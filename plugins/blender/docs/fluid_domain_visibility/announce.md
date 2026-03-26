@@ -1,17 +1,5 @@
 # Announcement Copy — Fluid Domain Auto-Visibility
 
-## Short (Twitter / Mastodon / LinkedIn)
-
-Tired of manually keyframing your fluid domain visibility every single sim?
-
-New free Blender addon: Auto-Keyframe Visibility. Select your fluid domain, click once, done. Hides the empty box before your sim starts automatically.
-
-https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
-
-#Blender #b3d #VFX #fluidsimulation
-
----
-
 ## Medium (BlenderArtists / Reddit r/blender)
 
 **Free addon: stop manually hiding your fluid domain before the sim starts**
@@ -20,22 +8,24 @@ Every fluid sim setup has the same tedious step: keyframe the domain hidden one 
 
 I built a small addon to eliminate it. Select your fluid domain, go to Physics > Fluid > Auto-Visibility, and click the button. That's it. The panel even previews the exact frames before you commit.
 
-Free download: https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
+Free download: https://kleer001.github.io/funkworks/fluid-domain-visibility
 
 Works on Blender 4.0+. Full undo support, works on baked and unbaked sims.
 
 ---
 
-## Long (Newsletter / Blog post intro)
+## Long (BlenderNation / Blog post)
 
-**The 30-second Blender task I got tired of doing manually**
+**I scraped Reddit once and built the most-requested Blender addon nobody had made yet**
 
-If you've worked with fluid simulations in Blender, you know the setup ritual. You build your scene, configure your domain, set your sim start frame to something other than 1 — and then you remember you have to hide the domain object for all the frames before the water actually appears. So you keyframe it hidden, keyframe it visible, and move on.
+I've spent 25 years in VFX and 37 in software. The one constant: there's never enough time or budget to fix the small frictions. The tiny tedious things that add up. The 30-second tasks you do a hundred times.
 
-It's fast. It's not hard. But it's the same two keyframes every single time, and after the hundredth sim setup it starts to feel like busywork.
+Recently I got to work alongside a team of Blender artists. I'd heard about Blender for years but never seen it in action. I was impressed — by the software and by the community around it.
 
-So I built a small addon that does it in one click.
+So I built a system to find the friction and fix it. Scraped Reddit once, ranked the results by impact and ease, and started at the top of the list.
 
-**Fluid Domain Auto-Visibility** reads the simulation start frame directly from your fluid modifier and inserts the hide/show keyframes automatically. The panel previews exactly what it's about to do — "Hidden at frame 23, Visible at frame 24" — so there's no guesswork. Click the button, done.
+Fluid Domain Auto-Visibility was first. Every fluid sim setup has the same two keyframes — hide the domain before the sim starts, show it when it begins. Nobody had automated it. Now it's one click.
 
-Download it free: https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0
+This is the MVP. More coming.
+
+https://kleer001.github.io/funkworks/fluid-domain-visibility

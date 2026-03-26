@@ -30,7 +30,7 @@ If you can't answer all three, stop and ask the user before proceeding.
 2. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`:
    - `README.md` — GitHub-facing docs: the problem, the solution, install steps, usage, compatibility, edge cases
    - `listing.md` — Marketplace copy: 160-char short description, long description, features list, requirements, tags
-   - `announce.md` — Three tiers of announcement copy: short (tweet/toot), medium (BlenderArtists/Reddit), long (newsletter/blog intro)
+   - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog)
 
 3. **Update the root README** — add a row to the plugins table:
    ```
