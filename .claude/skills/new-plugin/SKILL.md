@@ -11,6 +11,18 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Agent
 
 Build and document a new Blender addon plugin end-to-end.
 
+## Before You Build
+
+Answer these three questions before writing a line of code:
+
+1. **Is there demand?** Use the research pipeline (crawler + digest agent) output to confirm people are actually asking for this. Don't build speculatively.
+2. **Does a similar addon exist?** If so, what makes this one different? Name the difference explicitly — it'll drive all the copy.
+3. **Is it easy to use without reading docs?** If the workflow requires more than 2–3 steps or a manual, reconsider the UX. The most important thing Blender addon users want: easy to use and saves time.
+
+If you can't answer all three, stop and ask the user before proceeding.
+
+---
+
 ## Steps
 
 1. **Write the addon** at `plugins/blender/src/$ARGUMENTS.py` following the patterns in existing plugins (single-file, `bl_info` header, `register`/`unregister`, `bl_options = {'REGISTER', 'UNDO'}`).

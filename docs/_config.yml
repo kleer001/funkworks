@@ -6,3 +6,9 @@ baseurl: "/funkworks"
 
 minima:
   skin: classic
+  header_pages:
+    - index.md
+    - fluid-domain-visibility.md
+
+plugins:
+  - jekyll-feed

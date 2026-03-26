@@ -1,84 +1,46 @@
 # Funkworks — Where We Are
 
-_Last updated: 2026-03-23_
+_Last updated: 2026-03-26_
 
 ---
 
-## Fluid Domain Auto-Visibility
+## Fluid Domain Visibility
 
-**Status: MVP complete, tested, ready to publish**
+**Status: Complete — tutorial page published with screenshots**
 
 ### Done
 - `plugins/blender/src/fluid_domain_visibility.py` — addon code, tested live in Blender 4.2.5
-  - Operator inserts `hide_viewport` + `hide_render` keyframes anchored at scene start frame, frame before sim start, and sim start frame
-  - Edge case handled: sim starts at frame 1 (keyframes at 0 and 1, warning issued)
-  - Full undo support via `bl_options = {'REGISTER', 'UNDO'}`
 - `plugins/blender/docs/fluid_domain_visibility/README.md` — user-facing docs
-- `plugins/blender/docs/fluid_domain_visibility/listing.md` — marketplace copy (short + long description, tags)
-- `plugins/blender/docs/fluid_domain_visibility/announce.md` — announcement copy (Twitter, BlenderArtists/Reddit, newsletter)
+- `plugins/blender/docs/fluid_domain_visibility/listing.md` — marketplace copy
+- `plugins/blender/docs/fluid_domain_visibility/announce.md` — announcement copy (placeholders remain)
+- `docs/fluid-domain-visibility.md` — tutorial page with screenshots, live on GitHub Pages
 
 ### To Do
 - [ ] Package as zip for distribution
 - [ ] Choose distribution platform (Blender Market, Gumroad, etc.)
 - [ ] Upload and fill in `[link]` placeholders in announce.md
 - [ ] Post announcements
-
-### Done (Pages/Tutorial)
-- `docs/_config.yml` — Jekyll/minima config, light skin, baseurl `/funkworks`
-- `docs/index.md` — site landing page with banner and plugin listing
-- `docs/fluid-domain-visibility.md` — tutorial page (problem, install, usage, notes)
-- GitHub Pages enabled on `main` branch `/docs` folder → `https://kleer001.github.io/funkworks/`
+- `/publish` skill is planned but not yet built
 
 ---
 
-## Auto-Tutorial Pipeline
+## Auto-Tutorial Screenshot Pipeline
 
-**Status: Design doc drafted, not yet implemented**
+**Status: Fully automated — all shots working with no human input**
 
 ### Done
-- `docs/auto_tutorial_pipeline.md` — DCC-agnostic pipeline design
-- `docs/auto_tutorial_blender.md` — Blender-specific API details (screenshot_area, crop methods)
-- `docs/auto_tutorial_houdini.md` — Houdini-specific API details
-- `docs/auto_tutorial_nuke.md` — Nuke-specific API details
-- Crop decision workflow: two-phase capture-wide-then-ask-Claude approach
-- Screenshot QA/QC process: automated checks + agent visual review
+- `src/tutorials/screenshot_runner.py` — generic, app-agnostic runner; reads a manifest, connects to Blender via MCP, executes setup code, captures + crops screenshots
+- `src/tutorials/BLENDER_SCREENSHOT_BEST_PRACTICES.md` — canonical reference for Blender screenshot gotchas, MCP rules, area management, capture methods, code snippets. Updated by the `/tutorial` skill when new gotchas are solved.
+- `.claude/skills/tutorial/SKILL.md` — updated to include full screenshot pipeline; reads BEST_PRACTICES.md before generating setup code
+- Manifests are ephemeral (gitignored, regenerated each run); setup code is generated fresh by Claude, not stored as an artifact
+- Fluid Domain Visibility tutorial proven end-to-end: all 4 shots automated, images live
 
-### Next Steps (MVP — Blender only)
+### Architecture Notes
+- Manifests: Claude generates `screenshot_manifest.json` per run; not committed
+- Setup code: generated fresh from BEST_PRACTICES.md context each session
+- Crop pass: Pillow-based, confidence-gated; low-confidence shots flagged
+- Blender MCP: `localhost:9334`
 
-1. **Write the Tutorial Agent prompt**
-   - The agent receives plugin source + brief + smoke test results
-   - Outputs `tutorial.md` + `screenshot_manifest.json` with `crop_subject` fields (no coordinates yet)
-   - Start with Fluid Domain Visibility as the first test case
-
-2. **Create the Fluid Domain Visibility demo scene**
-   - Either script it via `bpy.ops` (see example in `auto_tutorial_blender.md`) or hand-build a minimal `.blend`
-   - Must meet scene requirements: minimal, deterministic, named objects, pre-configured viewport
-   - Store at `plugins/blender/docs/fluid_domain_visibility/demo.blend`
-
-3. **Build the Screenshot Runner**
-   - Python script that reads a manifest, connects to Blender via MCP, runs setup commands, calls `bpy.ops.screen.screenshot_area()`
-   - Launches Blender with `--factory-startup --window-geometry 0 0 1920 1080` for deterministic area sizes
-   - Saves full-area captures to the paths specified in the manifest
-
-4. **Implement the Claude crop pass**
-   - After each full-area capture, upload the image to Claude with the `crop_subject`
-   - Uses the Anthropic SDK with image content blocks and structured JSON output
-   - Parse the returned `[x, y, width, height]` + confidence + rationale
-   - Crop the image (Pillow) and write the final file
-   - Skip crop + flag for manual review if confidence is "low"
-
-5. **Wire up automated QA checks**
-   - File exists / non-empty, minimum dimensions, blank detection, aspect ratio
-   - Confidence gate from the crop pass
-
-6. **Run the full pipeline end-to-end on Fluid Domain Visibility**
-   - Tutorial Agent → manifest → Runner → crop pass → QA → final tutorial.md with images
-   - This is the proof-of-concept: one plugin, one DCC, real screenshots
-
-7. **Agent visual QA review**
-   - Tutorial Agent reads each cropped image, compares to manifest description
-   - Pass / retry-adjust-crop / retry-adjust-setup / flag for manual review
-   - Wire retry loop (max 3 cycles per screenshot)
-
-### Blocked On
-- MCP adapter for Blender — must be able to send Python commands to a running Blender session and capture screenshots. This is the critical-path dependency for everything after step 1.
+### To Do
+- [ ] Run the pipeline on a second plugin (proves generality beyond FDV)
+- [ ] Build `/publish` skill: package zip → GitHub Release → patch announce.md → post to Reddit
