@@ -343,42 +343,42 @@ def build():
         ],
         default_value = 1,
     )
-    pr.setConditional(H_cond, '{ scale_mode != "preset" _has_ref_res == 1 }')
+    pr.setConditional(H_cond, '{ scale_mode != "preset" } { _has_ref_res == 1 }')
     _cb(pr)
     f_res.addParmTemplate(pr)
 
     pw = hou.IntParmTemplate("width", "Width", 1, default_value=[1920],
                               min=1, max=16384, min_is_strict=True)
-    pw.setConditional(H_cond, '{ scale_mode != "explicit" _has_ref_res == 1 }')
+    pw.setConditional(H_cond, '{ scale_mode != "explicit" } { _has_ref_res == 1 }')
     _cb(pw)
     f_res.addParmTemplate(pw)
 
     ph = hou.IntParmTemplate("height", "Height", 1, default_value=[1080],
                               min=1, max=16384, min_is_strict=True)
-    ph.setConditional(H_cond, '{ scale_mode != "explicit" _has_ref_res == 1 }')
+    ph.setConditional(H_cond, '{ scale_mode != "explicit" } { _has_ref_res == 1 }')
     _cb(ph)
     f_res.addParmTemplate(ph)
 
     pc = hou.ToggleParmTemplate("constrain", "Constrain Proportions", default_value=1)
-    pc.setConditional(H_cond, '{ scale_mode != "explicit" _has_ref_res == 1 }')
+    pc.setConditional(H_cond, '{ scale_mode != "explicit" } { _has_ref_res == 1 }')
     _cb(pc)
     f_res.addParmTemplate(pc)
 
     pus = hou.FloatParmTemplate("uniform_scale", "Scale", 1, default_value=[1.0],
                                  min=0.001, max=32.0)
-    pus.setConditional(H_cond, '{ scale_mode != "uniform" _has_ref_res == 1 }')
+    pus.setConditional(H_cond, '{ scale_mode != "uniform" } { _has_ref_res == 1 }')
     _cb(pus)
     f_res.addParmTemplate(pus)
 
     psx = hou.FloatParmTemplate("scale_x", "Scale X", 1, default_value=[1.0],
                                  min=0.001, max=32.0)
-    psx.setConditional(H_cond, '{ scale_mode != "nonuniform" _has_ref_res == 1 }')
+    psx.setConditional(H_cond, '{ scale_mode != "nonuniform" } { _has_ref_res == 1 }')
     _cb(psx)
     f_res.addParmTemplate(psx)
 
     psy = hou.FloatParmTemplate("scale_y", "Scale Y", 1, default_value=[1.0],
                                  min=0.001, max=32.0)
-    psy.setConditional(H_cond, '{ scale_mode != "nonuniform" _has_ref_res == 1 }')
+    psy.setConditional(H_cond, '{ scale_mode != "nonuniform" } { _has_ref_res == 1 }')
     _cb(psy)
     f_res.addParmTemplate(psy)
 
