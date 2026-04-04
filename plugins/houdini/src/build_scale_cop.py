@@ -12,55 +12,102 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HDA_FILE   = os.path.join(SCRIPT_DIR, "scale_cop.hda")
 
 # ---------------------------------------------------------------------------
-# VEX snippet for tile_wrangle
+# VEX snippet for tile_wrangle (handles both fit modes and tiling)
 # ---------------------------------------------------------------------------
-TILE_VEX = r"""
-// Scale COP — tile_wrangle
-// Input 0 (layer "C") = resample_scale (forced to STRETCH when tiling is on).
-//
-// When tiling is active the resample is in STRETCH mode, so its image space
-// is identical to the source's image space (both span -1..+1).  We can
-// therefore tile the source by calling volumesamplep(0, "C", tiled_P) on
-// the resample — it produces the same values as sampling the source directly.
-//
-// COP VEX coordinate system: @P is in image space (-1,-1) to (+1,+1).
-// Convert tile UV (0..1) to image space: P = 2*u - 1.
-// Source pixel dims come from HDA hidden parms _src_w/_src_h (set by Python).
-int mode = chi("../tile_mode_int");
-if (mode == 0) {
-    @C = @C;   // no tiling: pass through fit/scaled content from resample
+# The resample upstream is always in STRETCH mode — it only changes resolution.
+# This wrangle implements fit mode logic and tiling via volumesamplep.
+#
+# Fit mode math: for each output pixel at image-space position @P, compute
+# where in the source to sample.  The source (via STRETCH resample) shares
+# image space with us, so sampling at the computed source coords is exact.
+#
+# content_iw / content_ih: half-extent of the content in image space coords.
+# (Full image space goes from -1 to +1, so half-extent = 1.0 means full width.)
+# Sample position in source: src_x = px / content_iw, src_y = py / content_ih.
+# Pixels outside the content extent get the background color.
+#
+# Tiling: uses integer pixel coords + voxel-center correction (+1/src_w) to
+# avoid sampling exactly on voxel boundaries (bilinear bleed).
+WRANGLE_VEX = r"""
+// Scale COP — wrangle (fit modes + tiling)
+// Input 0 = resample_scale (always STRETCH — resolution change only).
+// Resample STRETCH shares image space with the source, so volumesamplep(0,"C",p)
+// is equivalent to sampling the source directly at image coords p.
+int fit_mode  = chi("../fit_mode");
+int tile_mode = chi("../tile_mode_int");
+
+float src_w = float(chi("../_src_w"));
+float src_h = float(chi("../_src_h"));
+// @xres / @yres are 0 in COP wrangle context — use hidden parms instead.
+float dst_w = float(chi("../_res_w"));
+float dst_h = float(chi("../_res_h"));
+
+if (src_w < 1.0f) src_w = dst_w;
+if (src_h < 1.0f) src_h = dst_h;
+
+if (tile_mode == 0) {
+    // ---- Fit modes --------------------------------------------------------
+    float scale;
+    float scale_x, scale_y;
+    if (fit_mode == 0) {          // Stretch — non-uniform fill
+        scale_x = dst_w / src_w;
+        scale_y = dst_h / src_h;
+    } else if (fit_mode == 1) {   // Fit Inside (letterbox)
+        scale = min(dst_w / src_w, dst_h / src_h);
+        scale_x = scale; scale_y = scale;
+    } else if (fit_mode == 2) {   // Fit Outside (crop to fill)
+        scale = max(dst_w / src_w, dst_h / src_h);
+        scale_x = scale; scale_y = scale;
+    } else if (fit_mode == 3) {   // Pin Width
+        scale = dst_w / src_w;
+        scale_x = scale; scale_y = scale;
+    } else if (fit_mode == 4) {   // Pin Height
+        scale = dst_h / src_h;
+        scale_x = scale; scale_y = scale;
+    } else {                      // Original Size (1:1 pixel)
+        scale_x = 1.0f; scale_y = 1.0f;
+    }
+
+    // Content extent in image space (-1..+1 full width = half-extent 1.0).
+    float content_iw = (src_w * scale_x) / dst_w;
+    float content_ih = (src_h * scale_y) / dst_h;
+
+    float px = @P.x;
+    float py = @P.y;
+
+    if (abs(px) <= content_iw && abs(py) <= content_ih) {
+        // Inside content: remap to source image space and sample.
+        @C = volumesamplep(0, "C", set(px / content_iw, py / content_ih, 0.0f));
+    } else {
+        // Outside content: background color.
+        @C = set(chf("../bg_colorr"), chf("../bg_colorg"), chf("../bg_colorb"));
+    }
 } else {
-    float src_w = float(chi("../_src_w"));
-    float src_h = float(chi("../_src_h"));
-    // Guard: fall back to output dims if source dims not yet populated.
-    if (src_w < 1.0f) src_w = float(@xres);
-    if (src_h < 1.0f) src_h = float(@yres);
+    // ---- Tile modes -------------------------------------------------------
+    // Resample is forced to STRETCH when tiling, so its image space matches
+    // the source. Tile by computing source UV, wrapping/mirroring, then
+    // converting to image-space voxel center coords for volumesamplep.
     float off_u = chf("../tile_offset_u");
     float off_v = chf("../tile_offset_v");
-    // tile-space coords: 0..1 = one tile of the source
     float u = float(@ix) / src_w + off_u;
     float v = float(@iy) / src_h + off_v;
-    if (mode == 1) {           // Repeat
+    if (tile_mode == 1) {           // Repeat
         u = frac(u); v = frac(v);
-    } else if (mode == 2) {    // Mirror X
+    } else if (tile_mode == 2) {    // Mirror X
         float tu = frac(u * 0.5f);
         u = (tu < 0.5f) ? tu * 2.0f : 2.0f - tu * 2.0f;
         v = frac(v);
-    } else if (mode == 3) {    // Mirror Y
+    } else if (tile_mode == 3) {    // Mirror Y
         u = frac(u);
         float tv = frac(v * 0.5f);
         v = (tv < 0.5f) ? tv * 2.0f : 2.0f - tv * 2.0f;
-    } else {                   // Mirror Both (4)
+    } else {                        // Mirror Both (4)
         float tu = frac(u * 0.5f);
         u = (tu < 0.5f) ? tu * 2.0f : 2.0f - tu * 2.0f;
         float tv = frac(v * 0.5f);
         v = (tv < 0.5f) ? tv * 2.0f : 2.0f - tv * 2.0f;
     }
-    // Convert tile UV (0..1) to image-space voxel CENTER coords (-1..+1).
-    // The +1/src_w shift maps u=0 to the first voxel center (P.x = -1+1/sw)
-    // rather than the exact left boundary, avoiding bilinear boundary bleed.
-    // Since resample is in STRETCH mode when tiling, image space coords
-    // are shared with the source — this tiles the source correctly.
+    // +1/src_w shifts to voxel center, avoiding bilinear boundary bleed.
     float ip_x = 2.0f*u - 1.0f + 1.0f/src_w;
     float ip_y = 2.0f*v - 1.0f + 1.0f/src_h;
     @C = volumesamplep(0, "C", set(ip_x, ip_y, 0.0f));
@@ -216,21 +263,9 @@ def onParmChanged(kwargs):
 
 # ---------------------------------------------------------------------------
 # HScript expressions for resample internal parms
-# Use integer index comparisons (ch() returns menu index, not string token).
 # ---------------------------------------------------------------------------
-# fit_mode indices: stretch=0, fitinside=1, fitoutside=2, pinwidth=3, pinheight=4, original=5
-# resample stretch values: 0=stretch, 1=horz(pinW), 2=vert(pinH), 3=max(fitOut), 4=min(fitIn)
-# When tiling is active (tile_mode > 0): force STRETCH so that source image space
-# and resample image space are identical — required for volumesamplep tiling to work.
-STRETCH_EXPR = (
-    'if(ch("../tile_mode")>0, 0, '    # tiling active → force stretch
-    'if(ch("../fit_mode")==0, 0, '    # stretch
-    'if(ch("../fit_mode")==1, 4, '    # fitinside  → min
-    'if(ch("../fit_mode")==2, 3, '    # fitoutside → max
-    'if(ch("../fit_mode")==3, 1, '    # pinwidth   → horz
-    'if(ch("../fit_mode")==4, 2, '    # pinheight  → vert
-    '0))))))'                          # original/default → stretch (canvas=src)
-)
+# Resample stretch is always 0 (stretch/fill). All fit mode logic is in the
+# VEX wrangle — the resample only changes resolution, not content layout.
 
 # filter_mode indices: auto=0, point=1, bilinear=2, box=3, bartlett=4, catmullrom=5, mitchell=6, bspline=7
 # resample filter values: 0=point, 1=bilinear, 2=box, 3=triangle(bartlett), 4=cubic(catmullrom), 5=mitchell, 6=bspline
@@ -276,17 +311,17 @@ def build():
     rs.parm("resolution1").setExpression('ch("../_res_w")', language=H)
     rs.parm("resolution2").setExpression('ch("../_res_h")', language=H)
     rs.parm("basesize").setExpression('ch("../_has_ref_res")', language=H)
-    rs.parm("stretch").setExpression(STRETCH_EXPR, language=H)
+    rs.parm("stretch").set(0)          # always stretch — fit handled by VEX
     rs.parm("filter").setExpression(FILTER_EXPR, language=H)
 
-    # ---- Internal: tile_wrangle ------------------------------------------
+    # ---- Internal: tile_wrangle (fit modes + tiling) ---------------------
     tw = proto.createNode("wrangle", "tile_wrangle")
-    tw.setInput(0, rs)   # canvas / scaled image (STRETCH when tiling)
+    tw.setInput(0, rs)   # resample output (always STRETCH)
 
     tw.parm("aovs").set(1)
     tw.parm("type1").set("vector"); tw.parm("layer1").set("C"); tw.parm("geoinput1").set(1)
     tw.parm("vex_exportlist").set("C")
-    tw.parm("vexsnippet").set(TILE_VEX)
+    tw.parm("vexsnippet").set(WRANGLE_VEX)
 
     out_nd.setInput(0, tw)
 
@@ -410,7 +445,7 @@ def build():
         look=hou.parmLook.ColorSquare,
         naming_scheme=hou.parmNamingScheme.RGBA,
     )
-    bg.setConditional(H_cond, '{ fit_mode != "fitinside" } { tile_mode != "none" }')
+    bg.setConditional(H_cond, '{ fit_mode == "stretch" } { fit_mode == "fitoutside" } { tile_mode != "none" }')
     f_fit.addParmTemplate(bg)
 
     ptg.append(f_fit)
@@ -573,20 +608,85 @@ def test(hda_node):
     sc.parm("scale_y").set(0.5)
     chk("nonuniform 2×0.5 (2048×512)", (2048, 512))
 
-    # ---- Fit modes -------------------------------------------------------
+    # ---- Fit modes (pixel correctness) ------------------------------------
+    # Source: 1024×1024 checkerboard.  Target: 1024×512 (2:1 wider than tall).
+    # For non-stretch modes, source AR (1:1) vs target AR (2:1) produces
+    # clearly distinct content regions and bg regions.
+    #
+    # With target 1024×512 and source 1024×1024 (1:1):
+    #   fitinside:  scale=min(1024/1024, 512/1024)=0.5 → content 512×512 centered
+    #               content spans x [256,767], full height [0,511]
+    #               → px(128,256)=bg(0)   px(512,256)=content(non-zero)
+    #   fitoutside: scale=max(...)=1.0 → content 1024×1024 cropped to 1024×512
+    #               entire target is content, no bg
+    #               → px(512,256)=content  px(0,256)=content
+    #   pinwidth:   scale=1024/1024=1.0, same as fitoutside for this source
+    #   pinheight:  scale=512/1024=0.5, same as fitinside for this source
+    #   original:   scale=1.0 pixel, content 1024×1024 in 1024×512 = full fill
+    #               (source is same width as target; top half visible)
+    #   stretch:    non-uniform fill, entire target is content
     print("\n--- Fit Mode ---")
     sc.parm("scale_mode").set("explicit")
-    sc.parm("width").set(1920); sc.parm("height").set(1080)
+    sc.parm("width").set(1024); sc.parm("height").set(512)
     sc.parm("tile_mode").set("none")
-    for fmode in ["stretch","fitinside","fitoutside","pinwidth","pinheight","original"]:
+    sc.parm("filter_mode").set("point")  # point filter for deterministic values
+
+    def px(x, y):
+        sc.cook(force=True)
+        return sc.layer().bufferIndex(x, y)[0]
+
+    def fit_chk(label, fmode, checks):
+        """checks: list of (x, y, expected, description) where expected is 'bg' or 'content'."""
         sc.parm("fit_mode").set(fmode)
         sync()
-        try:
-            sc.cook(force=True)
-            print(f"  PASS  fit_mode={fmode}: {sc.layer().bufferResolution()}")
-        except Exception as e:
-            print(f"  FAIL  fit_mode={fmode}: {e}")
+        sc.cook(force=True)
+        res = sc.layer().bufferResolution()
+        ok = True
+        detail = []
+        for x, y, expected, desc in checks:
+            v = sc.layer().bufferIndex(x, y)[0]
+            if expected == "bg":
+                passed = (v == 0.0)
+            else:  # content
+                passed = (v > 0.0)
+            if not passed:
+                ok = False
+            detail.append(f"{desc}={round(v,2)}({'ok' if passed else 'FAIL'})")
+        mark = "PASS" if ok else "FAIL"
+        print(f"  {mark}  fit_mode={fmode}: res={res}  {', '.join(detail)}")
+        if not ok:
             fails.append(f"fit_{fmode}")
+
+    fit_chk("stretch",    "stretch",
+        [(512, 256, "content", "center"),
+         (128, 256, "content", "left"),   # col0+row2=even → white checker cell
+         (640, 256, "content", "right")])  # col2+row2=even → white checker cell
+
+    fit_chk("fitinside",  "fitinside",
+        [(512, 256, "content", "center"),
+         (128, 256, "bg",      "left-bg"),    # left pillarbox
+         (900, 256, "bg",      "right-bg")])  # right pillarbox
+
+    fit_chk("fitoutside", "fitoutside",
+        [(512, 256, "content", "center"),
+         (  0, 256, "content", "left"),
+         (1023, 256, "content", "right")])
+
+    fit_chk("pinwidth",   "pinwidth",
+        [(512, 256, "content", "center"),
+         (  0, 256, "content", "left"),
+         (1023, 256, "content", "right")])
+
+    fit_chk("pinheight",  "pinheight",
+        [(512, 256, "content", "center"),
+         (128, 256, "bg",      "left-bg"),
+         (900, 256, "bg",      "right-bg")])
+
+    fit_chk("original",   "original",
+        [(512, 256, "content", "center")])
+
+    # Reset filter
+    sc.parm("filter_mode").set("auto")
 
     # ---- Tile modes -------------------------------------------------------
     print("\n--- Tile Mode ---")
