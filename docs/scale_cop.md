@@ -7,6 +7,8 @@ Resize and reposition an image within a target canvas, with independent control 
 
 [Download HDA](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/scale_cop.hda){: .btn} &nbsp; [Back to all addons](.)
 
+> **License notice.** The pre-built HDA was compiled under a Houdini Indie/Apprentice license. Loading it in a full Houdini FX session will flag the scene as limited-commercial. If you need an unencumbered HDA, build it from source using your own license — instructions below.
+
 ---
 
 ## Inputs
@@ -130,3 +132,50 @@ Reconstruction filter used when scaling the source.
 | Catmull-Rom | Sharp, good general-purpose filter |
 | Mitchell | Slight blur; reduces ringing vs Catmull-Rom |
 | B-Spline | Smoothest; can appear soft |
+
+---
+
+## Building from Source
+
+If you need to compile the HDA under your own Houdini license, use the included build script. This produces a fresh `scale_cop.hda` that carries no license restrictions from a third-party session.
+
+**Prerequisites**
+
+- Houdini 20 or later (any edition — Indie, FX, etc.)
+- `hython` on your `PATH`, or use the full path to your Houdini installation's `hython`
+
+**Steps**
+
+1. Clone or download this repository.
+
+2. From a terminal, run:
+
+   ```bash
+   cd plugins/houdini/src
+   hython build_scale_cop.py
+   ```
+
+   If `hython` is not on your `PATH`, use the full path. For example on Linux:
+
+   ```bash
+   /opt/hfs20.5/bin/hython build_scale_cop.py
+   ```
+
+   On Windows:
+
+   ```bat
+   "C:\Program Files\Side Effects Software\Houdini 20.5\bin\hython.exe" build_scale_cop.py
+   ```
+
+3. The script writes `scale_cop.hda` in the same directory (`plugins/houdini/src/`), overwriting any previous version.
+
+**Installing the HDA**
+
+In Houdini, go to **Assets > Install Asset Library**, navigate to `plugins/houdini/src/scale_cop.hda`, and click **Install**. The node will appear in any COP network as **Scale COP**.
+
+**Source files**
+
+| File | Purpose |
+|------|---------|
+| [`plugins/houdini/src/build_scale_cop.py`](https://github.com/kleer001/funkworks/blob/main/plugins/houdini/src/build_scale_cop.py) | Headless build script — creates the HDA from scratch |
+| [`plugins/houdini/src/scale_cop.hda`](https://github.com/kleer001/funkworks/blob/main/plugins/houdini/src/scale_cop.hda) | Pre-built HDA (Indie/Apprentice license stamp) |
