@@ -146,12 +146,11 @@ If you need to compile the HDA under your own Houdini license, use the included 
 
 **Steps**
 
-1. Clone or download this repository.
+1. Download [`build_scale_cop.py`](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/build_scale_cop.py) and place it in any working directory.
 
-2. From a terminal, run:
+2. From a terminal in that directory, run:
 
    ```bash
-   cd plugins/houdini/src
    hython build_scale_cop.py
    ```
 
@@ -167,15 +166,8 @@ If you need to compile the HDA under your own Houdini license, use the included 
    "C:\Program Files\Side Effects Software\Houdini 20.5\bin\hython.exe" build_scale_cop.py
    ```
 
-3. The script writes `scale_cop.hda` in the same directory (`plugins/houdini/src/`), overwriting any previous version.
+3. The script writes `scale_cop.hda` alongside itself in the same directory.
 
 **Installing the HDA**
 
-In Houdini, go to **Assets > Install Asset Library**, navigate to `plugins/houdini/src/scale_cop.hda`, and click **Install**. The node will appear in any COP network as **Scale COP**.
-
-**Source files**
-
-| File | Purpose |
-|------|---------|
-| [`plugins/houdini/src/build_scale_cop.py`](https://github.com/kleer001/funkworks/blob/main/plugins/houdini/src/build_scale_cop.py) | Headless build script — creates the HDA from scratch |
-| [`plugins/houdini/src/scale_cop.hda`](https://github.com/kleer001/funkworks/blob/main/plugins/houdini/src/scale_cop.hda) | Pre-built HDA (Indie/Apprentice license stamp) |
+In Houdini, go to **Assets > Install Asset Library**, select `scale_cop.hda`, and click **Install**. The node will appear in any COP network as **Scale COP**.
