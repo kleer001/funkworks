@@ -26,6 +26,8 @@ Free download: [link]
 
 Houdini [X.Y]+, any edition. FX users: a build script is included to compile the HDA clean under your own license.
 
+🐜 More free tools at https://github.com/kleer001/funkworks
+
 ---
 
 ## Long (Blog / Newsletter)
@@ -41,3 +43,5 @@ Houdini [X.Y]+, any edition. FX users: a build script is included to compile the
 Download it free: [link]
 
 Houdini [X.Y]+, any edition. FX users get a build script to compile the HDA clean under their own license.
+
+🐜 More free tools at https://github.com/kleer001/funkworks

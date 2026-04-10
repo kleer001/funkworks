@@ -141,6 +141,12 @@ Then check tone and completeness:
 **Houdini:** Title must include "HDA" or "node". Mention the build script for FX users.
 **Both:** Read as a first-time reader. Fill any gaps before outputting.
 
+Every medium and long tier must end with this CTA (after the closing line):
+
+```
+🐜 More free tools at https://github.com/kleer001/funkworks
+```
+
 Print the announcement tiers clearly labelled for their target communities:
 
 **Blender:**

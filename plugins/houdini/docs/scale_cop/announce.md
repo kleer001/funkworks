@@ -28,6 +28,8 @@ Houdini 20+, any edition. FX users: a build script is included so you can compil
 
 First Houdini release from Funkworks — a small open-source collection of free DCC tools built from real workflow problems. Feedback and bug reports welcome.
 
+🐜 More free tools at https://github.com/kleer001/funkworks
+
 ---
 
 ## Long (Blog / Newsletter)
@@ -47,3 +49,5 @@ Download it free: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v
 Houdini 20+, any edition. FX users get a build script to compile the HDA clean under their own license.
 
 First Houdini release from Funkworks — a small open-source collection of free DCC tools I'm building from real workflow friction. Already shipping Blender addons; this is the first node for Houdini. If something's broken or missing, please say so.
+
+🐜 More free tools at https://github.com/kleer001/funkworks

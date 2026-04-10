@@ -24,6 +24,8 @@ Free download: [link]
 
 Works on Blender [X.Y]+. [One reassurance: undo, no setup, etc.]
 
+🐜 More free tools at https://github.com/kleer001/funkworks
+
 ---
 
 ## Long (Newsletter / Blog post intro)
@@ -37,3 +39,5 @@ Works on Blender [X.Y]+. [One reassurance: undo, no setup, etc.]
 [Close with the call to action.]
 
 Download it free: [link]
+
+🐜 More free tools at https://github.com/kleer001/funkworks
