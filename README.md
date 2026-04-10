@@ -27,18 +27,11 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 
 ## Plugins
 
-### Blender
-
-| Plugin | Description |
-|--------|-------------|
-| [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
-| [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
-
-### Houdini
-
-| Plugin | Description |
-|--------|-------------|
-| [Scale COP](plugins/houdini/docs/scale_cop/) | Scale, fit, and tile images in Copernicus — letterbox, fill, crop, and tiling in one node |
+| DCC | Plugin | Description |
+|-----|--------|-------------|
+| Blender | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
+| Blender | [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
+| Houdini | [Scale COP](plugins/houdini/docs/scale_cop/) | Scale, fit, and tile images in Copernicus — letterbox, fill, crop, and tiling in one node |
 
 **Tutorials & docs:** [kleer001.github.io/funkworks](https://kleer001.github.io/funkworks)
 
@@ -76,11 +69,11 @@ pytest
 1. Write the addon: `plugins/blender/src/[name].py`
 2. Copy `plugins/blender/_template/` to `plugins/blender/docs/[name]/`
 3. Fill in `README.md`, `listing.md`, and `announce.md`
-4. Add a row to the Blender table above and an entry to `docs/index.md`
+4. Add a row to the plugins table above and an entry to `docs/index.md`
 
 **Houdini:**
 1. Write the build script: `plugins/houdini/src/build_[name].py`
 2. Compile the HDA: `hython plugins/houdini/src/build_[name].py`
 3. Copy `plugins/houdini/_template/` to `plugins/houdini/docs/[name]/`
 4. Fill in `README.md`, `listing.md`, and `announce.md`
-5. Add a row to the Houdini table above and an entry to `docs/index.md`
+5. Add a row to the plugins table above and an entry to `docs/index.md`

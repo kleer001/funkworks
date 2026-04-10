@@ -95,12 +95,11 @@ If `gh` fails with a connection error, retry up to 3 times with a few seconds be
 
 Two files list every plugin and must be updated for every release:
 
-**`README.md`** — the GitHub repo homepage. Find the plugins table for the relevant DCC
-and add a row if the plugin is not already listed:
+**`README.md`** — the GitHub repo homepage. Add a row to the single plugins table if the
+plugin is not already listed:
 ```
-| [Display Name](plugins/$DCC/docs/$NAME/) | One-line description |
+| DCC Name | [Display Name](plugins/$DCC/docs/$NAME/) | One-line description |
 ```
-If this is the first plugin for a new DCC, add a new `### DCC Name` section with a table.
 
 **`docs/index.md`** — the GitHub Pages homepage. Add an entry under the correct DCC section:
 ```markdown
