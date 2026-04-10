@@ -35,11 +35,11 @@ First Houdini release from Funkworks — a small open-source collection of free 
 
 ## Long (Blog / Newsletter)
 
-**The Houdini COP I got tired of rebuilding from scratch**
+**Scale COP: the fit modes and tiling that Houdini's Resample COP doesn't have**
 
-Every time I needed to fit an image into a canvas in Houdini — letterbox a 4:3 source into a 16:9 output, tile a texture with mirroring, or just scale something to a specific resolution without distorting it — I'd rebuild the same node chain. A Resample in Stretch mode to hit the target resolution, a Transform to position the content, a Merge to composite it over a background, maybe a second Resample to handle tiling math. Then when the resolution changed, redo the offsets.
+Houdini's Resample COP only does Stretch. To letterbox a 4:3 source into a 16:9 canvas, fill without distorting, or tile with mirroring, you're chaining Resample + Transform + Merge and computing UV offsets by hand. When the resolution changes, you redo the math.
 
-Resample COP is fast and solid but it only does Stretch. The fit mode logic — the part that says "scale until the source fits inside the canvas, preserve the aspect ratio, fill the rest with black" — isn't there.
+Scale COP fills that gap. It's one node.
 
 So I built Scale COP: a single Copernicus node with six fit modes (Distort, Fit, Fill, Width, Height, None), five tile modes (with UV offset), and eight reconstruction filters. There's also a second input — connect any node and enable "Use Size Reference" to pull the output resolution directly from that image. No more manually updating width and height when your pipeline's canvas size changes upstream.
 
