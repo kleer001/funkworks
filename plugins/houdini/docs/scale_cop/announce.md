@@ -4,7 +4,7 @@
 
 Houdini's Resample COP only stretches. Scale COP adds letterbox, fill, crop, tiling, and size-reference input — in one free node.
 
-[link]
+https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
 #Houdini #VFX #Compositing #COP #SideFX
 
@@ -22,7 +22,7 @@ Scale COP is a free HDA that wraps the whole thing in one node. Pick a target re
 **Tile modes:** None, Repeat, Mirror X, Mirror Y, Mirror Both (with UV offset)
 **Filters:** Point, Bilinear, Box, Bartlett, Catmull-Rom, Mitchell, B-Spline, Auto
 
-Free download: [link]
+Free download: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
 Houdini 20+, any edition. FX users: a build script is included so you can compile the HDA under your own license and avoid the Indie/Apprentice flag.
 
@@ -40,6 +40,6 @@ So I built Scale COP: a single Copernicus node with six fit modes (Distort, Fit,
 
 It's free. It's one node. It took longer to document than to build, which feels right.
 
-Download it free: [link]
+Download it free: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
 Houdini 20+, any edition. FX users get a build script to compile the HDA clean under their own license.
