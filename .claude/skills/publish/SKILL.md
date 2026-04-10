@@ -130,7 +130,12 @@ Confirm the URL resolves by checking `gh release view $NAME-v{VERSION}`.
 
 ## Step 6: Output Announcement Copy
 
-Before printing, audit the copy:
+Before printing, audit the copy for factual accuracy first:
+
+- **No false claims.** Every sentence must be verifiable from the source, docs, or git history. If you wrote it, ask: "how do I know this is true?" If the answer is "it sounds right," cut it.
+- **Ordinal claims** ("first release", "first Houdini release", etc.) require checking `gh release list` to confirm. Don't assert firsts without looking.
+
+Then check tone and completeness:
 
 **Blender:** Title must include "addon". No unanswered questions.
 **Houdini:** Title must include "HDA" or "node". Mention the build script for FX users.
