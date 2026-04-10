@@ -91,7 +91,32 @@ If `gh` fails with a connection error, retry up to 3 times with a few seconds be
 
 ---
 
-## Step 4: Patch announce.md
+## Step 4: Update Plugin Registries
+
+Two files list every plugin and must be updated for every release:
+
+**`README.md`** — the GitHub repo homepage. Find the plugins table for the relevant DCC
+and add a row if the plugin is not already listed:
+```
+| [Display Name](plugins/$DCC/docs/$NAME/) | One-line description |
+```
+If this is the first plugin for a new DCC, add a new `### DCC Name` section with a table.
+
+**`docs/index.md`** — the GitHub Pages homepage. Add an entry under the correct DCC section:
+```markdown
+### [Display Name](page-slug)
+
+One-line description. Key capability or differentiator.
+
+**DCC Version+** · Free
+
+---
+```
+If this is the first plugin for a new DCC, add a new `## DCC Name` section.
+
+---
+
+## Step 5: Patch announce.md
 
 Read `plugins/$DCC/docs/$NAME/announce.md`. Replace all placeholder URLs
 (`[link]`, `https://github.com/.../releases/tag/PLACEHOLDER`) with the real release URL:
@@ -104,7 +129,7 @@ Confirm the URL resolves by checking `gh release view $NAME-v{VERSION}`.
 
 ---
 
-## Step 5: Output Announcement Copy
+## Step 6: Output Announcement Copy
 
 Before printing, audit the copy:
 
@@ -139,7 +164,7 @@ page is on `main`.
 
 ---
 
-## Step 6: Retrospective
+## Step 7: Retrospective
 
 After the publish completes (or if you hit a significant blocker and solved it),
 update `src/publishing/PUBLISH_BEST_PRACTICES.md`:
