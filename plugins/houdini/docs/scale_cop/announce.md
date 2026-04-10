@@ -16,11 +16,12 @@ https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
 Houdini's built-in Resample COP only does Stretch. If you want a letterboxed fit, a fill that crops to the canvas edge, or a tiled repeat with mirroring, you're chaining nodes and computing UV offsets by hand — and redoing that math every time a resolution changes.
 
-Scale COP is a free HDA that wraps the whole thing in one node. Pick a target resolution (preset, explicit, or pulled from a size-reference input), choose a fit mode, optionally tile, pick a filter. Done. No manual offset math.
+Scale COP is a free HDA that wraps the whole thing in one node. Pick a target resolution, choose a fit mode, optionally tile, pick a filter. Done. No manual offset math.
 
 **Fit modes:** Distort, Fit (letterbox), Fill (crop to fill), Width, Height, None (1:1 pixel)
 **Tile modes:** None, Repeat, Mirror X, Mirror Y, Mirror Both (with UV offset)
 **Filters:** Point, Bilinear, Box, Bartlett, Catmull-Rom, Mitchell, B-Spline, Auto
+**Size reference input:** connect any upstream node to drive the output resolution automatically — no manual width/height entry when your canvas size changes
 
 Free download: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
@@ -40,7 +41,7 @@ Every time I needed to fit an image into a canvas in Houdini — letterbox a 4:3
 
 Resample COP is fast and solid but it only does Stretch. The fit mode logic — the part that says "scale until the source fits inside the canvas, preserve the aspect ratio, fill the rest with black" — isn't there.
 
-So I built Scale COP: a single Copernicus node with six fit modes (Distort, Fit, Fill, Width, Height, None), five tile modes (with UV offset), eight reconstruction filters, and a size-reference input so the output resolution can be driven by any upstream node. The fit math runs in a VEX wrangle so it stays exact regardless of resolution.
+So I built Scale COP: a single Copernicus node with six fit modes (Distort, Fit, Fill, Width, Height, None), five tile modes (with UV offset), and eight reconstruction filters. There's also a second input — connect any node and enable "Use Size Reference" to pull the output resolution directly from that image. No more manually updating width and height when your pipeline's canvas size changes upstream.
 
 It's free. It's one node.
 
