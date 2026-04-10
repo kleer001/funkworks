@@ -11,12 +11,16 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Agent
 
 Write a tutorial for the plugin **$ARGUMENTS**.
 
+Parse `$ARGUMENTS` as `<dcc>/<plugin-name>` (e.g. `blender/selective_edge_split` or
+`houdini/scale_cop`). Set `$DCC` and `$NAME` from those two parts. If only a plugin name
+is given without a DCC prefix, ask the user which DCC before proceeding.
+
 ## Before You Write
 
-1. **Read the plugin source** at `plugins/blender/src/$ARGUMENTS.py` to understand every operator, panel, and parameter.
-2. **Read the plugin docs** at `plugins/blender/docs/$ARGUMENTS/README.md` for the stated problem, solution, and usage steps.
-3. **Read the spec** at `plugins/blender/docs/specs/$ARGUMENTS.md` if it exists, for edge cases and acceptance criteria.
-4. **Check the images directory** at `plugins/blender/docs/images/` for any existing screenshots to reference.
+1. **Read the plugin source** at `plugins/$DCC/src/$NAME.*` to understand every parameter and operator.
+2. **Read the plugin docs** at `plugins/$DCC/docs/$NAME/README.md` for the stated problem, solution, and usage steps.
+3. **Read the spec** at `plugins/$DCC/docs/specs/$NAME.md` if it exists, for edge cases and acceptance criteria.
+4. **Check the images directory** at `plugins/$DCC/docs/images/` for any existing screenshots to reference.
 
 ---
 
