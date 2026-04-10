@@ -26,6 +26,8 @@ Free download: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1
 
 Houdini 20+, any edition. FX users: a build script is included so you can compile the HDA under your own license and avoid the Indie/Apprentice flag.
 
+First release from Funkworks — a small open-source collection of free DCC tools built from real workflow problems. Feedback and bug reports welcome.
+
 ---
 
 ## Long (Blog / Newsletter)
@@ -38,8 +40,10 @@ Resample COP is fast and solid but it only does Stretch. The fit mode logic — 
 
 So I built Scale COP: a single Copernicus node with six fit modes (Distort, Fit, Fill, Width, Height, None), five tile modes (with UV offset), eight reconstruction filters, and a size-reference input so the output resolution can be driven by any upstream node. The fit math runs in a VEX wrangle so it stays exact regardless of resolution.
 
-It's free. It's one node. It took longer to document than to build, which feels right.
+It's free. It's one node.
 
 Download it free: https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99
 
 Houdini 20+, any edition. FX users get a build script to compile the HDA clean under their own license.
+
+This is the first release from Funkworks — a small open-source collection of free DCC tools I'm building from real workflow friction. Still early days. If something's broken or missing, please say so.
