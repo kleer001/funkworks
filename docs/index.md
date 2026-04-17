@@ -12,14 +12,16 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 ---
 
 <style>
-.plugin-grid { display: flex; flex-direction: column; gap: 2rem; margin: 2rem 0; }
-.plugin-card { border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-.plugin-card img { width: 100%; display: block; }
-.plugin-card-body { padding: 1rem 1.25rem; }
-.plugin-card-body h3 { margin: 0 0 0.4rem; font-size: 1.1rem; }
-.plugin-card-body p { margin: 0 0 0.75rem; font-size: 0.95rem; color: #444; }
-.plugin-meta { font-size: 0.8rem; color: #777; margin-bottom: 0.75rem; }
-.plugin-links a { margin-right: 1rem; font-size: 0.9rem; }
+.plugin-grid { display: flex; flex-direction: column; gap: 0.75rem; margin: 2rem 0; }
+.plugin-card { display: flex; flex-direction: row; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; height: 160px; }
+.plugin-card-thumb { flex: 0 0 160px; width: 160px; overflow: hidden; }
+.plugin-card-thumb a { display: block; width: 100%; height: 100%; }
+.plugin-card-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.plugin-card-body { flex: 1; padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.plugin-card-body h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.plugin-card-body p { margin: 0 0 0.5rem; font-size: 0.88rem; color: #444; }
+.plugin-meta { font-size: 0.78rem; color: #777; margin-bottom: 0.5rem; }
+.plugin-links a { margin-right: 0.75rem; font-size: 0.85rem; }
 .posts-section h2 { margin-top: 2.5rem; }
 .posts-list { list-style: none; padding: 0; }
 .posts-list li { padding: 0.4rem 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
@@ -30,7 +32,9 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 <div class="plugin-grid">
 
   <div class="plugin-card">
-    <a href="selective_edge_split"><img src="{{ "/images/banners/selective_edge_split_banner.png" | relative_url }}" alt="Selective Edge Split banner"/></a>
+    <div class="plugin-card-thumb">
+      <a href="selective_edge_split"><img src="{{ "/images/banners/selective_edge_split_banner.png" | relative_url }}" alt="Selective Edge Split banner"/></a>
+    </div>
     <div class="plugin-card-body">
       <h3><a href="selective_edge_split">Selective Edge Split</a></h3>
       <p>Split panel gap edges without touching your render sharps. Tag edges once with Ctrl+E, apply a scoped split when ready.</p>
@@ -44,7 +48,9 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
   </div>
 
   <div class="plugin-card">
-    <a href="fluid-domain-visibility"><img src="{{ "/images/banners/fluid_domain_visibility_banner.png" | relative_url }}" alt="Fluid Domain Auto-Visibility banner"/></a>
+    <div class="plugin-card-thumb">
+      <a href="fluid-domain-visibility"><img src="{{ "/images/banners/fluid_domain_visibility_banner.png" | relative_url }}" alt="Fluid Domain Auto-Visibility banner"/></a>
+    </div>
     <div class="plugin-card-body">
       <h3><a href="fluid-domain-visibility">Fluid Domain Auto-Visibility</a></h3>
       <p>One-click visibility keyframing for fluid simulation domains. Automatically hides the domain box before your sim starts.</p>
@@ -58,7 +64,9 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
   </div>
 
   <div class="plugin-card">
-    <a href="scale_cop"><img src="{{ "/images/banners/scale_cop_banner.png" | relative_url }}" alt="Scale COP banner"/></a>
+    <div class="plugin-card-thumb">
+      <a href="scale_cop"><img src="{{ "/images/banners/scale_cop_banner.png" | relative_url }}" alt="Scale COP banner"/></a>
+    </div>
     <div class="plugin-card-body">
       <h3><a href="scale_cop">Scale COP</a></h3>
       <p>Resize and reposition an image in Houdini Copernicus with independent fit mode, tiling, and resampling filter. Letterbox, fill, crop, and tile in one node.</p>
