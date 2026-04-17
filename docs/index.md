@@ -49,7 +49,8 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
     <div class="plugin-card-posts">
       <ul>
-        <li><span class="no-posts">No posts yet</span></li>
+        <li><a href="https://old.reddit.com/r/blender/comments/1soevvw/free_addon_split_panel_gap_edges_without_touching/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/free-addon-split-panel-gap-edges-without-touching-your-render-sharps/1637935">BlenderArtists</a></li>
       </ul>
     </div>
   </div>
