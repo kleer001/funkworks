@@ -43,8 +43,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       <p>Split panel gap edges without touching your render sharps. Tag edges once with Ctrl+E, apply a scoped split when ready.</p>
       <div class="plugin-meta">Blender 4.0+ &middot; Free</div>
       <div class="plugin-links">
-        <a href="selective_edge_split">Tutorial</a>
-        <a href="https://github.com/kleer001/funkworks/releases/tag/selective_edge_split-v1.0.0">Download</a>
+        <a href="https://kleer001.github.io/funkworks/selective_edge_split">Tutorial &amp; Download</a>
         <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/selective_edge_split.py">Source</a>
       </div>
     </div>
@@ -64,8 +63,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       <p>One-click visibility keyframing for fluid simulation domains. Automatically hides the domain box before your sim starts.</p>
       <div class="plugin-meta">Blender 4.0+ &middot; Free</div>
       <div class="plugin-links">
-        <a href="fluid-domain-visibility">Tutorial</a>
-        <a href="https://github.com/kleer001/funkworks/releases/tag/fluid_domain_visibility-v1.0.0">Download</a>
+        <a href="https://kleer001.github.io/funkworks/fluid-domain-visibility">Tutorial &amp; Download</a>
         <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/fluid_domain_visibility.py">Source</a>
       </div>
     </div>
@@ -86,8 +84,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       <p>Resize and reposition an image in Houdini Copernicus with independent fit mode, tiling, and resampling filter. Letterbox, fill, crop, and tile in one node.</p>
       <div class="plugin-meta">Houdini 20+ &middot; Free</div>
       <div class="plugin-links">
-        <a href="scale_cop">Tutorial</a>
-        <a href="https://github.com/kleer001/funkworks/releases/tag/scale_cop-v0.1.99">Download HDA</a>
+        <a href="https://kleer001.github.io/funkworks/scale_cop">Tutorial &amp; Download</a>
         <a href="https://github.com/kleer001/funkworks/tree/main/plugins/houdini/src/build_scale_cop.py">Source</a>
       </div>
     </div>
