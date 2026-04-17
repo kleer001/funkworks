@@ -3,6 +3,8 @@ title: Scale COP
 layout: page
 ---
 
+![Scale COP banner]({{ "/images/banners/scale_cop_banner.png" | relative_url }})
+
 Resize and reposition an image within a target canvas, with independent control over fit mode, tiling, and resampling filter.
 
 [Download HDA](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/scale_cop.hda){: .btn} &nbsp; [Back to all addons](.)
