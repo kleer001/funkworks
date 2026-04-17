@@ -12,18 +12,17 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 ---
 
 <style>
-.plugin-grid { display: flex; flex-direction: column; gap: 0.75rem; margin: 2rem 0; }
-.plugin-card { display: flex; flex-direction: row; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; height: 160px; }
+.plugin-grid { display: flex; flex-direction: column; gap: 0.75rem; margin: 2rem 0; width: calc(100% + 4rem); margin-left: -2rem; }
+.plugin-card { display: flex; flex-direction: row; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; height: 160px; width: 100%; }
 .plugin-card-thumb { flex: 0 0 160px; overflow: hidden; }
 .plugin-card-thumb a { display: block; width: 100%; height: 100%; }
 .plugin-card-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-.plugin-card-body { flex: 1; padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; min-width: 0; border-right: 1px solid #eee; }
+.plugin-card-body { flex: 2; padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; min-width: 0; border-right: 1px solid #eee; }
 .plugin-card-body h3 { margin: 0 0 0.35rem; font-size: 1rem; }
 .plugin-card-body p { margin: 0 0 0.5rem; font-size: 0.88rem; color: #444; }
 .plugin-meta { font-size: 0.78rem; color: #777; margin-bottom: 0.5rem; }
 .plugin-links a { margin-right: 0.75rem; font-size: 0.85rem; }
-.plugin-card-posts { flex: 0 0 220px; padding: 0.6rem 0.75rem; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-start; }
-.plugin-card-posts .posts-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; margin-bottom: 0.4rem; }
+.plugin-card-posts { flex: 1; padding: 0.6rem 0.75rem; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-start; }
 .plugin-card-posts ul { list-style: none; padding: 0; margin: 0; }
 .plugin-card-posts li { padding: 0.25rem 0; border-bottom: 1px solid #f0f0f0; }
 .plugin-card-posts li:last-child { border-bottom: none; }
@@ -50,7 +49,6 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       </div>
     </div>
     <div class="plugin-card-posts">
-      <div class="posts-label">In the wild</div>
       <ul>
         <li><span class="no-posts">No posts yet</span></li>
       </ul>
@@ -72,7 +70,6 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       </div>
     </div>
     <div class="plugin-card-posts">
-      <div class="posts-label">In the wild</div>
       <ul>
         <li>
           <a href="https://www.reddit.com/r/blender/comments/1s4ep4o/free_addon_stop_manually_hiding_your_fluid_domain/">Stop manually hiding your fluid domain</a>
@@ -101,7 +98,6 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
       </div>
     </div>
     <div class="plugin-card-posts">
-      <div class="posts-label">In the wild</div>
       <ul>
         <li>
           <a href="https://www.sidefx.com/forum/topic/103565/?page=1#post-458117">Scale COP — fit modes, tiling, canvas resize</a>
