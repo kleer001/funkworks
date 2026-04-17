@@ -26,9 +26,9 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 .plugin-card-posts ul { list-style: none; padding: 0; margin: 0; }
 .plugin-card-posts li { padding: 0.25rem 0; border-bottom: 1px solid #f0f0f0; }
 .plugin-card-posts li:last-child { border-bottom: none; }
-.plugin-card-posts a { font-size: 0.8rem; color: #555; text-decoration: none; display: block; line-height: 1.3; }
-.plugin-card-posts a:hover { color: #000; }
-.plugin-card-posts .post-venue { font-size: 0.72rem; color: #aaa; }
+.plugin-card-posts a { font-size: 0.85rem; font-family: "Courier New", Courier, monospace; color: #0000EE; text-decoration: underline; display: block; line-height: 1.5; }
+.plugin-card-posts a:visited { color: #551A8B; }
+.plugin-card-posts a:hover { color: #0000BB; }
 .no-posts { font-size: 0.8rem; color: #bbb; font-style: italic; }
 </style>
 
@@ -71,14 +71,8 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
     <div class="plugin-card-posts">
       <ul>
-        <li>
-          <a href="https://www.reddit.com/r/blender/comments/1s4ep4o/free_addon_stop_manually_hiding_your_fluid_domain/">Stop manually hiding your fluid domain</a>
-          <span class="post-venue">r/blender</span>
-        </li>
-        <li>
-          <a href="https://blenderartists.org/t/free-addon-stop-manually-hiding-your-fluid-domain-before-the-sim-starts/1635474">Stop manually hiding your fluid domain</a>
-          <span class="post-venue">BlenderArtists</span>
-        </li>
+        <li><a href="https://www.reddit.com/r/blender/comments/1s4ep4o/free_addon_stop_manually_hiding_your_fluid_domain/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/free-addon-stop-manually-hiding-your-fluid-domain-before-the-sim-starts/1635474">BlenderArtists</a></li>
       </ul>
     </div>
   </div>
@@ -99,14 +93,8 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
     <div class="plugin-card-posts">
       <ul>
-        <li>
-          <a href="https://www.sidefx.com/forum/topic/103565/?page=1#post-458117">Scale COP — fit modes, tiling, canvas resize</a>
-          <span class="post-venue">SideFX Forums</span>
-        </li>
-        <li>
-          <a href="https://forums.odforce.net/topic/67424-scale-cop-%E2%80%94-free-houdini-node-for-fit-modes-tiling-and-canvas-resize-letterbox-fill-crop/#comment-277858">Scale COP — fit modes, tiling, canvas resize</a>
-          <span class="post-venue">OdForce</span>
-        </li>
+        <li><a href="https://www.sidefx.com/forum/topic/103565/?page=1#post-458117">SideFX Forums</a></li>
+        <li><a href="https://forums.odforce.net/topic/67424-scale-cop-%E2%80%94-free-houdini-node-for-fit-modes-tiling-and-canvas-resize-letterbox-fill-crop/#comment-277858">OdForce</a></li>
       </ul>
     </div>
   </div>
