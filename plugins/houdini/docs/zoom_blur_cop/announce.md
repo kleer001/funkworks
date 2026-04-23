@@ -2,9 +2,9 @@
 
 ## Short (Twitter / Mastodon / LinkedIn)
 
-Every Copernicus zoom blur starts from scratch — aspect-corrected @P math, radial sampling, alpha through volumesamplep. Not anymore.
+Getting a zoom blur in Copernicus means writing a wrangle from scratch: aspect-corrected @P math, radial sampling, alpha through volumesamplep. Zoom / Radial Blur COP is the node that replaces it.
 
-New free Houdini HDA: Zoom / Radial Blur COP. Two blur modes, moveable center, tunable samples.
+New free Houdini HDA: two blur modes, moveable center, tunable samples.
 
 https://github.com/kleer001/funkworks/releases/tag/zoom_blur_cop-v0.1.117
 
@@ -16,7 +16,7 @@ https://github.com/kleer001/funkworks/releases/tag/zoom_blur_cop-v0.1.117
 
 **Zoom / Radial Blur COP — free Houdini node for zoom and spin blur in Copernicus**
 
-Every time I need a zoom blur or spin blur in a COP network I end up writing the same wrangle: work out the aspect-corrected `@P` coordinate space, build the radial sampling loop, use `volumesamplep` so alpha doesn't drop. It's 30 lines of boilerplate to get a result that should be a single node.
+Getting a zoom blur or spin blur in a COP network means writing the same wrangle: work out the aspect-corrected `@P` coordinate space, build the radial sampling loop, use `volumesamplep` so alpha doesn't drop. It's 30 lines of boilerplate for a basic result.
 
 Zoom / Radial Blur COP is that node. Connect an image, pick a mode, done.
 
@@ -36,11 +36,11 @@ Houdini 20.5+, any edition. FX users: a build script is included to compile the 
 
 ## Long (Blog / Newsletter)
 
-**Zoom / Radial Blur COP: the boilerplate wrangle you've written five times**
+**Zoom / Radial Blur COP: skip the boilerplate**
 
-Every time I need a zoom blur or spin blur in Houdini Copernicus, the workflow is the same. Open a Wrangle COP, write the sampling loop, remember that `@P.x` runs −1 to +1 across the width but Y is aspect-corrected and not clamped, remember that `volumesample` drops alpha so you have to use `volumesamplep` and manually split the `vector4` result, add a center offset, add a pixel-coordinate conversion branch for when you need exact placement. Then save it in a digital asset before you lose it.
+Getting a zoom blur or spin blur in Houdini Copernicus means the same workflow every time. Open a Wrangle COP, write the sampling loop, remember that `@P.x` runs −1 to +1 across the width but Y is aspect-corrected and not clamped, remember that `volumesample` drops alpha so you have to use `volumesamplep` and manually split the `vector4` result, add a center offset, add a pixel-coordinate conversion branch for exact placement. Then save it in a digital asset for reuse.
 
-It's 30–40 lines of setup code for something that should be a single node.
+It's 30–40 lines of setup code for a basic result.
 
 So I built Zoom / Radial Blur COP. It ships two modes:
 
