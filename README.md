@@ -32,6 +32,7 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 | Blender | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
 | Blender | [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
 | Houdini | [Scale COP](plugins/houdini/docs/scale_cop/) | Scale, fit, and tile images in Copernicus — letterbox, fill, crop, and tiling in one node |
+| Houdini | [Zoom / Radial Blur COP](plugins/houdini/docs/zoom_blur_cop/) | Zoom blur and spin blur in one Copernicus node — moveable center, two modes, tunable sample count |
 
 **Tutorials & docs:** [kleer001.github.io/funkworks](https://kleer001.github.io/funkworks)
 
@@ -69,11 +70,15 @@ pytest
 1. Write the addon: `plugins/blender/src/[name].py`
 2. Copy `plugins/blender/_template/` to `plugins/blender/docs/[name]/`
 3. Fill in `README.md`, `listing.md`, and `announce.md`
-4. Add a row to the plugins table above and an entry to `docs/index.md`
+4. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/blender/docs/tutorials/[name].md`
+5. Add a card to `docs/index.md` and a row to the plugins table in this file
+6. Create a GitHub release and attach the distributable zip
 
 **Houdini:**
 1. Write the build script: `plugins/houdini/src/build_[name].py`
 2. Compile the HDA: `hython plugins/houdini/src/build_[name].py`
 3. Copy `plugins/houdini/_template/` to `plugins/houdini/docs/[name]/`
 4. Fill in `README.md`, `listing.md`, and `announce.md`
-5. Add a row to the plugins table above and an entry to `docs/index.md`
+5. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/houdini/docs/tutorials/[name].md`
+6. Add a card to `docs/index.md` and a row to the plugins table in this file
+7. Create a GitHub release and attach `[name].hda` and `build_[name].py`
