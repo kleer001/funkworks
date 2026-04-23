@@ -32,7 +32,16 @@ If you can't answer all three, stop and ask the user before proceeding.
    - `listing.md` — Marketplace copy: 160-char short description, long description, features list, requirements, tags
    - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog)
 
-3. **Update the root README** — add a row to the plugins table:
+3. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
+   - Check if image_gen is running: `imggen status` (sources `~/.bash_aliases.sh` first if needed)
+   - Start if stopped: `imggen` — starts ComfyUI (port 8188) + MCP server (port 9000), takes ~30s
+   - Read `/media/menser/fauna/image_gen/INDEX.md` for available models and LoRA trigger words
+   - **Present 5 prompt options to the user and wait for approval before generating**
+   - Save the chosen prompt to `data/banner_prompts/$ARGUMENTS.txt`
+   - Generate using `generate_image` MCP tool or `run_workflow flux_txt2img` / `run_workflow lora_basic`
+   - Target size: width=1456, height=672
+
+4. **Update the root README** — add a row to the plugins table:
    ```
    | [Plugin Display Name](plugins/blender/docs/$ARGUMENTS/) | One-line description |
    ```

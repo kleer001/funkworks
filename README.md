@@ -70,15 +70,25 @@ pytest
 1. Write the addon: `plugins/blender/src/[name].py`
 2. Copy `plugins/blender/_template/` to `plugins/blender/docs/[name]/`
 3. Fill in `README.md`, `listing.md`, and `announce.md`
-4. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/blender/docs/tutorials/[name].md`
-5. Add a card to `docs/index.md` and a row to the plugins table in this file
-6. Create a GitHub release and attach the distributable zip
+4. Generate banner image (1456×672) → `docs/images/banners/[name]_banner.png`
+   - Start image_gen stack: `imggen` (alias in `~/.bash_aliases.sh`; ComfyUI port 8188, MCP port 9000)
+   - Present 5 prompt options to the user; wait for approval before generating
+   - Use `flux_txt2img.json` as base or `lora_basic.json` for LoRA styles
+   - Check `/media/menser/fauna/image_gen/INDEX.md` for available models and LoRA trigger words
+5. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/blender/docs/tutorials/[name].md`
+6. Add a card to `docs/index.md` and a row to the plugins table in this file
+7. Create a GitHub release and attach the distributable zip
 
 **Houdini:**
 1. Write the build script: `plugins/houdini/src/build_[name].py`
 2. Compile the HDA: `hython plugins/houdini/src/build_[name].py`
 3. Copy `plugins/houdini/_template/` to `plugins/houdini/docs/[name]/`
 4. Fill in `README.md`, `listing.md`, and `announce.md`
-5. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/houdini/docs/tutorials/[name].md`
-6. Add a card to `docs/index.md` and a row to the plugins table in this file
-7. Create a GitHub release and attach `[name].hda` and `build_[name].py`
+5. Generate banner image (1456×672) → `docs/images/banners/[name]_banner.png`
+   - Start image_gen stack: `imggen` (alias in `~/.bash_aliases.sh`; ComfyUI port 8188, MCP port 9000)
+   - Present 5 prompt options to the user; wait for approval before generating
+   - Use `flux_txt2img.json` as base or `lora_basic.json` for LoRA styles
+   - Check `/media/menser/fauna/image_gen/INDEX.md` for available models and LoRA trigger words
+6. Write the tutorial: `docs/[name].md` (GitHub Pages) and `plugins/houdini/docs/tutorials/[name].md`
+7. Add a card to `docs/index.md` and a row to the plugins table in this file
+8. Create a GitHub release and attach `[name].hda` and `build_[name].py`
