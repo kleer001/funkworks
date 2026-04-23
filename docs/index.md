@@ -97,6 +97,26 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
+  <div class="plugin-card">
+    <div class="plugin-card-thumb">
+      <a href="zoom_blur_cop"><img src="{{ "/images/banners/zoom_blur_cop_banner.png" | relative_url }}" alt="Zoom / Radial Blur COP banner"/></a>
+    </div>
+    <div class="plugin-card-body">
+      <h3><a href="zoom_blur_cop">Zoom / Radial Blur COP</a></h3>
+      <p>Zoom blur and spin blur in one Houdini Copernicus node. Switch between radial scale and arc modes, place the center in screen space or pixels, tune sample count for quality vs. speed.</p>
+      <div class="plugin-meta">Houdini 20.5+ &middot; Free</div>
+      <div class="plugin-links">
+        <a href="https://kleer001.github.io/funkworks/zoom_blur_cop">Tutorial &amp; Download</a>
+        <a href="https://github.com/kleer001/funkworks/tree/main/plugins/houdini/src/build_zoom_blur_cop.py">Source</a>
+      </div>
+    </div>
+    <div class="plugin-card-posts">
+      <ul>
+        <li><span class="no-posts">No community posts yet</span></li>
+      </ul>
+    </div>
+  </div>
+
 </div>
 
 ---
