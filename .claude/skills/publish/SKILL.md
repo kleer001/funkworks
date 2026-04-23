@@ -2,8 +2,11 @@
 name: publish
 description: >-
   Publish a completed, tested DCC plugin to GitHub Releases and prepare
-  announcement copy. TRIGGER when the user asks to publish, release, or ship
-  any plugin (Blender addon, Houdini HDA, etc.).
+  announcement copy. TRIGGER when: the user asks to publish, release, or ship
+  any plugin (Blender addon, Houdini HDA, etc.); OR when announce.md,
+  listing.md, or README.md files are being written for a plugin for the first
+  time; OR when the user is doing release steps manually (GitHub release,
+  docs/index.md card, plugins table row) without having invoked /publish.
 argument-hint: "[dcc/plugin-name]  e.g. blender/selective_edge_split or houdini/scale_cop"
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Agent
 ---
