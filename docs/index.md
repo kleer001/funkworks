@@ -112,7 +112,8 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
     <div class="plugin-card-posts">
       <ul>
-        <li><span class="no-posts">No community posts yet</span></li>
+        <li><a href="https://www.sidefx.com/forum/topic/103658/?page=1#post-458829">SideFX Forums</a></li>
+        <li><a href="https://forums.odforce.net/topic/67448-zoom-radial-blur-cop/">OdForce</a></li>
       </ul>
     </div>
   </div>
