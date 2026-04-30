@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- Funkworks Vellum Attr Stream — shelf tools.
+       Install: load via hou.shelves.loadFile() at startup, or copy to
+       $HOUDINI_USER_PREF_DIR/toolbar/. The DOP HDA must already be
+       installed (vellum_attr_stream.hda — Dop/vellum_attr_stream).
+
+       The init wrangle's VEX is read from the HDA's "init_vex" section
+       at insert time (single source of truth — see build_vellum_attr_stream.py
+       VEX_TEMPLATE). -->
+
+  <toolshelf name="funkworks_vellum" label="Funkworks Vellum">
+    <memberTool name="add_vellum_attr_stream"/>
+  </toolshelf>
+
+  <tool name="add_vellum_attr_stream" label="Add Attr Stream" icon="DOP/popwrangle">
+    <helpText><![CDATA[Insert a Vellum Attr Stream into the selected vellumsolver.
+
+Select a Vellum Solver SOP, then click. The tool unlocks the solver's
+contents, dives into vellumsolver1's popsolver, and appends our DOP HDA
+to its Pre-Solve microsolver chain. It also inserts a SOP-level init
+wrangle upstream of the solver to populate frame-1 state (microsolvers
+don't run on the creation frame in Houdini).
+
+This is the canonical "popwrangle microsolver" pattern, the same one
+SideFX uses internally for muscleupdatevellum. It runs every substep
+during the Vellum sim and copies listed point attributes from the
+referenced animated SOP onto the live cloth points by `id` or `ptnum`.
+
+Open the inserted DOP node to set the attribute list (default: Cd) and
+the match mode. The SOP-level init wrangle reads its parms from the DOP
+streamer via channel references, so they stay synced. Re-running the
+tool on an already-set-up solver is a no-op.]]></helpText>
+    <script scriptType="python"><![CDATA[
+import hou
+
+SETUP_NODE_NAME = "vellum_attr_stream_setup"
+INIT_NODE_NAME  = "vellum_attr_stream_init"
+
+
+def _err(msg):
+    hou.ui.displayMessage(msg, severity=hou.severityType.Error)
+
+
+def _warn(msg):
+    hou.ui.displayMessage(msg, severity=hou.severityType.Warning)
+
+
+def _info(msg):
+    hou.ui.displayMessage(msg)
+
+
+def _resolve_unlock(node):
+    """Allow editing of contents on a locked HDA. No-op if already unlocked."""
+    try:
+        node.allowEditingOfContents()
+    except hou.OperationFailed as e:
+        _err(f"Couldn't unlock {node.path()}: {e}")
+        return False
+    return True
+
+
+def _read_init_vex():
+    """Read the init wrangle's VEX from the HDA's 'init_vex' section.
+    Single source of truth: build_vellum_attr_stream.py VEX_TEMPLATE."""
+    nt = hou.dopNodeTypeCategory().nodeTypes().get("vellum_attr_stream")
+    if nt is None or nt.definition() is None:
+        return None
+    section = nt.definition().sections().get("init_vex")
+    return section.contents() if section else None
+
+
+def _insert_init_wrangle(vsolve, streamer, init_vex):
+    """Insert a SOP-level attribwrangle upstream of vsolve to seed frame-1
+    attribs. Spare parms link to the streamer's parms so they stay synced."""
+    parent = vsolve.parent()
+    upstream = vsolve.input(0)
+    if upstream is None:
+        return None, "vellumsolver has no upstream input — frame-1 init skipped."
+
+    existing = parent.node(INIT_NODE_NAME)
+    if existing is not None:
+        return existing, "init wrangle already present (idempotent)"
+
+    init_w = parent.createNode("attribwrangle", INIT_NODE_NAME)
+    init_w.parm("class").set(2)  # run over points
+    init_w.parm("snippet").set(init_vex)
+
+    spares = hou.ParmTemplateGroup()
+    folder = hou.FolderParmTemplate("vas_folder", "Vellum Attr Stream",
+                                    folder_type=hou.folderType.Simple)
+    folder.addParmTemplate(hou.StringParmTemplate(
+        "sop_path", "Animated SOP", 1,
+        string_type=hou.stringParmType.NodeReference,
+    ))
+    folder.addParmTemplate(hou.StringParmTemplate("attribs", "Attributes", 1))
+    folder.addParmTemplate(hou.IntParmTemplate("match_by", "Match By", 1))
+    spares.append(folder)
+    init_w.setParmTemplateGroup(spares)
+
+    # Channel-link spare parms to the streamer's parms. Channel references
+    # survive node renames/moves automatically.
+    streamer_path = streamer.path()
+    init_w.parm("sop_path").setExpression(
+        f'chs("{streamer_path}/sop_path")', hou.exprLanguage.Hscript)
+    init_w.parm("attribs").setExpression(
+        f'chs("{streamer_path}/attribs")', hou.exprLanguage.Hscript)
+    init_w.parm("match_by").setExpression(
+        f'ch("{streamer_path}/match_by")', hou.exprLanguage.Hscript)
+
+    init_w.setInput(0, upstream)
+    vsolve.setInput(0, init_w)
+    parent.layoutChildren()
+    return init_w, None
+
+
+def setup():
+    sel = hou.selectedNodes()
+    if not sel:
+        _warn("Select a Vellum Solver SOP first.")
+        return
+
+    vsolve = sel[0]
+    if vsolve.type().name() != "vellumsolver":
+        _err(f"Selected node is '{vsolve.type().name()}', not a vellumsolver SOP.")
+        return
+
+    if not hou.dopNodeTypeCategory().nodeTypes().get("vellum_attr_stream"):
+        _err("The vellum_attr_stream DOP HDA is not installed in this session. "
+             "Install plugins/houdini/src/vellum_attr_stream.hda first.")
+        return
+
+    init_vex = _read_init_vex()
+    if init_vex is None:
+        _err("Couldn't read 'init_vex' section from the vellum_attr_stream HDA. "
+             "The HDA may be from an older build — rebuild it with "
+             "build_vellum_attr_stream.py.")
+        return
+
+    upstream     = vsolve.input(0)
+    upstream_path = upstream.path() if upstream else ""
+
+    # ---- Walk down to the popsolver Pre-Solve aggregator -------------------
+    if not _resolve_unlock(vsolve): return
+
+    dopnet = vsolve.node("dopnet1")
+    if dopnet is None:
+        _err("Couldn't find dopnet1 inside the Vellum Solver. Wrapper layout "
+             "may have changed in this Houdini version.")
+        return
+
+    inner_vsolve = dopnet.node("vellumsolver1")
+    if inner_vsolve is None:
+        _err("Couldn't find vellumsolver1 DOP inside dopnet1.")
+        return
+    if not _resolve_unlock(inner_vsolve): return
+
+    popsolver = inner_vsolve.node("popsolver")
+    if popsolver is None:
+        _err("Couldn't find popsolver inside vellumsolver1.")
+        return
+    if not _resolve_unlock(popsolver): return
+
+    pre_solve = popsolver.input(1)
+    if pre_solve is None:
+        _err("popsolver has no Pre-Solve input wired. Unexpected wrapper state.")
+        return
+
+    if pre_solve.type().name() != "merge":
+        _err(f"Expected a merge feeding popsolver Pre-Solve, found "
+             f"'{pre_solve.type().name()}' ({pre_solve.path()}). Aborting "
+             f"to avoid breaking the wrapper.")
+        return
+
+    # ---- Idempotency: streamer DOP HDA already attached? -------------------
+    existing = inner_vsolve.node(SETUP_NODE_NAME)
+    if existing is not None:
+        _warn(f"{vsolve.path()} already has a Vellum Attr Stream attached.\n\n"
+              f"Open {existing.path()} to edit its parameters.")
+        existing.setSelected(True, clear_all_selected=True)
+        return
+
+    # ---- Insert the DOP HDA into the Pre-Solve merge -----------------------
+    streamer = inner_vsolve.createNode("vellum_attr_stream", SETUP_NODE_NAME)
+    if upstream_path:
+        streamer.parm("sop_path").set(upstream_path)
+
+    free_idx = len(pre_solve.inputs())
+    pre_solve.setInput(free_idx, streamer)
+    inner_vsolve.layoutChildren()
+
+    # ---- Insert the SOP-level init wrangle for frame 1 ---------------------
+    init_w, init_warning = _insert_init_wrangle(vsolve, streamer, init_vex)
+
+    streamer.setSelected(True, clear_all_selected=True)
+
+    msg = (
+        f"Vellum Attr Stream attached to {vsolve.path()}.\n\n"
+        f"Streamer (DOP) : {streamer.path()}\n"
+        f"Init   (SOP)  : {init_w.path() if init_w else '(none)'}\n"
+        f"Source SOP    : {upstream_path or '(set manually on streamer)'}\n\n"
+        "Edit the 'Attributes' parm on the DOP streamer (default: Cd). "
+        "The SOP init wrangle reads its parms from the streamer via channel "
+        "references, so they stay synced. Re-running this tool is a no-op."
+    )
+    if init_warning:
+        msg += f"\n\nNote: {init_warning}"
+    _info(msg)
+
+
+setup()
+]]></script>
+  </tool>
+</shelfDocument>
