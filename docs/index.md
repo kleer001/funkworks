@@ -118,6 +118,21 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
+  <div class="plugin-card">
+    <div class="plugin-card-thumb">
+      <a href="vellum_attr_stream"><img src="{{ "/images/banners/vellum_attr_stream_banner.png" | relative_url }}" alt="Vellum Animated Attribute Streamer banner"/></a>
+    </div>
+    <div class="plugin-card-body">
+      <h3><a href="vellum_attr_stream">Vellum Animated Attribute Streamer</a></h3>
+      <p>Stream animated SOP point attributes (color, weight, stiffness mask, anything) into a live Vellum simulation each substep. Defeats Vellum's default behavior of freezing SOP attributes at frame 1.</p>
+      <div class="plugin-meta">Houdini 19.5+ &middot; Free</div>
+      <div class="plugin-links">
+        <a href="https://kleer001.github.io/funkworks/vellum_attr_stream">Tutorial &amp; Download</a>
+        <a href="https://github.com/kleer001/funkworks/tree/main/plugins/houdini/src/build_vellum_attr_stream.py">Source</a>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 ---

@@ -33,6 +33,7 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 | Blender | [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
 | Houdini | [Scale COP](plugins/houdini/docs/scale_cop/) | Scale, fit, and tile images in Copernicus — letterbox, fill, crop, and tiling in one node |
 | Houdini | [Zoom / Radial Blur COP](plugins/houdini/docs/zoom_blur_cop/) | Zoom blur and spin blur in one Copernicus node — moveable center, two modes, tunable sample count |
+| Houdini | [Vellum Animated Attribute Streamer](plugins/houdini/docs/vellum_attr_stream/) | Stream animated SOP point attributes into a live Vellum sim each substep — defeats Vellum's frame-1 attribute freeze |
 
 **Tutorials & docs:** [kleer001.github.io/funkworks](https://kleer001.github.io/funkworks)
 
