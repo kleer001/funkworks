@@ -1,4 +1,4 @@
-# Release Notes — Vellum Animated Attribute Streamer v0.1.128
+# Release Notes — Vellum Animated Attribute Streamer v0.1.130
 
 ## Short Description
 
