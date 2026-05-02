@@ -13,7 +13,7 @@ uses the same popwrangle-microsolver-in-Pre-Solve structure for time-varying
 muscle attributes. We diverge in one detail: muscleupdatevellum uses
 `bindinputmenu2=sop` to bind the source SOP to VEX input 1; we use VEX
 `op:` references instead, so the same VEX template can be shared with the
-SOP-level init wrangle the shelf tool inserts upstream.
+SOP-level init wrangle the setup script inserts upstream.
 
 Usage (run from plugins/houdini/src/):
     /opt/hfs21.0.631/bin/hython build_vellum_attr_stream.py
@@ -73,9 +73,16 @@ if (npts1 == 0) return;
 
 string attrs[] = split(attr_str, " ");
 
+// Use the runtime attrib() reader — NOT i@id — for the local id lookup.
+// `i@id` is a compile-time binding that declares a writable point
+// attribute even when the if-branch is short-circuited at runtime, and
+// since `id` is a Houdini-known special attribute it initializes to -1.
+// On a SOP-level wrangle whose input has no id, that creates id=-1 on
+// every point and trips Vellum's "Duplicate point id attributes" check.
 int src_pt;
 if (match_by == 0 && haspointattrib(ref, "id") && hasattrib(0, "point", "id")) {{
-    src_pt = findattribval(ref, "point", "id", i@id);
+    int my_id = attrib(0, "point", "id", @ptnum);
+    src_pt = findattribval(ref, "point", "id", my_id);
 }} else {{
     src_pt = (@ptnum < npts1) ? @ptnum : -1;
 }}
@@ -218,7 +225,7 @@ def build(work_parent=None):
     hda_def.setMaxNumInputs(1)
     hda_def.setMinNumInputs(1)
 
-    # Save the SOP-side VEX as an HDA section so the shelf tool can read it
+    # Save the SOP-side VEX as an HDA section so the setup script can read it
     # at insert time. Single source of truth: this build script's VEX_TEMPLATE.
     hda_def.addSection("init_vex", INIT_WRANGLE_VEX)
 

@@ -12,8 +12,7 @@ By the end of this tutorial you will be able to stream an animated SOP point att
 ## Prerequisites
 
 - Houdini 19.5 or later
-- `vellum_attr_stream.hda` installed (see **Step 1**)
-- `vellum_attr_stream.shelf` loaded (optional — used in **Step 4**)
+- `vellum_attr_stream_setup.cmd`, `vellum_attr_stream_setup.py`, and `vellum_attr_stream.hda` downloaded into the same folder (see **Step 1**)
 
 ---
 
@@ -21,18 +20,18 @@ By the end of this tutorial you will be able to stream an animated SOP point att
 
 - Why Vellum silently ignores per-frame changes to SOP attributes after the start frame
 - Stream an animated `Cd` (or any point attribute) into a running cloth sim
-- Use the shelf tool to attach the streamer in one click
+- Use **File > Run Script** to attach the streamer in one click — no shelf install needed
 - Confirm the sim is updating each frame by toggling the streamer's bypass
 
 ---
 
-## Step 1: Install the HDA and Shelf
+## Step 1: Download the Plugin Files
 
-[Download HDA](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/vellum_attr_stream.hda){: .btn} &nbsp; [Download Shelf](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/vellum_attr_stream.shelf){: .btn}
+[Download .cmd](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/vellum_attr_stream_setup.cmd){: .btn} &nbsp; [Download .py](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/vellum_attr_stream_setup.py){: .btn} &nbsp; [Download .hda](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/vellum_attr_stream.hda){: .btn}
 
-Drop `vellum_attr_stream.hda` into `$HOUDINI_USER_PREF_DIR/otls/` (or use **File > Import > Houdini Digital Asset**). Drop `vellum_attr_stream.shelf` into `$HOUDINI_USER_PREF_DIR/toolbar/`. Restart Houdini.
+Save all three files into the **same folder** anywhere on disk. The .cmd is a one-line dispatcher that finds the .py and .hda next to itself — there's nothing to copy into Houdini prefs, no restart, and no shelf install. All three files are short and human-readable.
 
-> **Checkpoint:** A new shelf labelled **Funkworks Vellum** appears in the shelf bar with a single tool, **Add Attr Stream**.
+> **Checkpoint:** Three files (`vellum_attr_stream_setup.cmd`, `vellum_attr_stream_setup.py`, `vellum_attr_stream.hda`) sit side-by-side in one folder.
 
 ---
 
@@ -70,9 +69,9 @@ The plugin needs an upstream SOP that changes a point attribute every frame. Bui
 
 ---
 
-## Step 3: Attach the Streamer (Shelf Tool)
+## Step 3: Attach the Streamer (Run Script)
 
-Select the **Vellum Solver** SOP and click **Add Attr Stream** on the **Funkworks Vellum** shelf. The tool inserts two nodes:
+Select the **Vellum Solver** SOP, then go to **File > Run Script...** and pick `vellum_attr_stream_setup.cmd`. The .cmd dispatches to the sibling .py, which auto-installs the .hda from the same folder, then inserts two nodes:
 
 - `vellum_attr_stream_setup` — a DOP node placed inside the solver, wired into the popsolver's Pre-Solve microsolver chain. This is the worker that runs every substep.
 - `vellum_attr_stream_init` — a SOP attribute wrangle inserted upstream of the Vellum Solver. Its job is to seed frame 1, because microsolvers do not run on the creation frame in Houdini.
@@ -81,9 +80,9 @@ Diving inside `vellumsolver1 > dopnet1 > vellumsolver1` shows the streamer DOP a
 
 ![Inside the solver: streamer attached to popsolver Pre-Solve merge]({{ "/images/vellum_attr_stream/03_inside_solver.png" | relative_url }})
 
-> **Checkpoint:** Re-running the shelf tool on the same Vellum Solver is a no-op — it detects the existing setup and selects the streamer DOP instead of duplicating it.
+> **Checkpoint:** Re-running the script on the same Vellum Solver is a no-op — it detects the existing setup and selects the streamer DOP instead of duplicating it.
 
-If the shelf tool is unavailable, the same setup can be built by hand: unlock the Vellum Solver SOP, dive to `dopnet1/vellumsolver1/popsolver`, drop a **Vellum Attr Stream** DOP, and wire it into a free input of the `merge` feeding the `popsolver`'s Pre-Solve. Then insert an Attribute Wrangle upstream of the Vellum Solver SOP using the VEX from the HDA's `init_vex` section.
+If you'd rather build it by hand: unlock the Vellum Solver SOP, dive to `dopnet1/vellumsolver1/popsolver`, drop a **Vellum Attr Stream** DOP, and wire it into a free input of the `merge` feeding the `popsolver`'s Pre-Solve. Then insert an Attribute Wrangle upstream of the Vellum Solver SOP using the VEX from the HDA's `init_vex` section.
 
 ---
 
@@ -95,7 +94,7 @@ Select the inserted `vellum_attr_stream_setup` DOP. Three parameters control the
 
 | Parameter | Default | What it controls |
 |-----------|---------|-----------------|
-| **Animated SOP** | (auto-filled) | Path to the upstream SOP that produces the time-varying attribute. The shelf tool pre-fills this from the Vellum Solver's input. |
+| **Animated SOP** | (auto-filled) | Path to the upstream SOP that produces the time-varying attribute. The setup script pre-fills this from the Vellum Solver's input. |
 | **Attributes** | `Cd` | Space-separated list of point attribute names to copy. Float scalar / vector / vector4 and integer scalar are supported. |
 | **Match Points By** | id | `id` matches points by the `id` point attribute (survives upstream topology shuffles). `ptnum` matches by point number — only safe when both geometries have identical point order. |
 
@@ -119,7 +118,7 @@ To confirm the streamer is actually doing the work, bypass both `vellum_attr_str
 
 ## Result
 
-A single shelf-tool click adds a streamer that pushes any SOP point attribute into a live Vellum simulation every substep. The attribute list is editable per-shot, the match mode is configurable, and the SOP-level init wrangle handles the frame-1 case so the very first cooked frame already reflects the source.
+A single **File > Run Script** action adds a streamer that pushes any SOP point attribute into a live Vellum simulation every substep. The attribute list is editable per-shot, the match mode is configurable, and the SOP-level init wrangle handles the frame-1 case so the very first cooked frame already reflects the source.
 
 ---
 
@@ -127,8 +126,8 @@ A single shelf-tool click adds a streamer that pushes any SOP point attribute in
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| Shelf tool reports "The vellum_attr_stream DOP HDA is not installed" | The `.hda` is not on `HOUDINI_OTLSCAN_PATH` | Drop the file into `$HOUDINI_USER_PREF_DIR/otls/` and restart, or use **File > Import > Houdini Digital Asset** |
-| Shelf tool reports "Couldn't read 'init_vex' section" | The installed HDA was built before the init-wrangle support landed | Rebuild with `hython build_vellum_attr_stream.py` from the plugin source |
+| Setup reports "Can't find vellum_attr_stream.hda next to this script" | The .cmd, .py, and .hda are not in the same folder | Move all three files into one folder; the .cmd resolves siblings via its own path |
+| Setup reports "Couldn't read 'init_vex' section" | The .hda is from an older build that pre-dates init-wrangle support | Re-download the latest `vellum_attr_stream.hda`, or rebuild from source with `hython build_vellum_attr_stream.py` |
 | `Cd` does not update on the simulated cloth | The streamer is bypassed, or the **Animated SOP** path is wrong | Re-enable the streamer; click the parameter's chooser and pick the upstream SOP that actually animates `Cd` |
 | Vellum Solver errors with "Duplicate point id attributes detected" | Cloth points lack an `id` attribute, or it has been added twice | Make sure you set `i@id = @ptnum;` once on the cloth geometry, before **Vellum Constraints** |
 | Frame 1 shows stale colors but every later frame is correct | The SOP-level init wrangle is bypassed | Un-bypass `vellum_attr_stream_init` — microsolvers do not run on the creation frame, so the SOP wrangle is what seeds f1 |
@@ -140,7 +139,7 @@ A single shelf-tool click adds a streamer that pushes any SOP point attribute in
 
 If you need an HDA compiled under your own Houdini license (to avoid the Indie / Apprentice flag):
 
-1. Download [`build_vellum_attr_stream.py`](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/build_vellum_attr_stream.py)
+1. Download [`build_vellum_attr_stream.py`](https://github.com/kleer001/funkworks/raw/main/plugins/houdini/src/build_vellum_attr_stream.py).
 2. Run:
    ```bash
    hython build_vellum_attr_stream.py
@@ -149,7 +148,7 @@ If you need an HDA compiled under your own Houdini license (to avoid the Indie /
    ```bash
    /opt/hfs21.0/bin/hython build_vellum_attr_stream.py
    ```
-3. The script writes `vellum_attr_stream.hda` next to itself.
+3. The script writes `vellum_attr_stream.hda` next to itself. The .cmd and .py never need rebuilding.
 
 ---
 
