@@ -39,6 +39,10 @@ Rephrase as a description of the problem in second or third person instead.
 "which feels right", "that's the way it should be", "finally", "at last" —
 these add sentiment without adding information. Flag and suggest cutting.
 
+Also reduce extra metaphors. Stock figures like "papercut", "tedious dance",
+"shuffle" hide the actual mechanism — describe the literal behavior instead.
+("Friction" and "pain point" are fine; they're plain industry terms.)
+
 ---
 
 ## Output Format
