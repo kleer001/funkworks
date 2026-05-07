@@ -4,7 +4,7 @@
 
 **Free addon: Subdivide that leaves only the new geometry selected**
 
-Small papercut: when you subdivide an edge loop or face ring, you must manually isolate the new midpoint verts and inner edges before you can bevel, slide, or extrude them. Checker Deselect selects every other element on a face ring regardless of whether it's new or original. Select Less strips the boundary. Invert requires multiple manual steps to isolate the new geometry.
+When you subdivide an edge loop or face ring, you must manually isolate the new midpoint verts and inner edges before you can bevel, slide, or extrude them. Checker Deselect selects every other element on a face ring regardless of whether it's new or original. Select Less strips the boundary. Invert requires multiple manual steps to isolate the new geometry.
 
 **Subdivide (Select New)** does what Subdivide does, then leaves only the new vertices and edges selected. Mesh menu, right-click menu, or F3. The redo panel exposes the same parameters as the built-in Subdivide.
 
@@ -18,7 +18,7 @@ More free tools at https://github.com/kleer001/funkworks
 
 ## Long (Newsletter / Blog post intro)
 
-**The Subdivide papercut**
+**Subdivide leaves the original selection active**
 
 When you run Subdivide, the midpoint verts and inner edges are there. If you want to bevel, slide, or extrude them, Blender's *original* selection is still active, with the new geometry mixed in. The new geometry has to be isolated by hand before any follow-up operator will act only on it.
 

@@ -26,7 +26,7 @@ The standard workarounds are imperfect:
 - **Select Less** strips the boundary, not the interior.
 - **Select Inverse** then re-fixing the selection is a five-step dance.
 
-Small papercut, but it shows up every time you cut a panel loop, add detail to a
+The extra step shows up every time you cut a panel loop, add detail to a
 subdivision, or refine a topology pass.
 
 ---
