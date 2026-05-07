@@ -18,7 +18,7 @@ It's a small papercut, but it shows up every time you cut a panel loop, add deta
 
 Run **Subdivide (Select New)** instead. It does exactly what Subdivide does, then deselects the original geometry and selects only the vertices and edges that were just created. Your next operator acts on the new cuts and nothing else.
 
-The operator lives in the **Mesh menu** and the **right-click context menu** in Edit Mode, and is searchable via **F3**. The redo panel exposes the same `Number of Cuts` and `Smoothness` parameters as the standard Subdivide.
+The operator lives in the **Mesh menu** and the **right-click context menu** in Edit Mode, and is searchable via **F3**. The redo panel exposes the same full parameter set as standard Subdivide: `Number of Cuts`, `Smoothness`, `Create N-Gons`, `Quad Corner Type`, `Fractal`, `Along Normal`, `Random Seed`.
 
 ## Installation
 
@@ -30,7 +30,7 @@ The operator lives in the **Mesh menu** and the **right-click context menu** in 
 
 1. Enter Edit Mode and select the geometry you want to cut (faces, edge loops, etc.)
 2. **Mesh menu → Subdivide (Select New)** — or right-click → Subdivide (Select New)
-3. Adjust **Number of Cuts** / **Smoothness** in the redo panel if needed
+3. Adjust any of the standard Subdivide parameters (Number of Cuts, Smoothness, Fractal, etc.) in the redo panel if needed
 4. The new vertices and edges are now your active selection — apply the next operator
 
 ## Compatibility

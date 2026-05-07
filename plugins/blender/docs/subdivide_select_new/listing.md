@@ -12,12 +12,12 @@ Blender's Subdivide leaves your original selection intact. If your next move is 
 - Mesh menu → **Subdivide (Select New)** (or right-click)
 - The new vertices and edges are now your active selection — run your next operator
 
-Same `Number of Cuts` and `Smoothness` parameters as the built-in Subdivide. Full undo support. The active vert/edge/face selection mode is preserved.
+Exposes the full parameter set of the built-in Subdivide (Number of Cuts, Smoothness, Create N-Gons, Quad Corner Type, Fractal, Along Normal, Random Seed). Full undo support. The active vert/edge/face selection mode is preserved.
 
 ## Features
 
 - One-click subdivide that leaves only the new geometry selected
-- Same parameters as built-in Subdivide (`Number of Cuts`, `Smoothness`)
+- Same full parameter set as built-in Subdivide (Number of Cuts, Smoothness, Create N-Gons, Quad Corner Type, Fractal, Along Normal, Random Seed)
 - Lives in the Mesh menu and right-click context menu — also searchable via F3
 - Preserves vert / edge / face selection mode
 - Full undo support

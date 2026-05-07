@@ -50,7 +50,7 @@ surface.
 
 - How to find **Subdivide (Select New)** in the Mesh menu, the right-click context menu, and via F3 search
 - How the operator's selection result differs from standard **Subdivide**
-- How to use the redo panel to change **Number of Cuts** and **Smoothness** after the fact
+- How to use the redo panel to change any of the standard Subdivide parameters after the fact
 
 ### Prerequisites
 
@@ -117,15 +117,22 @@ The status bar at the bottom of the screen shows a confirmation:
 ### Step 4: Adjust in the Redo Panel
 
 The bottom-left of the viewport shows a collapsed **Subdivide (Select New)** panel.
-Click it open or press **F9** to pop it up. Two parameters are exposed:
+Click it open or press **F9** to pop it up. The same parameter set as the standard Subdivide is exposed:
 
 - **Number of Cuts** — how many subdivisions per original edge
 - **Smoothness** — 0 keeps cuts on the original surface, higher values curve them
   toward a Catmull-Clark-style result
+- **Create N-Gons** — when off, new faces are limited to triangles and quads
+- **Quad Corner Type** — how quad corners subdivide (`Inner Vert`, `Path`,
+  `Straight Cut`, `Fan`)
+- **Fractal** — random displacement amount applied to new vertices
+- **Along Normal** — bias the fractal displacement toward face normals
+  (0 = any direction, 1 = along normal only)
+- **Random Seed** — seed for the fractal randomness
 
-Changing either re-runs the operator with the new values and re-selects only the new
-geometry. Bumping cuts to 2 or 3 gives you finer detail to act on without ever
-re-touching the original selection.
+Changing any of them re-runs the operator with the new values and re-selects only
+the new geometry. Bumping cuts to 2 or 3 gives you finer detail to act on without
+ever re-touching the original selection.
 
 ---
 

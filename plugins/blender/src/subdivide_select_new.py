@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Subdivide Select New",
     "author": "Funkworks",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (4, 0, 0),
     "location": "Edit Mode > Mesh menu / Right-click context menu",
     "description": "Subdivide and leave only the newly-created vertices and edges selected",
@@ -31,6 +31,37 @@ class MESH_OT_subdivide_select_new(bpy.types.Operator):
         description="Smoothness factor (0 = sharp, 1 = subsurf-like)",
         default=0.0, min=0.0, soft_max=1.0, max=1000.0,
     )
+    ngon: bpy.props.BoolProperty(
+        name="Create N-Gons",
+        description="When disabled, newly-created faces are limited to triangles and quads",
+        default=True,
+    )
+    quadcorner: bpy.props.EnumProperty(
+        name="Quad Corner Type",
+        description="How to subdivide quad corners (anything other than Straight Cut produces some triangles)",
+        items=[
+            ('INNERVERT', "Inner Vert", ""),
+            ('PATH', "Path", ""),
+            ('STRAIGHT_CUT', "Straight Cut", ""),
+            ('FAN', "Fan", ""),
+        ],
+        default='STRAIGHT_CUT',
+    )
+    fractal: bpy.props.FloatProperty(
+        name="Fractal",
+        description="Fractal randomness factor",
+        default=0.0, min=0.0, soft_max=1000.0, max=1000000.0,
+    )
+    fractal_along_normal: bpy.props.FloatProperty(
+        name="Along Normal",
+        description="Apply fractal displacement along normal (0 = any direction, 1 = along normal only)",
+        default=0.0, min=0.0, max=1.0,
+    )
+    seed: bpy.props.IntProperty(
+        name="Random Seed",
+        description="Seed for the random number generator",
+        default=0, min=0,
+    )
 
     @classmethod
     def poll(cls, context):
@@ -58,6 +89,11 @@ class MESH_OT_subdivide_select_new(bpy.types.Operator):
         bpy.ops.mesh.subdivide(
             number_cuts=self.number_cuts,
             smoothness=self.smoothness,
+            ngon=self.ngon,
+            quadcorner=self.quadcorner,
+            fractal=self.fractal,
+            fractal_along_normal=self.fractal_along_normal,
+            seed=self.seed,
         )
 
         bm = bmesh.from_edit_mesh(mesh)
