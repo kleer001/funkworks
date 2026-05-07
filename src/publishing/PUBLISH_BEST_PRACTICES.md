@@ -15,6 +15,20 @@ occurrences when patching the release URL.
 `zip releases/$NAME.zip src/$NAME.py` — the zip path is `src/$NAME.py`, not just
 `$NAME.py`. Blender installs single-file addons directly from this.
 
+### Wrappers must mirror the host operator's full parameter set
+When an addon wraps a built-in op (`mesh.subdivide`, `mesh.bevel`, etc.), expose
+every parameter the host exposes — same defaults, same names, forwarded through.
+Caught on `subdivide_select_new` v1.0.0 which dropped 5 of 7 Subdivide params;
+shipped v1.1.0 with the full set after user spotted the gap. Verify against the
+Blender Python API docs before defining `bpy.props`, not just the redo panel.
+
+### Honest-copy hook catches reader-assumption phrasing
+Beyond superlatives and rhetorical filler, the hook flags second-person sequences
+that assume reader intent ("You ran X. Now you want to Y."). Rewrite as
+conditional ("When you run X, if you want to Y..."). Same applies to evaluative
+adjectives like "tedious", "rarely lands right", "doesn't work cleanly" —
+replace with the concrete behavior ("grabs every other element regardless of...").
+
 ## Houdini
 
 ### Multi-file install plugins ship more than 2 release assets
