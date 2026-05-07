@@ -36,6 +36,25 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 
   <div class="plugin-card">
     <div class="plugin-card-thumb">
+      <a href="subdivide_select_new"><img src="{{ "/images/banners/subdivide_select_new_banner.png" | relative_url }}" alt="Subdivide (Select New) banner"/></a>
+    </div>
+    <div class="plugin-card-body">
+      <h3><a href="subdivide_select_new">Subdivide (Select New)</a></h3>
+      <p>Subdivide and have only the new vertices and edges selected — ready for the next operator. Same full parameter set as built-in Subdivide.</p>
+      <div class="plugin-meta">Blender 4.0+ &middot; Free</div>
+      <div class="plugin-links">
+        <a href="https://kleer001.github.io/funkworks/subdivide_select_new">Tutorial &amp; Download</a>
+        <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/subdivide_select_new.py">Source</a>
+      </div>
+    </div>
+    <div class="plugin-card-posts">
+      <ul>
+      </ul>
+    </div>
+  </div>
+
+  <div class="plugin-card">
+    <div class="plugin-card-thumb">
       <a href="selective_edge_split"><img src="{{ "/images/banners/selective_edge_split_banner.png" | relative_url }}" alt="Selective Edge Split banner"/></a>
     </div>
     <div class="plugin-card-body">
