@@ -79,6 +79,21 @@ Blender plugins register an `Operator` class and a `Panel` class, following stan
 
 The GitHub Pages tutorial for each plugin lives at `docs/<name>.md` (problem, install, step-by-step usage, notes).
 
+### Provenance
+
+Origin records for shipped plugins live at `data/origins/origins.jsonl` (gitignored — internal tool, not published). Append-only JSONL, one record per originating post. A plugin can have multiple records when several posts converged on the same need.
+
+```json
+{"plugin_id": "zoom_blur_cop", "captured_at": "2026-04-22", "source_url": "https://reddit.com/r/Houdini/comments/abc/...", "venue": "reddit:r/Houdini", "post_date": "2026-04-15", "tags": ["radial", "blur", "cop"], "notes": "asker wanted action-zoom effect"}
+```
+
+Field rules:
+- `tags` — 5–10 short keywords; candidate `must_any` terms for the future engagement matcher.
+- `notes` — short prose; quoting the post directly is fine since the file is internal.
+- `captured_at_retroactively: true` and `source_url: null` — flag for entries reconstructed after the fact, when no originating post could be located. Omit the flag when false.
+
+The `/new-plugin` skill captures one or more origin records as its first step. No silent skips.
+
 ### Skills
 
 Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `SKILL.md` file.
@@ -87,6 +102,7 @@ Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `
 |-------|-----------|---------|
 | `new-plugin` | `/new-plugin <name>` | Build and document a new Blender addon end-to-end |
 | `tutorial` | `/tutorial <plugin-name>` | Write a step-by-step tutorial for an existing plugin |
+| `digest` | `/digest [raw.json]` | Classify raw Reddit posts into plugin opportunities using Claude agents (no API key needed) |
 
 ### Data Flow
 

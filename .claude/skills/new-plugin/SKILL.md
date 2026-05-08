@@ -5,7 +5,7 @@ description: >-
   TRIGGER when: code imports `bpy`, or user asks to create, build, or scaffold
   a new Blender plugin/addon.
   DO NOT TRIGGER when: user asks to edit an existing plugin or write a tutorial.
-argument-hint: "[plugin-name]"
+argument-hint: "[plugin-name] [--origin <url>]..."
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Agent
 ---
 
@@ -25,14 +25,16 @@ If you can't answer all three, stop and ask the user before proceeding.
 
 ## Steps
 
-1. **Write the addon** at `plugins/blender/src/$ARGUMENTS.py` following the patterns in existing plugins (single-file, `bl_info` header, `register`/`unregister`, `bl_options = {'REGISTER', 'UNDO'}`).
+1. **Capture origin records** to `data/origins/origins.jsonl` (gitignored). One record per originating post — append, don't overwrite. If the user passed `--origin <url>` (one or more), use those URLs. If none were passed, prompt for them: "What post(s) motivated this plugin? Paste URLs, one per line, or press Enter to record retroactively." For each URL, derive `venue` from the host, `post_date` from the post if known, `tags` (5–10 keywords from the ask), and `notes` (one-line paraphrase of what the asker wanted). If the user has no URLs at all, write a single retroactive record with `captured_at_retroactively: true`, `source_url: null`, and ask for `tags` + `notes`. Do not silently skip — every plugin gets at least one record. Schema: see `Provenance` section in `CLAUDE.md`.
 
-2. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`:
+2. **Write the addon** at `plugins/blender/src/$ARGUMENTS.py` following the patterns in existing plugins (single-file, `bl_info` header, `register`/`unregister`, `bl_options = {'REGISTER', 'UNDO'}`).
+
+3. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`:
    - `README.md` — GitHub-facing docs: the problem, the solution, install steps, usage, compatibility, edge cases
    - `listing.md` — Marketplace copy: 160-char short description, long description, features list, requirements, tags
    - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog)
 
-3. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
+4. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
    - Check if image_gen is running: `imggen status` (sources `~/.bash_aliases.sh` first if needed). Start if stopped: `imggen` — starts ComfyUI (port 8188) + MCP server (port 9000), takes ~30s
    - Read `/media/menser/fauna/image_gen/INDEX.md` for available models and LoRA trigger words
    - Draft 5 distinct prompt options (different metaphors / visual angles for the plugin's core action). No approval step — generate immediately.
@@ -42,7 +44,7 @@ If you can't answer all three, stop and ask the user before proceeding.
    - Serve via `python3 -m http.server 8765 --directory /tmp` (run in background; port 8765 — pick another if taken). Open `http://localhost:8765/$ARGUMENTS_gallery.html` in Firefox. **Do not link `file:///tmp/...` directly — Firefox is sandboxed via flatpak portal and rewrites those paths to `/run/user/1000/doc/<hash>/...`, which is non-obvious for the user.**
    - Once the user picks one, copy the chosen prompt to `data/banner_prompts/$ARGUMENTS.txt`, copy the chosen image to `docs/images/banners/$ARGUMENTS_banner.png`, and clean up the `_v{1..5}.txt` candidate files
 
-4. **Update the root README** — add a row to the plugins table:
+5. **Update the root README** — add a row to the plugins table:
    ```
    | [Plugin Display Name](plugins/blender/docs/$ARGUMENTS/) | One-line description |
    ```
