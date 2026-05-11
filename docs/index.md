@@ -14,6 +14,8 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 <style>
 .plugin-grid { display: flex; flex-direction: column; gap: 0.75rem; margin: 2rem 0; width: calc(100% + 4rem); margin-left: -2rem; }
 .plugin-card { display: flex; flex-direction: row; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; height: 160px; width: 100%; }
+.plugin-card.dcc-houdini { background: #fff9e6; }
+.plugin-card.dcc-blender { background: #e6f5ff; }
 .plugin-card-thumb { flex: 0 0 160px; overflow: hidden; }
 .plugin-card-thumb a { display: block; width: 100%; height: 100%; }
 .plugin-card-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
@@ -34,7 +36,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 
 <div class="plugin-grid">
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-blender">
     <div class="plugin-card-thumb">
       <a href="subdivide_select_new"><img src="{{ "/images/banners/subdivide_select_new_banner.png" | relative_url }}" alt="Subdivide (Select New) banner"/></a>
     </div>
@@ -49,11 +51,13 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
     <div class="plugin-card-posts">
       <ul>
+        <li><a href="https://www.reddit.com/r/blender/comments/1t7diod/subdivide_addon_that_leaves_only_the_new_geometry/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/free-addon-subdivide-that-leaves-only-the-new-geometry-selected/1640253">BlenderArtists</a></li>
       </ul>
     </div>
   </div>
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-blender">
     <div class="plugin-card-thumb">
       <a href="selective_edge_split"><img src="{{ "/images/banners/selective_edge_split_banner.png" | relative_url }}" alt="Selective Edge Split banner"/></a>
     </div>
@@ -74,7 +78,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-blender">
     <div class="plugin-card-thumb">
       <a href="fluid-domain-visibility"><img src="{{ "/images/banners/fluid_domain_visibility_banner.png" | relative_url }}" alt="Fluid Domain Auto-Visibility banner"/></a>
     </div>
@@ -95,7 +99,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-houdini">
     <div class="plugin-card-thumb">
       <a href="scale_cop"><img src="{{ "/images/banners/scale_cop_banner.png" | relative_url }}" alt="Scale COP banner"/></a>
     </div>
@@ -116,7 +120,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-houdini">
     <div class="plugin-card-thumb">
       <a href="zoom_blur_cop"><img src="{{ "/images/banners/zoom_blur_cop_banner.png" | relative_url }}" alt="Zoom / Radial Blur COP banner"/></a>
     </div>
@@ -137,7 +141,7 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
-  <div class="plugin-card">
+  <div class="plugin-card dcc-houdini">
     <div class="plugin-card-thumb">
       <a href="vellum_attr_stream"><img src="{{ "/images/banners/vellum_attr_stream_banner.png" | relative_url }}" alt="Vellum Animated Attribute Streamer banner"/></a>
     </div>
@@ -149,6 +153,12 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
         <a href="https://kleer001.github.io/funkworks/vellum_attr_stream">Tutorial &amp; Download</a>
         <a href="https://github.com/kleer001/funkworks/tree/main/plugins/houdini/src/build_vellum_attr_stream.py">Source</a>
       </div>
+    </div>
+    <div class="plugin-card-posts">
+      <ul>
+        <li><a href="https://www.sidefx.com/forum/topic/103704/?page=1#post-459210">SideFX Forums</a></li>
+        <li><a href="https://forums.odforce.net/topic/67469-vellum-animated-attribute-streamer/">OdForce</a></li>
+      </ul>
     </div>
   </div>
 

@@ -94,6 +94,10 @@ Field rules:
 
 The `/new-plugin` skill captures one or more origin records as its first step. No silent skips.
 
+### Poster Profiles
+
+`poster_profiles.toml` (repo root) lists the author profile URL on every forum used for plugin announcements (Reddit, BlenderArtists, SideFX, OdForce). When wiring announcement post links into `docs/index.md` plugin cards, fetch the relevant profile to find the latest post URL rather than asking the user to copy/paste.
+
 ### Skills
 
 Claude Code skills live in `.claude/skills/`. Each skill is a directory with a `SKILL.md` file.

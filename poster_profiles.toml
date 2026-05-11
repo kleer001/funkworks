@@ -1,0 +1,19 @@
+# Author profiles on the forums Funkworks uses for plugin announcements.
+# Used by Claude when wiring `docs/index.md` plugin cards to find the
+# latest announcement post URLs without asking the user to copy/paste.
+
+[reddit]
+url = "https://www.reddit.com/user/kleer001/submitted/"
+covers = ["r/blender", "r/blenderhelp", "r/Houdini"]
+
+[blenderartists]
+url = "https://blenderartists.org/u/funkworks/activity"
+covers = ["BlenderArtists"]
+
+[sidefx]
+url = "https://www.sidefx.com/profile/kleer001/"
+covers = ["SideFX Forums"]
+
+[odforce]
+url = "https://forums.odforce.net/profile/1210-kleer001/"
+covers = ["OdForce"]
