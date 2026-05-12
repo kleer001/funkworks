@@ -29,8 +29,10 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 
 | DCC | Plugin | Description |
 |-----|--------|-------------|
+| Blender | [Bevel Modifier Presets](plugins/blender/docs/bevel_presets/) | Save the active Bevel modifier's parameters as a named preset and recall them on any Bevel modifier in any .blend file |
 | Blender | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
 | Blender | [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
+| Blender | [Subdivide Select New](plugins/blender/docs/subdivide_select_new/) | Subdivide and leave only the newly-created vertices and edges selected |
 | Houdini | [Scale COP](plugins/houdini/docs/scale_cop/) | Scale, fit, and tile images in Copernicus — letterbox, fill, crop, and tiling in one node |
 | Houdini | [Zoom / Radial Blur COP](plugins/houdini/docs/zoom_blur_cop/) | Zoom blur and spin blur in one Copernicus node — moveable center, two modes, tunable sample count |
 | Houdini | [Vellum Animated Attribute Streamer](plugins/houdini/docs/vellum_attr_stream/) | Stream animated SOP point attributes into a live Vellum sim each substep — defeats Vellum's frame-1 attribute freeze |

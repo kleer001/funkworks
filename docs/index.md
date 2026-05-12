@@ -99,6 +99,24 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
     </div>
   </div>
 
+  <div class="plugin-card dcc-blender">
+    <div class="plugin-card-thumb">
+      <a href="bevel_presets"><img src="{{ "/images/banners/bevel_presets_banner.png" | relative_url }}" alt="Bevel Modifier Presets banner"/></a>
+    </div>
+    <div class="plugin-card-body">
+      <h3><a href="bevel_presets">Bevel Modifier Presets</a></h3>
+      <p>Save the active Bevel modifier's parameters as a named preset and recall them on any Bevel modifier in any .blend file. Uses Blender's built-in preset machinery.</p>
+      <div class="plugin-meta">Blender 4.2 LTS &middot; Free</div>
+      <div class="plugin-links">
+        <a href="https://kleer001.github.io/funkworks/bevel_presets">Tutorial &amp; Download</a>
+        <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/bevel_presets.py">Source</a>
+      </div>
+    </div>
+    <div class="plugin-card-posts">
+      <span class="no-posts">No posts yet</span>
+    </div>
+  </div>
+
   <div class="plugin-card dcc-houdini">
     <div class="plugin-card-thumb">
       <a href="scale_cop"><img src="{{ "/images/banners/scale_cop_banner.png" | relative_url }}" alt="Scale COP banner"/></a>
