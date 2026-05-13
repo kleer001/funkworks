@@ -1,34 +1,53 @@
 <style>
+:root {
+  --ink:         #111;
+  --ink-soft:    #444;
+  --ink-mute:    #666;
+  --ink-faint:   #999;
+  --rule:        #ddd;
+  --paper:       #fdfdfd;
+  --link:        #0000EE;
+  --link-hover:  #0000BB;
+  --link-visit:  #551A8B;
+  --dcc-blender:      #b3d9eb;
+  --dcc-blender-fill: #e6f5ff;
+  --dcc-houdini:      #ebd9a3;
+  --dcc-houdini-fill: #fff9e6;
+}
+
 .site-header { border-top: none; min-height: auto; }
 .site-header .wrapper { padding-top: 0.5rem; padding-bottom: 0.5rem; }
 .site-nav { float: none; display: flex; align-items: center; gap: 0.5rem; line-height: 1; }
 .site-nav .nav-trigger, .site-nav label[for="nav-trigger"], .site-nav .menu-icon { display: none; }
 .site-nav .trigger { display: flex !important; align-items: center; gap: 0.5rem; }
+
 .dcc-filter {
   display: inline-block;
   padding: 0.45rem 1.1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
   text-decoration: none;
-  color: #333;
+  color: var(--ink);
   font-weight: 500;
   font-size: 0.95rem;
 }
-.dcc-filter:visited { color: #333; }
-.dcc-filter.dcc-blender { background: #e6f5ff; border-color: #b3d9eb; }
-.dcc-filter.dcc-houdini { background: #fff9e6; border-color: #ebd9a3; }
-.dcc-filter.dcc-all { background: #fff; border-color: #ccc; }
-.dcc-filter.dcc-blender:hover { background: #d0eaf8; text-decoration: none; }
-.dcc-filter.dcc-houdini:hover { background: #ffefc6; text-decoration: none; }
-.dcc-filter.dcc-all:hover { background: #f4f4f4; text-decoration: none; }
+.dcc-filter:visited { color: var(--ink); }
+.dcc-filter.dcc-blender { background: var(--dcc-blender-fill); border-color: var(--dcc-blender); }
+.dcc-filter.dcc-houdini { background: var(--dcc-houdini-fill); border-color: var(--dcc-houdini); }
+.dcc-filter.dcc-all { background: var(--paper); }
+.dcc-filter.dcc-blender:hover,
+.dcc-filter.dcc-houdini:hover,
+.dcc-filter.dcc-all:hover { text-decoration: none; border-color: var(--ink); }
+
 .site-nav .latest-link {
   padding: 0.45rem 0.75rem;
-  color: #555;
+  color: var(--link);
   text-decoration: none;
   font-size: 0.95rem;
 }
-.site-nav .latest-link:hover { color: #2b6cb0; text-decoration: none; }
-.site-nav .latest-link .latest-label { color: #888; font-size: 0.85rem; margin-right: 0.25rem; }
+.site-nav .latest-link:visited { color: var(--link-visit); }
+.site-nav .latest-link:hover { color: var(--link-hover); text-decoration: underline; }
+.site-nav .latest-link .latest-label { color: var(--ink-faint); font-size: 0.85rem; margin-right: 0.25rem; font-variant: small-caps; letter-spacing: 0.05em; }
 </style>
 
 <header class="site-header" role="banner">
