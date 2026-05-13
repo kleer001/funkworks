@@ -6,13 +6,13 @@ Getting a zoom blur in Copernicus means writing a wrangle from scratch: aspect-c
 
 New free Houdini HDA: two blur modes, moveable center, tunable samples.
 
-https://github.com/kleer001/funkworks/releases/tag/zoom_blur_cop-v0.1.117
+https://kleer001.github.io/funkworks/zoom_blur_cop
 
 #Houdini #VFX #Compositing #COP #SideFX
 
 ---
 
-## Medium (SideFX Forums / OdForce)
+## Medium (OdForce / Reddit r/Houdini — Markdown)
 
 **Zoom / Radial Blur COP — free Houdini node for zoom and spin blur in Copernicus**
 
@@ -26,11 +26,35 @@ Zoom / Radial Blur COP is that node. Connect an image, pick a mode, done.
 
 Both modes share the same center controls. Switching modes hides the irrelevant parameter (Blur Pixels vs. Blur Angle). Alpha is preserved throughout via `volumesamplep`.
 
-Free download: https://github.com/kleer001/funkworks/releases/tag/zoom_blur_cop-v0.1.117
+Free download: https://kleer001.github.io/funkworks/zoom_blur_cop
 
 Houdini 20.5+, any edition. FX users: a build script is included to compile the HDA clean under your own license.
 
 🐜 More free tools at https://github.com/kleer001/funkworks
+
+---
+
+## Medium (SideFX Forums — BBCode)
+
+[b]Zoom / Radial Blur COP — free Houdini node for zoom and spin blur in Copernicus[/b]
+
+Getting a zoom blur or spin blur in a COP network means writing the same wrangle: work out the aspect-corrected [code]@P[/code] coordinate space, build the radial sampling loop, use [code]volumesamplep[/code] so alpha doesn't drop. It's 30 lines of boilerplate for a basic result.
+
+Zoom / Radial Blur COP is that node. Connect an image, pick a mode, done.
+
+[list]
+[*][b]Blur modes:[/b] Zoom Blur (radial scale streaks from center) or Radial Blur (spin/arc smear at constant radius)
+[*][b]Center control:[/b] Screen Space (−1..1, 0 = image center) or Pixels (absolute coordinates, Y=0 at bottom-left)
+[*][b]Samples:[/b] 1–256, slider with strict minimum — raise for finals, lower for layout speed
+[/list]
+
+Both modes share the same center controls. Switching modes hides the irrelevant parameter (Blur Pixels vs. Blur Angle). Alpha is preserved throughout via [code]volumesamplep[/code].
+
+Free download: [url=https://kleer001.github.io/funkworks/zoom_blur_cop]https://kleer001.github.io/funkworks/zoom_blur_cop[/url]
+
+Houdini 20.5+, any edition. FX users: a build script is included to compile the HDA clean under your own license.
+
+🐜 More free tools at [url=https://github.com/kleer001/funkworks]https://github.com/kleer001/funkworks[/url]
 
 ---
 
@@ -54,7 +78,7 @@ Samples is a straight quality knob: more samples = smoother result, slower cook.
 
 Alpha is preserved. The wrangle uses `volumesamplep` which returns `vector4` — the alpha rides in the `.w` component of the color layer and is written back to `@A` explicitly. Nothing disappears on compositing.
 
-Download it free: https://github.com/kleer001/funkworks/releases/tag/zoom_blur_cop-v0.1.117
+Download it free: https://kleer001.github.io/funkworks/zoom_blur_cop
 
 Houdini 20.5+, any edition. FX users get a build script (`build_zoom_blur_cop.py`) to compile the HDA clean under their own license and avoid the Indie/Apprentice flag.
 

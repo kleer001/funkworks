@@ -5,11 +5,27 @@ Usage (run from plugins/houdini/src/):
     /opt/hfs21.0/bin/hython build_scale_cop.py
 """
 
-import os, sys
+import os, sys, subprocess
 import hou
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HDA_FILE   = os.path.join(SCRIPT_DIR, "scale_cop.hda")
+
+
+def _git_version():
+    try:
+        count = subprocess.check_output(
+            ["git", "rev-list", "--count", "HEAD"],
+            text=True, cwd=SCRIPT_DIR, stderr=subprocess.PIPE
+        ).strip()
+        short_hash = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            text=True, cwd=SCRIPT_DIR, stderr=subprocess.PIPE
+        ).strip()
+        return f"v0.1.{count} ({short_hash})"
+    except Exception as e:
+        print(f"  [version] git failed: {e}")
+        return "v0.1.0 (unknown)"
 
 # ---------------------------------------------------------------------------
 # VEX snippet for tile_wrangle (handles both fit modes and tiling)
@@ -21,9 +37,14 @@ HDA_FILE   = os.path.join(SCRIPT_DIR, "scale_cop.hda")
 # where in the source to sample.  The source (via STRETCH resample) shares
 # image space with us, so sampling at the computed source coords is exact.
 #
-# content_iw / content_ih: half-extent of the content in image space coords.
-# (Full image space goes from -1 to +1, so half-extent = 1.0 means full width.)
-# Sample position in source: src_x = px / content_iw, src_y = py / content_ih.
+# content_iw / content_ih: half-extent of the content in @P space.
+# IMPORTANT: Houdini COP @P is aspect-ratio-corrected — both @P.x and @P.y
+# are normalised by dst_w (not separately by dst_w/dst_h).
+#   @P.x ∈ [−1, +1],  @P.y ∈ [−dst_h/dst_w, +dst_h/dst_w]
+# Therefore content_iw AND content_ih must both divide by dst_w:
+#   content_iw = (src_w * scale_x) / dst_w   (same pixel extent in x)
+#   content_ih = (src_h * scale_y) / dst_w   (same pixel extent in y)
+# Sample position in source: src_x = px / content_iw, src_y = -py / content_ih.
 # Pixels outside the content extent get the background color.
 #
 # Tiling: uses integer pixel coords + voxel-center correction (+1/src_w) to
@@ -49,35 +70,43 @@ if (tile_mode == 0) {
     // ---- Fit modes --------------------------------------------------------
     float scale;
     float scale_x, scale_y;
-    if (fit_mode == 0) {          // Stretch — non-uniform fill
+    if (fit_mode == 0) {          // Distort — non-uniform fill
         scale_x = dst_w / src_w;
         scale_y = dst_h / src_h;
-    } else if (fit_mode == 1) {   // Fit Inside (letterbox)
+    } else if (fit_mode == 1) {   // Fit (letterbox)
         scale = min(dst_w / src_w, dst_h / src_h);
         scale_x = scale; scale_y = scale;
-    } else if (fit_mode == 2) {   // Fit Outside (crop to fill)
+    } else if (fit_mode == 2) {   // Fill (crop to fill)
         scale = max(dst_w / src_w, dst_h / src_h);
         scale_x = scale; scale_y = scale;
-    } else if (fit_mode == 3) {   // Pin Width
+    } else if (fit_mode == 3) {   // Width
         scale = dst_w / src_w;
         scale_x = scale; scale_y = scale;
-    } else if (fit_mode == 4) {   // Pin Height
+    } else if (fit_mode == 4) {   // Height
         scale = dst_h / src_h;
         scale_x = scale; scale_y = scale;
-    } else {                      // Original Size (1:1 pixel)
+    } else {                      // None (1:1 pixel)
         scale_x = 1.0f; scale_y = 1.0f;
     }
 
-    // Content extent in image space (-1..+1 full width = half-extent 1.0).
+    // Content extent in @P space.
+    // @P is aspect-ratio-corrected: both axes normalised by dst_w.
+    // @P.x ∈ [−1,+1],  @P.y ∈ [−dst_h/dst_w, +dst_h/dst_w]
     float content_iw = (src_w * scale_x) / dst_w;
-    float content_ih = (src_h * scale_y) / dst_h;
+    float content_ih = (src_h * scale_y) / dst_w;  // dst_w, not dst_h
 
     float px = @P.x;
     float py = @P.y;
+    // volumesamplep uses image-space coords, not a uniform [-1,+1] buffer range.
+    // @P is dst_w-normalised: @P.x ∈ [-1,+1], @P.y ∈ [±dst_h/dst_w].
+    // The resample VDB has the same image-space extent, so the y sample must
+    // also be scaled by dst_h/dst_w to stay within [±dst_h/dst_w] and avoid
+    // wrapping at the VDB border.
+    float ar = dst_h / dst_w;
 
     if (abs(px) <= content_iw && abs(py) <= content_ih) {
         // Inside content: remap to source image space and sample.
-        @C = volumesamplep(0, "C", set(px / content_iw, py / content_ih, 0.0f));
+        @C = volumesamplep(0, "C", set(px / content_iw, py / content_ih * ar, 0.0f));
     } else {
         // Outside content: background color.
         @C = set(chf("../bg_colorr"), chf("../bg_colorg"), chf("../bg_colorb"));
@@ -196,14 +225,24 @@ def _update(node):
     node.parm("tile_mode_int").set(node.parm("tile_mode").eval())
 
 
-def _update_ref_res(node):
-    """Sync _has_ref_res; if ref_res is wired, pull its resolution."""
+def _resolve_ref(node):
+    """Return the ref_res node if wired (input 1) or set via ref_res_path parm, else None."""
     ref = node.input(1)
     if ref is not None:
+        return ref
+    path = node.parm("ref_res_path").evalAsString().strip()
+    if path:
+        return hou.node(path)
+    return None
+
+
+def _update_ref_res(node):
+    """Sync _has_ref_res/_res_w/_res_h from wire or ref_res_path parm.
+    Only activates when use_size_ref toggle is on."""
+    use_ref = node.parm("use_size_ref").eval()
+    ref = _resolve_ref(node) if use_ref else None
+    if ref is not None:
         node.parm("_has_ref_res").set(1)
-        # Also update _res_w/_res_h from ref_res so the hidden parms stay
-        # consistent (resample uses basesize=input when _has_ref_res==1, so
-        # the _res_w/_res_h values are unused — but keep them tidy).
         try:
             ref.cook(force=False)
             lyr = ref.layer()
@@ -216,8 +255,6 @@ def _update_ref_res(node):
     else:
         node.parm("_has_ref_res").set(0)
         _update(node)
-    # Always refresh source dims for tiling (input 0 doesn't change here,
-    # but _update() may not have been called yet on first creation).
     sr = _src_res(node)
     if sr:
         node.parm("_src_w").set(sr[0])
@@ -257,6 +294,10 @@ def onParmChanged(kwargs):
         h = node.parm("height").eval()
         if h > 0:
             node.parm("_constrain_ar").set(w / h)
+
+    if parm in ("ref_res_path", "use_size_ref"):
+        _update_ref_res(node)
+        return
 
     _update(node)
 '''
@@ -298,19 +339,22 @@ def build():
     out_nd.setInput(0, None)   # remove default passthrough
 
     # ---- Internal: resample_scale ----------------------------------------
+    # Wire inp_nd output 1 to resample input 1 so Copernicus exposes the
+    # second external connector.  resample has min=0/max=2; with basesize=0
+    # (explicit resolution) it never cooks input 1 — safe when disconnected.
     rs = proto.createNode("resample", "resample_scale")
     rs.setInput(0, inp_nd, 0)   # source
-    rs.setInput(1, inp_nd, 1)   # ref_res (used when _has_ref_res==1)
+    rs.setInput(1, inp_nd, 1)   # size ref (unused by resample; anchors ext input 1)
 
     # Constant parms (not expression-driven)
     rs.parm("sizecontrol").set(0)   # res mode
     rs.parm("reframe").set(1)       # always reframe
+    rs.parm("basesize").set(0)      # always explicit — Python keeps _res_w/_res_h current
 
     # Expression-driven: resolved at cook time from HDA parms
     H = hou.exprLanguage.Hscript
     rs.parm("resolution1").setExpression('ch("../_res_w")', language=H)
     rs.parm("resolution2").setExpression('ch("../_res_h")', language=H)
-    rs.parm("basesize").setExpression('ch("../_has_ref_res")', language=H)
     rs.parm("stretch").set(0)          # always stretch — fit handled by VEX
     rs.parm("filter").setExpression(FILTER_EXPR, language=H)
 
@@ -336,7 +380,7 @@ def build():
         name="scale_cop",
         hda_file_name=HDA_FILE,
         description="Scale COP",
-        min_num_inputs=1,
+        min_num_inputs=0,
         max_num_inputs=2,
         ignore_external_references=True,
     )
@@ -357,6 +401,32 @@ def build():
     # -- Section 1: Target Resolution -------------------------------------
     f_res = hou.FolderParmTemplate("folder_res", "Target Resolution",
                                     folder_type=hou.folderType.Simple)
+
+    us = hou.ToggleParmTemplate("use_size_ref", "Use Size Reference", default_value=0)
+    _cb(us)
+    f_res.addParmTemplate(us)
+
+    rp = hou.StringParmTemplate(
+        "ref_res_path", "Size Reference", 1,
+        default_value=("",),
+        string_type=hou.stringParmType.NodeReference,
+        help="Reference node whose resolution overrides Scale Mode. "
+             "Wire input 1 takes priority over this field.",
+    )
+    rp.setConditional(H_cond, '{ use_size_ref == 0 }')
+    _cb(rp)
+    f_res.addParmTemplate(rp)
+
+    # Resolution readout: visible and disabled when ref is active
+    rw_disp = hou.IntParmTemplate("_res_w", "Width", 1, default_value=[1920])
+    rw_disp.setConditional(H_cond, '{ _has_ref_res == 0 }')
+    rw_disp.setConditional(D_cond, '{ _has_ref_res == 1 }')
+    f_res.addParmTemplate(rw_disp)
+
+    rh_disp = hou.IntParmTemplate("_res_h", "Height", 1, default_value=[1080])
+    rh_disp.setConditional(H_cond, '{ _has_ref_res == 0 }')
+    rh_disp.setConditional(D_cond, '{ _has_ref_res == 1 }')
+    f_res.addParmTemplate(rh_disp)
 
     sm = hou.MenuParmTemplate(
         "scale_mode", "Scale Mode",
@@ -417,11 +487,6 @@ def build():
     _cb(psy)
     f_res.addParmTemplate(psy)
 
-    # ref_res informational label (visible only when ref_res is wired)
-    lbl = hou.LabelParmTemplate("ref_res_label", "  Resolution inherited from ref_res input.")
-    lbl.setConditional(H_cond, '{ _has_ref_res == 0 }')
-    f_res.addParmTemplate(lbl)
-
     ptg.append(f_res)
 
     # -- Section 2: Fit Mode -----------------------------------------------
@@ -430,9 +495,8 @@ def build():
 
     fm = hou.MenuParmTemplate(
         "fit_mode", "Fit Mode",
-        menu_items  = ["stretch","fitinside","fitoutside","pinwidth","pinheight","original"],
-        menu_labels = ["Stretch", "Fit Inside (Letterbox)", "Fit Outside (Crop to Fill)",
-                       "Pin Width", "Pin Height", "Original Size"],
+        menu_items  = ["distort","fit","fill","width","height","none"],
+        menu_labels = ["Distort", "Fit", "Fill", "Width", "Height", "None"],
         default_value = 1,
     )
     fm.setConditional(D_cond, '{ tile_mode != "none" }')
@@ -445,7 +509,7 @@ def build():
         look=hou.parmLook.ColorSquare,
         naming_scheme=hou.parmNamingScheme.RGBA,
     )
-    bg.setConditional(H_cond, '{ fit_mode == "stretch" } { fit_mode == "fitoutside" } { tile_mode != "none" }')
+    bg.setConditional(H_cond, '{ fit_mode == "distort" } { fit_mode == "fill" } { tile_mode != "none" }')
     f_fit.addParmTemplate(bg)
 
     ptg.append(f_fit)
@@ -495,8 +559,7 @@ def build():
         pt.hide(True)
         return pt
 
-    ptg.append(_hidden(hou.IntParmTemplate("_res_w", "Res W", 1, default_value=[1920])))
-    ptg.append(_hidden(hou.IntParmTemplate("_res_h", "Res H", 1, default_value=[1080])))
+    # _res_w / _res_h are in the Target Resolution folder (visible when ref active)
     ptg.append(_hidden(hou.IntParmTemplate("_has_ref_res", "Has ref_res", 1, default_value=[0])))
     ptg.append(_hidden(hou.FloatParmTemplate("_constrain_ar", "Constrain AR", 1, default_value=[1.7778])))
     # Source dimensions for tiling VEX — kept current by Python callbacks.
@@ -507,16 +570,71 @@ def build():
     tmi.hide(True)
     ptg.append(tmi)
 
+    # -- Version footer -------------------------------------------------------
+    btn_ver = hou.ButtonParmTemplate(
+        "btn_update_version", "Update Version",
+        script_callback=(
+            "import subprocess, hou\n"
+            "node = kwargs['node']\n"
+            "defn = node.type().definition()\n"
+            "tmpl = defn.parmTemplateGroup()\n"
+            "pt = tmpl.find('hda_version')\n"
+            "try:\n"
+            "    import os; _d = os.path.dirname(defn.libraryFilePath())\n"
+            "    count = subprocess.check_output(['git','rev-list','--count','HEAD'], text=True, cwd=_d, stderr=subprocess.PIPE).strip()\n"
+            "    h = subprocess.check_output(['git','rev-parse','--short','HEAD'], text=True, cwd=_d, stderr=subprocess.PIPE).strip()\n"
+            "    v = f'v0.1.{count} ({h})'\n"
+            "except Exception:\n"
+            "    v = 'v0.1.0 (unknown)'\n"
+            "pt.setDefaultValue((v,))\n"
+            "tmpl.replace('hda_version', pt)\n"
+            "defn.setParmTemplateGroup(tmpl)\n"
+            "defn.save(defn.libraryFilePath())\n"
+            "node.parm('hda_version').revertToDefaults()\n"
+        ),
+        script_callback_language=hou.scriptLanguage.Python,
+    )
+    ptg.append(btn_ver)
+
+    ver_parm = hou.StringParmTemplate(
+        "hda_version", "Version", 1,
+        default_value=(_git_version(),),
+    )
+    ver_parm.setConditional(
+        hou.parmCondType.DisableWhen,
+        '{ hda_version == "" } { hda_version != "" }',
+    )
+    ptg.append(ver_parm)
+
     hda_def.setParmTemplateGroup(ptg)
 
     # ---- Input count and labels -----------------------------------------
     hda_def.setMaxNumInputs(2)
-    hda_def.setMinNumInputs(1)
-    try:
-        hda_def.setInputLabel(0, "source")
-        hda_def.setInputLabel(1, "ref_res")
-    except AttributeError:
-        pass
+    hda_def.setMinNumInputs(0)
+
+    # ---- Patch DialogScript to declare both input connectors -------------
+    # Copernicus uses the DialogScript "input" declarations (not maxNumInputs)
+    # to decide how many labeled connectors to show on the node tile.
+    # setParmTemplateGroup() regenerates DialogScript with only one "input"
+    # line; we must inject the second before saving.  The "signature" line
+    # must also be expanded from { RGBA } to { RGBA RGBA } — if the count
+    # mismatches the declared inputs, Houdini's re-parse fails and wipes all
+    # parameters.
+    import re as _re
+    ds_section = hda_def.sections()['DialogScript']
+    ds = ds_section.contents()
+    ds = ds.replace(
+        '    input\tinput1\tsrc\n',
+        '    input\tinput1\tsrc\n    input\tinput2\tref_res\n',
+        1,
+    )
+    ds = _re.sub(
+        r'(    signature\t\S+\t\S+\t)\{ RGBA \}(\t\{ RGBA \})',
+        r'\1{ RGBA RGBA }\2',
+        ds,
+        count=1,
+    )
+    ds_section.setContents(ds)
 
     # ---- Python module and event handlers --------------------------------
     hda_def.addSection("PythonModule", PYTHON_MODULE)
@@ -547,8 +665,14 @@ def test(hda_node):
     src.parm("cols").set(4)
     # checkerboard default res = 1024×1024
 
+    # min_num_inputs=2: both inputs must be connected to cook.
+    # Connect a null to input 1 as the default size_ref (same res as src).
+    null_ref = test_net.createNode("null", "null_ref")
+    null_ref.setInput(0, src)
+
     sc = test_net.createNode("scale_cop", "sc1")
     sc.setInput(0, src)
+    sc.setInput(1, null_ref)
 
     # Helper: manually call the update function (hython: parm.set doesn't
     # fire OnParmChanged automatically).
@@ -614,17 +738,17 @@ def test(hda_node):
     # clearly distinct content regions and bg regions.
     #
     # With target 1024×512 and source 1024×1024 (1:1):
-    #   fitinside:  scale=min(1024/1024, 512/1024)=0.5 → content 512×512 centered
-    #               content spans x [256,767], full height [0,511]
-    #               → px(128,256)=bg(0)   px(512,256)=content(non-zero)
-    #   fitoutside: scale=max(...)=1.0 → content 1024×1024 cropped to 1024×512
-    #               entire target is content, no bg
-    #               → px(512,256)=content  px(0,256)=content
-    #   pinwidth:   scale=1024/1024=1.0, same as fitoutside for this source
-    #   pinheight:  scale=512/1024=0.5, same as fitinside for this source
-    #   original:   scale=1.0 pixel, content 1024×1024 in 1024×512 = full fill
-    #               (source is same width as target; top half visible)
-    #   stretch:    non-uniform fill, entire target is content
+    #   fit:      scale=min(1024/1024, 512/1024)=0.5 → content 512×512 centered
+    #             content spans x [256,767], full height [0,511]
+    #             → px(128,256)=bg(0)   px(512,256)=content(non-zero)
+    #   fill:     scale=max(...)=1.0 → content 1024×1024 cropped to 1024×512
+    #             entire target is content, no bg
+    #             → px(512,256)=content  px(0,256)=content
+    #   width:    scale=1024/1024=1.0, same as fill for this source
+    #   height:   scale=512/1024=0.5, same as fit for this source
+    #   none:     scale=1.0 pixel, content 1024×1024 in 1024×512 = full fill
+    #             (source is same width as target; top half visible)
+    #   distort:  non-uniform fill, entire target is content
     print("\n--- Fit Mode ---")
     sc.parm("scale_mode").set("explicit")
     sc.parm("width").set(1024); sc.parm("height").set(512)
@@ -657,33 +781,33 @@ def test(hda_node):
         if not ok:
             fails.append(f"fit_{fmode}")
 
-    fit_chk("stretch",    "stretch",
+    fit_chk("distort", "distort",
         [(512, 256, "content", "center"),
-         (128, 256, "content", "left"),   # col0+row2=even → white checker cell
-         (640, 256, "content", "right")])  # col2+row2=even → white checker cell
+         (128, 256, "content", "left"),   # col0+row1=odd → white checker cell
+         (640, 256, "content", "right")])  # col2+row1=odd → white checker cell
 
-    fit_chk("fitinside",  "fitinside",
+    fit_chk("fit",    "fit",
         [(512, 256, "content", "center"),
          (128, 256, "bg",      "left-bg"),    # left pillarbox
          (900, 256, "bg",      "right-bg")])  # right pillarbox
 
-    fit_chk("fitoutside", "fitoutside",
-        [(512, 256, "content", "center"),
-         (  0, 256, "content", "left"),
+    fit_chk("fill",   "fill",
+        [(512, 255, "content", "center"),   # col2+row1=odd → white
+         (  0, 255, "content", "left"),      # col0+row1=odd → white
+         (1023, 256, "content", "right")])   # col3+row2=odd → white
+
+    fit_chk("width",  "width",
+        [(512, 255, "content", "center"),   # col2+row1=odd → white
+         (  0, 255, "content", "left"),      # col0+row1=odd → white
          (1023, 256, "content", "right")])
 
-    fit_chk("pinwidth",   "pinwidth",
-        [(512, 256, "content", "center"),
-         (  0, 256, "content", "left"),
-         (1023, 256, "content", "right")])
-
-    fit_chk("pinheight",  "pinheight",
+    fit_chk("height", "height",
         [(512, 256, "content", "center"),
          (128, 256, "bg",      "left-bg"),
          (900, 256, "bg",      "right-bg")])
 
-    fit_chk("original",   "original",
-        [(512, 256, "content", "center")])
+    fit_chk("none",   "none",
+        [(512, 255, "content", "center")])
 
     # Reset filter
     sc.parm("filter_mode").set("auto")
@@ -725,7 +849,7 @@ def test(hda_node):
     #   px(1152,0) → source px(1152%1024=128) = same as px(128) WHITE (repeat)
     sc.parm("scale_mode").set("explicit")
     sc.parm("width").set(2048); sc.parm("height").set(2048)
-    sc.parm("fit_mode").set("stretch")
+    sc.parm("fit_mode").set("distort")
     sc.parm("tile_mode").set("repeat")
     sc.parm("tile_offset_u").set(0.0)
     sc.parm("tile_offset_v").set(0.0)
@@ -757,7 +881,7 @@ def test(hda_node):
     # ---- Filter modes -------------------------------------------------------
     print("\n--- Filter ---")
     sc.parm("tile_mode").set("none")
-    sc.parm("fit_mode").set("stretch")
+    sc.parm("fit_mode").set("distort")
     sc.parm("width").set(1920); sc.parm("height").set(1080)
     for flt in ["auto","point","bilinear","catmullrom","mitchell","bspline"]:
         sc.parm("filter_mode").set(flt)
@@ -781,7 +905,8 @@ def test(hda_node):
     sc.parm("scale_mode").set("explicit")
     sc.parm("width").set(1920); sc.parm("height").set(1080)
     sc.setInput(1, ref_src)
-    sc.hdaModule().onInputChanged({"node": sc})   # fire manually in hython
+    sc.parm("use_size_ref").set(1)
+    sc.hdaModule().onInputChanged({"node": sc})
     try:
         sc.cook(force=True)
         got = sc.layer().bufferResolution()
@@ -794,17 +919,18 @@ def test(hda_node):
         print(f"  ERR   ref_res: {e}")
         fails.append("ref_res")
 
-    # Disconnect ref_res and verify scale params resume control
-    sc.setInput(1, None)
+    # Toggle off use_size_ref → scale params resume control (input 1 stays connected)
+    sc.setInput(1, null_ref)
+    sc.parm("use_size_ref").set(0)
     sc.hdaModule().onInputChanged({"node": sc})
     sync()
     try:
         sc.cook(force=True)
         got = sc.layer().bufferResolution()
         if got == (1920, 1080):
-            print(f"  PASS  ref_res disconnected, back to 1920×1080: {got}")
+            print(f"  PASS  use_size_ref off, back to 1920×1080: {got}")
         else:
-            print(f"  FAIL  ref_res disconnect: expected (1920,1080), got {got}")
+            print(f"  FAIL  use_size_ref off: expected (1920,1080), got {got}")
             fails.append("ref_res_disconnect")
     except Exception as e:
         print(f"  ERR   ref_res_disconnect: {e}")

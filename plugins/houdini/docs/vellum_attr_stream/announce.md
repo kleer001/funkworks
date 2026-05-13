@@ -16,7 +16,7 @@ https://kleer001.github.io/funkworks/vellum_attr_stream
 
 **Vellum Animated Attribute Streamer — free Houdini HDA for streaming animated SOP attributes into a live Vellum sim**
 
-Vellum reads SOP point attributes once at sim init, then runs entirely in DOP space with no link back to the source SOP. Animated `Cd`, animated stiffness masks, time-varying pin weights — all silently dropped from frame 2 onward. The standard fixes (hand-rolled popwrangle microsolver, separate cache + Geometry Wrangle DOP, learning that microsolvers don't run on the creation frame) are nontrivial plumbing.
+Vellum reads SOP point attributes once at sim init, then runs entirely in DOP space with no link back to the source SOP. Animated `Cd`, animated stiffness masks, time-varying pin weights — all silently dropped from frame 2 onward. The standard fixes (hand-rolled popwrangle microsolver, separate cache + Geometry Wrangle DOP, understanding that microsolvers don't run on the creation frame) are nontrivial plumbing.
 
 This HDA is that plumbing in one click. Same `popwrangle-in-Pre-Solve` pattern SideFX uses internally for `muscleupdatevellum`.
 
@@ -33,17 +33,19 @@ Free download: https://kleer001.github.io/funkworks/vellum_attr_stream
 
 Houdini 19.5+, any edition. FX users: a build script is included to compile the HDA clean under your own license.
 
-🐜 More free tools at https://github.com/kleer001/funkworks
+More free tools at https://github.com/kleer001/funkworks
 
 ---
 
 ## Medium (SideFX Forums — BBCode)
 
+Topic title (≤60 chars): Vellum Animated Attribute Streamer — free HDA
+
 [b]Vellum Animated Attribute Streamer — free Houdini HDA for streaming animated SOP attributes into a live Vellum sim[/b]
 
-Vellum reads SOP point attributes once at sim init, then runs entirely in DOP space with no link back to the source SOP. Animated [code]Cd[/code], animated stiffness masks, time-varying pin weights — all silently dropped from frame 2 onward. The standard fixes (hand-rolled popwrangle microsolver, separate cache + Geometry Wrangle DOP, learning that microsolvers don't run on the creation frame) are nontrivial plumbing.
+Vellum reads SOP point attributes once at sim init, then runs entirely in DOP space with no link back to the source SOP. Animated Cd, animated stiffness masks, time-varying pin weights — all silently dropped from frame 2 onward. The standard fixes (hand-rolled popwrangle microsolver, separate cache + Geometry Wrangle DOP, understanding that microsolvers don't run on the creation frame) are nontrivial plumbing.
 
-This HDA is that plumbing in one click. Same [code]popwrangle-in-Pre-Solve[/code] pattern SideFX uses internally for [code]muscleupdatevellum[/code].
+This HDA is that plumbing in one click. Same popwrangle-in-Pre-Solve pattern SideFX uses internally for muscleupdatevellum.
 
 [b]What it does:[/b]
 [list]
@@ -52,15 +54,15 @@ This HDA is that plumbing in one click. Same [code]popwrangle-in-Pre-Solve[/code
 [*]Channel-referenced parms keep the SOP wrangle and DOP streamer in sync — edit one, both update
 [/list]
 
-[b]Setup:[/b] select Vellum Solver, [b]File > Run Script...[/b], pick the [code].cmd[/code]. Three files ([code].cmd[/code], [code].py[/code], [code].hda[/code]) sit in one folder. No shelf install, no copying into prefs, no restart.
+[b]Setup:[/b] select Vellum Solver, [b]File > Run Script...[/b], pick the .cmd. Three files (.cmd, .py, .hda) sit in one folder. No shelf install, no copying into prefs, no restart.
 
-[b]Supported attribute types:[/b] float scalar/vec3/vec4 and integer scalar. Match by [code]id[/code] (topology-safe) or [code]ptnum[/code].
+[b]Supported attribute types:[/b] float scalar/vec3/vec4 and integer scalar. Match by id (topology-safe) or ptnum.
 
-Free download: [url=https://kleer001.github.io/funkworks/vellum_attr_stream]https://kleer001.github.io/funkworks/vellum_attr_stream[/url]
+Free download: https://kleer001.github.io/funkworks/vellum_attr_stream
 
 Houdini 19.5+, any edition. FX users: a build script is included to compile the HDA clean under your own license.
 
-🐜 More free tools at [url=https://github.com/kleer001/funkworks]https://github.com/kleer001/funkworks[/url]
+More free tools at https://github.com/kleer001/funkworks
 
 ---
 
@@ -92,4 +94,4 @@ Free download: https://kleer001.github.io/funkworks/vellum_attr_stream
 
 Houdini 19.5+, any edition. FX users get a build script (`build_vellum_attr_stream.py`) to compile the HDA clean under their own license and avoid the Indie/Apprentice flag.
 
-🐜 More free tools at https://github.com/kleer001/funkworks
+More free tools at https://github.com/kleer001/funkworks
