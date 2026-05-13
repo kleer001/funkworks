@@ -89,7 +89,7 @@ Tune the modifier to something you'd want to reuse. The screenshots use:
 
 </div>
 <div class="step-twocol-image">
-<img src="{{ "/images/bevel_presets/01_panel_collapsed.png" | relative_url }}" alt="Properties Editor showing the Modifier tab with a tuned Bevel modifier and the Bevel Presets sub-panel collapsed above it" width="339" height="576">
+<img src="{{ "/images/bevel_presets/01_panel_collapsed_annotated.png" | relative_url }}" alt="Properties Editor showing the Modifier tab with a tuned Bevel modifier; the Bevel Presets sub-panel's controls row is circled in red" width="339" height="576">
 </div>
 </div>
 
@@ -104,16 +104,16 @@ Above the Bevel modifier sub-panel, find **Bevel Presets**. The panel is
 collapsed by default — click the chevron to expand it. Inside are three
 controls:
 
-- A **preset dropdown** (labelled "Bevel Presets") listing every saved preset
-- A **[+]** button to save the current Bevel modifier's parameters as a new named preset
-- A **[−]** button to delete the currently selected preset
+- **(1)** the **preset dropdown**, listing every saved preset
+- **(2)** the **[+]** button — saves the current Bevel modifier's parameters as a new named preset
+- **(3)** the **[−]** button — deletes the currently selected preset
 
 > **Checkpoint:** The Bevel Presets panel header now points down (`v`) and the
 > dropdown plus add/remove buttons are visible.
 
 </div>
 <div class="step-twocol-image">
-<img src="{{ "/images/bevel_presets/04_dropdown_with_presets.png" | relative_url }}" alt="Bevel Presets sub-panel expanded showing the preset dropdown and add and remove buttons, with several saved presets listed underneath" width="339" height="676">
+<img src="{{ "/images/bevel_presets/04_dropdown_with_presets_annotated.png" | relative_url }}" alt="Bevel Presets sub-panel expanded with numbered red markers above the preset dropdown (1), the add button (2), and the remove button (3); several saved presets are listed underneath" width="339" height="676">
 </div>
 </div>
 
