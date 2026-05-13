@@ -32,7 +32,40 @@ Free tools that eliminate repetitive workflow steps for digital artists. Built f
 .plugin-card-posts a:visited { color: #551A8B; }
 .plugin-card-posts a:hover { color: #0000BB; }
 .no-posts { font-size: 0.8rem; color: #bbb; font-style: italic; }
+.plugin-card.dcc-filtered-out { display: none; }
+.filter-banner { display: none; margin: 1rem 0; padding: 0.5rem 0.75rem; background: #f0f4f8; border-left: 3px solid #2b6cb0; font-size: 0.9rem; }
+.filter-banner.active { display: block; }
+.filter-banner a { margin-left: 0.5rem; color: #555; }
 </style>
+
+<div id="filter-banner" class="filter-banner">
+  Showing <span id="filter-label"></span> plugins only. <a href="{{ '/' | relative_url }}">Show all</a>
+</div>
+
+<script>
+(function() {
+  function applyFilter(dcc) {
+    document.querySelectorAll('.plugin-card').forEach(function(card) {
+      var match = !dcc || card.classList.contains('dcc-' + dcc);
+      card.classList.toggle('dcc-filtered-out', !match);
+    });
+    var banner = document.getElementById('filter-banner');
+    var label = document.getElementById('filter-label');
+    if (dcc) {
+      label.textContent = dcc.charAt(0).toUpperCase() + dcc.slice(1);
+      banner.classList.add('active');
+    } else {
+      banner.classList.remove('active');
+    }
+  }
+  function fromHash() {
+    var h = (window.location.hash || '').replace('#', '').toLowerCase();
+    applyFilter(h === 'blender' || h === 'houdini' ? h : null);
+  }
+  window.addEventListener('DOMContentLoaded', fromHash);
+  window.addEventListener('hashchange', fromHash);
+})();
+</script>
 
 <div class="plugin-grid">
 
