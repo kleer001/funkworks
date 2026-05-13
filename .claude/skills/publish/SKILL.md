@@ -121,13 +121,20 @@ If this is the first plugin for a new DCC, add a new `## DCC Name` section.
 ## Step 5: Patch announce.md
 
 Read `plugins/$DCC/docs/$NAME/announce.md`. Replace all placeholder URLs
-(`[link]`, `https://github.com/.../releases/tag/PLACEHOLDER`) with the real release URL:
+(`[link]`, `https://github.com/.../releases/tag/PLACEHOLDER`) with the **tutorial
+page URL** on GitHub Pages — not the release tag or zip:
 
 ```
-https://github.com/kleer001/funkworks/releases/tag/$NAME-v{VERSION}
+https://kleer001.github.io/funkworks/$TUTORIAL_SLUG
 ```
 
-Confirm the URL resolves by checking `gh release view $NAME-v{VERSION}`.
+`$TUTORIAL_SLUG` is the filename (without `.md`) of the tutorial under `docs/`
+— it may use hyphens instead of underscores (e.g. `fluid-domain-visibility`).
+Announcements send readers to the tutorial page, which has context and a
+download button; never link directly to the release zip or `releases/tag/...`.
+
+Confirm the release itself exists with `gh release view $NAME-v{VERSION}` and
+that `docs/$TUTORIAL_SLUG.md` is present.
 
 ---
 
@@ -146,8 +153,10 @@ Then check tone and completeness:
 Every medium and long tier must end with this CTA (after the closing line):
 
 ```
-🐜 More free tools at https://github.com/kleer001/funkworks
+More free tools at https://github.com/kleer001/funkworks
 ```
+
+**No emoji anywhere in announcement copy.** odforce silently chokes on them, and they read as unprofessional on dev forums. Strip emoji from all tiers (short, medium, long), including any inherited from earlier templates.
 
 Print the announcement tiers clearly labelled for their target communities:
 
@@ -162,12 +171,43 @@ Print the announcement tiers clearly labelled for their target communities:
 
 **Houdini:**
 ```
-=== MEDIUM (SideFX Forums / OdForce) ===
+=== MEDIUM (OdForce / Reddit r/Houdini — Markdown) ===
 [copy]
+
+=== MEDIUM (SideFX Forums — BBCode) ===
+[copy converted to BBCode]
 
 === LONG (Blog / Newsletter) ===
 [copy]
 ```
+
+SideFX Forums use BBCode, not Markdown. Produce the BBCode medium tier by
+converting the Markdown medium tier with these rules (do not rewrite the copy):
+
+- `**bold**` → `[b]bold[/b]`
+- `*italic*` / `_italic_` → `[i]italic[/i]`
+- `[text](url)` → `[url=url]text[/url]`
+- Bare URLs stay bare (forum auto-links them)
+- Markdown bullet list with 2+ items → `[list][*]item[*]item[/list]` (one `[*]` per item, no closing `[/*]`)
+- Markdown numbered list with 2+ items → `[list=1][*]item[*]item[/list]`
+- `> quote` → `[quote]quote[/quote]`
+- Fenced code blocks → `[code]...[/code]`; VEX blocks → `[code vex]...[/code]`
+- Headings (`#`, `##`) → bold on their own line: `[b]Heading[/b]`
+- Horizontal rules (`---`) → drop, or a blank line
+
+**Be conservative with BBCode. Tags are not free.** A noisy post with tags around every token reads worse than plain prose.
+
+- **Inline `[code]` only for multi-token expressions, paths, or snippets with punctuation** (e.g. `op:/obj/...`, `ch("../parm")`, `popwrangle in Pre-Solve`). Single bareword identifiers — attribute names like `Cd`, file extensions like `.cmd`, function names like `muscleupdatevellum`, parm names like `id`/`ptnum` — leave bare. They read fine without monospace.
+- **Never emit a single-item `[list]`.** If you have one bullet, write it as a sentence.
+- **Don't wrap every technical term.** If in doubt, leave it bare.
+
+**SideFX forum topic title is capped at 60 characters.** The body's first heading is usually too long. Above the BBCode body, output a separate labeled line so the user knows what to paste into the title field:
+
+```
+Topic title (≤60 chars): <short title>
+```
+
+Pick a title that names the plugin and signals "free" or "HDA". Examples: `Vellum Animated Attribute Streamer — free HDA` (46), `Free HDA: Scale COP for Houdini` (31). Count characters before emitting; if over 60, shorten.
 
 Note for both: Reddit/forum posting is manual. Tell the user where to post and to paste
 the medium-form copy. Remind them the RSS feed at
@@ -176,7 +216,26 @@ page is on `main`.
 
 ---
 
-## Step 7: Retrospective
+## Step 7: Create Newsletter Draft
+
+Check whether `BUTTONDOWN_API_KEY` is set in `.env`. If it is:
+
+```bash
+python -m src.newsletter.send plugins/$DCC/docs/$NAME/announce.md
+```
+
+This creates a **draft** in Buttondown using the Long-form copy. It does not send.
+Open the printed URL, add your discussion questions in the "Questions for you" block,
+review the full email, then manually click Send in the Buttondown dashboard.
+
+If `BUTTONDOWN_API_KEY` is not set, skip this step and remind the user to:
+1. Create a Buttondown account at buttondown.com
+2. Enable "Use Buttondown's mailing address" in Settings (handles CAN-SPAM/CASL)
+3. Generate an API key and add `BUTTONDOWN_API_KEY=<key>` to `.env`
+
+---
+
+## Step 8: Retrospective
 
 After the publish completes (or if you hit a significant blocker and solved it),
 update `src/publishing/PUBLISH_BEST_PRACTICES.md`:

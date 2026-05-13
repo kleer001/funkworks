@@ -236,6 +236,33 @@ with bpy.context.temp_override(window=window, area=dope_area, region=dope_region
 
 ---
 
+## Mode Switching (mode_set) Requires temp_override
+
+`bpy.ops.object.mode_set()` and mesh selection operators (`select_all`, `select_mode`)
+require a VIEW_3D area in context. In MCP `execute_python`, the active area is not
+guaranteed to be VIEW_3D, so calling these ops bare will silently no-op or fail.
+
+**Always wrap mode_set and selection ops in temp_override:**
+
+```python
+window = bpy.context.window_manager.windows[0]
+screen = window.screen
+view3d = max((a for a in screen.areas if a.type == 'VIEW_3D'), key=lambda a: a.width * a.height)
+region = next(r for r in view3d.regions if r.type == 'WINDOW')
+
+with bpy.context.temp_override(window=window, area=view3d, region=region):
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='DESELECT')
+    bpy.ops.mesh.select_mode(type='EDGE')
+```
+
+RNA writes (`mesh.edges[i].select = True`) do NOT need temp_override — only ops do.
+After setting RNA selections, do the mode_set back to EDIT in a separate temp_override block.
+Always follow mode switches with `bpy.ops.wm.redraw_timer(type='DRAW_WIN', iterations=1)`
+before a viewport capture.
+
+---
+
 ## What NOT to Do
 
 | Don't | Why | Do instead |

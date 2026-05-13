@@ -29,12 +29,16 @@ If you can't answer all three, stop and ask the user before proceeding.
 
 2. **Write the addon** at `plugins/blender/src/$ARGUMENTS.py` following the patterns in existing plugins (single-file, `bl_info` header, `register`/`unregister`, `bl_options = {'REGISTER', 'UNDO'}`).
 
-3. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`:
+3. **Headless smoke test.** Run Blender in `--background --factory-startup --python <smoke_test.py>` mode to verify the addon registers cleanly, every operator/menu/panel class appears in `bpy.types` under its conventional name (`<NAMESPACE>_OT_*`, `<NAMESPACE>_MT_*`, `<EDITOR>_PT_*`), `poll()` gates correctly, and any roundtrip behaviour (save/load/serialise) actually works. The smoke test must FAIL the build if registration is dirty — do not move on to manual verification with a broken module. This step exists to catch class-naming mismatches and broken RNA paths before the human ever installs the addon.
+
+4. **Write the tutorial page** at `docs/$ARGUMENTS.md` (Jekyll, GitHub Pages) BEFORE writing README / listing / announce. The tutorial doubles as the manual-verification script: the steps the user clicks through in a real Blender session to confirm the addon does what the addon says it does. Walk through it in a running Blender (preferably via the Blender MCP if available) and capture screenshots into `docs/images/$ARGUMENTS/`. Update the tutorial when reality diverges from the spec — that's the point of doing it first. See the `/tutorial` skill for full Jekyll page conventions, banner reference, image-path patterns, and the screenshot manifest format if you need automated captures. Banner image generation (step 6 below) is decoupled from this step — leave the banner `![]` line as a placeholder reference until step 6 completes.
+
+5. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`. Write these AFTER the tutorial walkthrough, so the copy reflects verified behaviour rather than spec-stage intent:
    - `README.md` — GitHub-facing docs: the problem, the solution, install steps, usage, compatibility, edge cases
    - `listing.md` — Marketplace copy: 160-char short description, long description, features list, requirements, tags
    - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog)
 
-4. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
+6. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
    - Check if image_gen is running: `imggen status` (sources `~/.bash_aliases.sh` first if needed). Start if stopped: `imggen` — starts ComfyUI (port 8188) + MCP server (port 9000), takes ~30s
    - Read `/media/menser/fauna/image_gen/INDEX.md` for available models and LoRA trigger words
    - Draft 5 distinct prompt options (different metaphors / visual angles for the plugin's core action). No approval step — generate immediately.
@@ -44,10 +48,12 @@ If you can't answer all three, stop and ask the user before proceeding.
    - Serve via `python3 -m http.server 8765 --directory /tmp` (run in background; port 8765 — pick another if taken). Open `http://localhost:8765/$ARGUMENTS_gallery.html` in Firefox. **Do not link `file:///tmp/...` directly — Firefox is sandboxed via flatpak portal and rewrites those paths to `/run/user/1000/doc/<hash>/...`, which is non-obvious for the user.**
    - Once the user picks one, copy the chosen prompt to `data/banner_prompts/$ARGUMENTS.txt`, copy the chosen image to `docs/images/banners/$ARGUMENTS_banner.png`, and clean up the `_v{1..5}.txt` candidate files
 
-5. **Update the root README** — add a row to the plugins table:
+7. **Update the root README** — add a row to the plugins table:
    ```
    | [Plugin Display Name](plugins/blender/docs/$ARGUMENTS/) | One-line description |
    ```
+
+8. **Preview the rendered tutorial.** Run `scripts/preview-latest.sh` — it starts a Jekyll container (Docker) on `localhost:4000/funkworks/`, waits until it responds, and opens the newest tutorial page (`docs/$ARGUMENTS.md`) in the default browser. Confirm: banner renders, problem section reads cleanly, screenshots load, download button points at the right path. Tell the user the URL and what you verified. Don't stop the container — leaving it running means the next iteration of `/new-plugin` or a re-edit of the tutorial picks up live without a rebuild.
 
 ## Conventions
 
