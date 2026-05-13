@@ -20,7 +20,7 @@ class TestConfig:
         assert cfg.subreddit == "blender"
         assert cfg.crawl_limit == 100
         assert cfg.data_dir == Path("data/digests")
-        assert cfg.polite_delay == 2.0
+        assert cfg.polite_delay == 6.0
 
     def test_frozen(self):
         cfg = Config(reddit_user_agent="agent")
