@@ -126,7 +126,10 @@ layout: home
       </div>
     </div>
     <div class="plugin-card-posts">
-      <span class="no-posts">No posts yet</span>
+      <ul>
+        <li><a href="https://www.reddit.com/r/blender/comments/1tdascq/free_addon_save_bevel_modifier_parameters_as/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/free-addon-save-bevel-modifier-parameters-as-named-presets/1640954">BlenderArtists</a></li>
+      </ul>
     </div>
   </div>
 
