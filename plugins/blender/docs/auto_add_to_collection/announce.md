@@ -14,7 +14,7 @@ https://kleer001.github.io/funkworks/auto_add_to_collection
 
 ## Medium (BlenderArtists / Reddit r/blender)
 
-**One-click "New Collection with Selection" — stop dragging objects into empty collections**
+**Free addon: New Collection with Selection — one click instead of dragging objects into an empty collection**
 
 You select a few objects, click the Outliner's New Collection button to tidy up, and
 Blender gives you an empty collection with your objects still sitting loose next to it.
