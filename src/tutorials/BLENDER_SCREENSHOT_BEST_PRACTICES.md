@@ -91,6 +91,33 @@ This captures the full Blender window at its logical X11 pixel size (~1921×1011
 *before* the runner calls `capture_window()`. The capture is of the whole Blender window —
 make sure the UI element you want to show dominates the frame.
 
+### Transient UI — menus, submenus, redo panel (xdotool)
+
+Open menus, submenus, and the F9 redo popup only exist during live interaction — no Blender
+API call opens and holds one for a capture. Drive them with `xdotool` and grab the result:
+
+1. **Move the window to a known on-screen origin** so coordinates are stable and the window
+   is fully visible: `xdotool windowmove <id> 0 0`, then read the content origin with
+   `xdotool getwindowgeometry` (e.g. position `0,33` — the `33` is the title bar height).
+2. **Map Blender area coords → screen.** A Blender area `(x, y)` is bottom-left origin within
+   the window content; screen `= (bx, titlebar + (win_h - by))`. Measure exact click targets
+   from a baseline capture instead of trusting row-height math.
+3. **Open, then capture.** `xdotool mousemove <sx> <sy>; xdotool click 3` for a right-click
+   menu (Outliner object/collection row), `click 1` for a header menu. For a submenu, hover
+   the parent item and `sleep 1.0` before moving into it.
+4. **Highlight a far item with stepped moves.** A single jump often misses — the pointer
+   leaves the menu or only a tooltip registers. Step in small increments at a fixed x that
+   stays inside the menu: `for y in 510 560 610 666; do xdotool mousemove X $y; sleep 0.18; done`.
+5. **Capture root and crop — not `xwd -id`.** `xwd -id` can fail `BadDrawable` under a
+   compositor. `import -window root /tmp/r.png` then `convert /tmp/r.png -crop WxH+X+Y` to the
+   window region reliably catches the open popup. Raise Blender first (`wmctrl -ia <id>`) —
+   root capture grabs whichever window is on top at that screen region.
+
+**F9 gotcha:** `xdotool key F9` does not reliably trigger the redo popup. Instead click the
+collapsed **"adjust last operation"** panel at the bottom-left of the viewport to expand it
+in place — same operator properties. The operator must have run *interactively* (a menu
+click), not via `execute_python`, to populate that panel.
+
 ---
 
 ## Area Management

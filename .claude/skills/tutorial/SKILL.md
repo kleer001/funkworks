@@ -166,7 +166,32 @@ The `prompt` is shown to the human operator at capture time. Write it as a direc
 
 ## Step 3: Run the Screenshot Pipeline
 
-With Blender open and the MCP plugin active:
+### First: launch the app with its MCP server
+
+The runner connects to a DCC MCP socket (Blender: port 9334) and fails its auto shots
+if nothing is listening. Start the app **with the MCP server enabled** before running it.
+Check first — don't relaunch if it's already up:
+
+```bash
+ss -ltn | grep 9334    # Blender MCP already listening?
+```
+
+For Blender, launch an interactive (GUI) session running the addon server — GUI mode is
+required for window / Outliner / menu capture; `--background` only supports
+`capture_viewport`:
+
+```bash
+# <blender-mcp> = the repo path in .mcp.json's "blender-mcp" entry
+DISPLAY=:0 blender --python <blender-mcp>/scripts/gui_server.py -- --port 9334 &
+```
+
+See `<blender-mcp>/LAUNCH_BLENDER_WITH_MCP_ENABLED.md` for the full procedure: display/
+XAUTHORITY handling when launching from a non-graphical shell, the lazy-connect behavior,
+connectivity checks, and enabling the plugin's addon module once connected. The MCP server
+registers its tools even when Blender is down and connects on first call, so launch order
+doesn't matter.
+
+### Then: run the pipeline
 
 ```bash
 python -m src.tutorials.screenshot_runner data/tutorial_manifests/$ARGUMENTS.json
