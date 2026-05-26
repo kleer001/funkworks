@@ -31,6 +31,7 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 |-----|--------|-------------|
 | Blender | [Bevel Modifier Presets](plugins/blender/docs/bevel_presets/) | Save the active Bevel modifier's parameters as a named preset and recall them on any Bevel modifier in any .blend file |
 | Blender | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
+| Blender | [New Collection with Selection](plugins/blender/docs/auto_add_to_collection/) | Create a new collection and move the selected objects into it in one click — from the Outliner right-click or viewport Object menu |
 | Blender | [Scene Time Shader Node](plugins/blender/docs/scene_time_shader/) | Adds the missing Scene Time node to the Shader Editor — Frame and Seconds outputs, same math as Compositor and Geometry Nodes |
 | Blender | [Selective Edge Split](plugins/blender/docs/selective_edge_split/) | Split panel gap edges without touching render sharps |
 | Blender | [Subdivide Select New](plugins/blender/docs/subdivide_select_new/) | Subdivide and leave only the newly-created vertices and edges selected |

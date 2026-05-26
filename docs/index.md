@@ -114,10 +114,29 @@ layout: home
 
   <div class="plugin-card dcc-blender">
     <div class="plugin-card-thumb">
+      <a href="auto_add_to_collection"><img src="{{ "/images/banners/auto_add_to_collection_banner.png" | relative_url }}" alt="New Collection with Selection banner"/></a>
+    </div>
+    <div class="plugin-card-body">
+      <h3><span class="card-num">01</span> &middot; <a href="auto_add_to_collection">New Collection with Selection</a></h3>
+      <p>Create a new collection and move the selected objects into it in one click — from the Outliner right-click or the viewport's Object menu.</p>
+      <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.0+ &middot; Free</div>
+      <div class="plugin-links">
+        <a href="https://kleer001.github.io/funkworks/auto_add_to_collection">Tutorial &amp; Download</a>
+        <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/auto_add_to_collection.py">Source</a>
+      </div>
+    </div>
+    <div class="plugin-card-posts">
+      <ul>
+      </ul>
+    </div>
+  </div>
+
+  <div class="plugin-card dcc-blender">
+    <div class="plugin-card-thumb">
       <a href="scene_time_shader"><img src="{{ "/images/banners/scene_time_shader_banner.png" | relative_url }}" alt="Scene Time Shader Node banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">01</span> &middot; <a href="scene_time_shader">Scene Time Shader Node</a></h3>
+      <h3><span class="card-num">02</span> &middot; <a href="scene_time_shader">Scene Time Shader Node</a></h3>
       <p>Adds the missing Scene Time node to the Shader Editor — Frame and Seconds outputs, NTSC-correct, shared driver group so the setup is paid once per .blend.</p>
       <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.0+ &middot; Free</div>
       <div class="plugin-links">
@@ -138,7 +157,7 @@ layout: home
       <a href="bevel_presets"><img src="{{ "/images/banners/bevel_presets_banner.png" | relative_url }}" alt="Bevel Modifier Presets banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">02</span> &middot; <a href="bevel_presets">Bevel Modifier Presets</a></h3>
+      <h3><span class="card-num">03</span> &middot; <a href="bevel_presets">Bevel Modifier Presets</a></h3>
       <p>Save the active Bevel modifier's parameters as a named preset and recall them on any Bevel modifier in any .blend file. Uses Blender's built-in preset machinery.</p>
       <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.2 LTS &middot; Free</div>
       <div class="plugin-links">
@@ -159,7 +178,7 @@ layout: home
       <a href="subdivide_select_new"><img src="{{ "/images/banners/subdivide_select_new_banner.png" | relative_url }}" alt="Subdivide (Select New) banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">03</span> &middot; <a href="subdivide_select_new">Subdivide (Select New)</a></h3>
+      <h3><span class="card-num">04</span> &middot; <a href="subdivide_select_new">Subdivide (Select New)</a></h3>
       <p>Subdivide and have only the new vertices and edges selected — ready for the next operator. Same full parameter set as built-in Subdivide.</p>
       <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.0+ &middot; Free</div>
       <div class="plugin-links">
@@ -180,7 +199,7 @@ layout: home
       <a href="vellum_attr_stream"><img src="{{ "/images/banners/vellum_attr_stream_banner.png" | relative_url }}" alt="Vellum Animated Attribute Streamer banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">04</span> &middot; <a href="vellum_attr_stream">Vellum Animated Attribute Streamer</a></h3>
+      <h3><span class="card-num">05</span> &middot; <a href="vellum_attr_stream">Vellum Animated Attribute Streamer</a></h3>
       <p>Stream animated SOP attributes (color, weight, stiffness mask) into a live Vellum sim each substep. Defeats Vellum's default of freezing them at frame 1.</p>
       <div class="plugin-meta"><span class="dcc-label">Houdini</span> 19.5+ &middot; Free</div>
       <div class="plugin-links">
@@ -201,7 +220,7 @@ layout: home
       <a href="zoom_blur_cop"><img src="{{ "/images/banners/zoom_blur_cop_banner.png" | relative_url }}" alt="Zoom / Radial Blur COP banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">05</span> &middot; <a href="zoom_blur_cop">Zoom / Radial Blur COP</a></h3>
+      <h3><span class="card-num">06</span> &middot; <a href="zoom_blur_cop">Zoom / Radial Blur COP</a></h3>
       <p>Zoom blur and spin blur in one Houdini Copernicus node. Switch between radial scale and arc modes, place the center in screen space or pixels, tune sample count for quality vs. speed.</p>
       <div class="plugin-meta"><span class="dcc-label">Houdini</span> 20.5+ &middot; Free</div>
       <div class="plugin-links">
@@ -222,7 +241,7 @@ layout: home
       <a href="selective_edge_split"><img src="{{ "/images/banners/selective_edge_split_banner.png" | relative_url }}" alt="Selective Edge Split banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">06</span> &middot; <a href="selective_edge_split">Selective Edge Split</a></h3>
+      <h3><span class="card-num">07</span> &middot; <a href="selective_edge_split">Selective Edge Split</a></h3>
       <p>Split panel gap edges without touching your render sharps. Tag edges once with Ctrl+E, apply a scoped split when ready.</p>
       <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.0+ &middot; Free</div>
       <div class="plugin-links">
@@ -243,7 +262,7 @@ layout: home
       <a href="scale_cop"><img src="{{ "/images/banners/scale_cop_banner.png" | relative_url }}" alt="Scale COP banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">07</span> &middot; <a href="scale_cop">Scale COP</a></h3>
+      <h3><span class="card-num">08</span> &middot; <a href="scale_cop">Scale COP</a></h3>
       <p>Resize and reposition an image in Houdini Copernicus with independent fit mode, tiling, and resampling filter. Letterbox, fill, crop, and tile in one node.</p>
       <div class="plugin-meta"><span class="dcc-label">Houdini</span> 20+ &middot; Free</div>
       <div class="plugin-links">
@@ -264,7 +283,7 @@ layout: home
       <a href="fluid-domain-visibility"><img src="{{ "/images/banners/fluid_domain_visibility_banner.png" | relative_url }}" alt="Fluid Domain Auto-Visibility banner"/></a>
     </div>
     <div class="plugin-card-body">
-      <h3><span class="card-num">08</span> &middot; <a href="fluid-domain-visibility">Fluid Domain Auto-Visibility</a></h3>
+      <h3><span class="card-num">09</span> &middot; <a href="fluid-domain-visibility">Fluid Domain Auto-Visibility</a></h3>
       <p>One-click visibility keyframing for fluid simulation domains. Automatically hides the domain box before your sim starts.</p>
       <div class="plugin-meta"><span class="dcc-label">Blender</span> 4.0+ &middot; Free</div>
       <div class="plugin-links">
