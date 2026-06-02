@@ -127,6 +127,8 @@ layout: home
     </div>
     <div class="plugin-card-posts">
       <ul>
+        <li><a href="https://www.reddit.com/r/blender/comments/1tuz5qh/free_addon_new_collection_with_selection_one/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/new-collection-with-selection-one-click-instead-of-dragging-objects-into-an-empty-collection/1643163">BlenderArtists</a></li>
       </ul>
     </div>
   </div>
