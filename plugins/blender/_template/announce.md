@@ -14,7 +14,7 @@ New free Blender addon: [Plugin Name]. [What it does in one sentence.]
 
 ## Medium (BlenderArtists / Reddit r/blender)
 
-**[Post title: benefit-first, specific]**
+**[Post title: benefit-first, specific — must include "addon"]**
 
 [The manual workflow users do today. 2-3 sentences.]
 
@@ -24,20 +24,25 @@ Free download: [link]
 
 Works on Blender [X.Y]+. [One reassurance: undo, no setup, etc.]
 
-🐜 More free tools at https://github.com/kleer001/funkworks
+[Call to action — one or two direct asks. Examples:
+ "Reply if you'll use this. Upvote if this sounds useful — it helps me prioritize what to ship next."
+ "Reply if this saves you time."]
+
+More free tools at https://github.com/kleer001/funkworks
 
 ---
 
 ## Long (Newsletter / Blog post intro)
 
-**[Headline: the problem you got tired of solving manually]**
+**[Headline: name the literal annoyance, no metaphor]**
 
 [Tell the story. Describe the repetitive workflow in detail — readers should be nodding along.]
 
 [Introduce the addon. What does it do and how?]
 
-[Close with the call to action.]
-
 Download it free: [link]
 
-🐜 More free tools at https://github.com/kleer001/funkworks
+[Call to action — invite a reply. Example:
+ "Hit reply if you have a workaround that works. Knowing how many people have bumped into this helps me prioritize what to ship next."]
+
+More free tools at https://github.com/kleer001/funkworks

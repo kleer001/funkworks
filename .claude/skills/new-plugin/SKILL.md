@@ -36,7 +36,7 @@ If you can't answer all three, stop and ask the user before proceeding.
 5. **Create the docs folder** at `plugins/blender/docs/$ARGUMENTS/` by copying the structure from `plugins/blender/_template/`. Write these AFTER the tutorial walkthrough, so the copy reflects verified behaviour rather than spec-stage intent:
    - `README.md` — GitHub-facing docs: the problem, the solution, install steps, usage, compatibility, edge cases
    - `listing.md` — Marketplace copy: 160-char short description, long description, features list, requirements, tags
-   - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog)
+   - `announce.md` — Two tiers of announcement copy: medium (BlenderArtists/Reddit), long (BlenderNation/blog). Each tier must end with one or two direct calls to action (e.g. "Reply if you'll use this. Upvote if you've hit this before.") placed BEFORE the closing "More free tools at..." tagline. Honest asks only — never flattery-bait.
 
 6. **Generate the banner image** at `docs/images/banners/$ARGUMENTS_banner.png` (1456×672):
    - Check if image_gen is running: `imggen status` (sources `~/.bash_aliases.sh` first if needed). Start if stopped: `imggen` — starts ComfyUI (port 8188) + MCP server (port 9000), takes ~30s
