@@ -29,13 +29,15 @@ Free download: https://kleer001.github.io/funkworks/auto_add_to_collection
 
 Works on Blender 4.0+. No setup — install, enable, right-click.
 
+Reply if you'll use this. Upvote if you've hit this before — it helps me prioritize what to ship next.
+
 More free tools at https://github.com/kleer001/funkworks
 
 ---
 
 ## Long (Newsletter / Blog post intro)
 
-**The empty-collection paper cut, fixed**
+**The empty-collection problem, fixed**
 
 Here's a workflow many Blender users encounter. You've got a handful of objects you want to
 group — a character's props, a set of modules, a few lights. You select them, click the
@@ -57,5 +59,7 @@ No preferences to configure, no background behavior to second-guess — install 
 it, and the command is waiting in the menus you already use.
 
 Download it free: https://kleer001.github.io/funkworks/auto_add_to_collection
+
+If you've been working around this since 2020, hit reply and tell me which workaround you used. Knowing how many people still bump into this helps me prioritize what to ship next.
 
 More free tools at https://github.com/kleer001/funkworks
