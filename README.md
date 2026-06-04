@@ -29,6 +29,7 @@ Starting with Blender and r/blender, the goal is to expand across DCC tools (Hou
 
 | DCC | Plugin | Description |
 |-----|--------|-------------|
+| Blender | [All Edge Overlays](plugins/blender/docs/all_edge_overlays/) | Show Crease, Bevel Weight, Seam and Sharp edge marks at once — colour- and dash-coded, parallel where they overlap |
 | Blender | [Bevel Modifier Presets](plugins/blender/docs/bevel_presets/) | Save the active Bevel modifier's parameters as a named preset and recall them on any Bevel modifier in any .blend file |
 | Blender | [Fluid Domain Auto-Visibility](plugins/blender/docs/fluid_domain_visibility/) | One-click visibility keyframing for fluid simulation domains |
 | Blender | [New Collection with Selection](plugins/blender/docs/auto_add_to_collection/) | Create a new collection and move the selected objects into it in one click — from the Outliner right-click or viewport Object menu |
