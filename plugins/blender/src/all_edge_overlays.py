@@ -509,7 +509,7 @@ def _make_settings():
         "line_width": bpy.props.FloatProperty(
             name="Line Width", default=2.0, min=1.0, max=8.0, update=_redraw),
         "dash_scale": bpy.props.FloatProperty(
-            name="Dash Scale", default=8.0, min=1.0, max=32.0, update=_redraw),
+            name="Dash Scale", default=3.0, min=1.0, max=32.0, update=_redraw),
         "fade_weak": bpy.props.BoolProperty(
             name="Fade Weak Marks",
             description="Scale opacity by value for Crease and Bevel Weight",

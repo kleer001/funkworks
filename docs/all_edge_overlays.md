@@ -112,6 +112,22 @@ Set it back to **Colourblind-Safe** for the Okabe-Ito palette, which keeps the f
 
 ---
 
+### Step 6: Choose How It Draws (Quality)
+
+Leave **Quality** on **Auto** and you can ignore this — it reads the marked-edge count and picks a tier for you. But the three tiers trade crispness against navigation cost differently, and on a capable machine it's worth knowing which is which. None of them change *what* is drawn, only *how*.
+
+- **Balanced** rebuilds the dashes every frame in screen space, so they stay pixel-crisp and hold the same on-screen size at any zoom. It looks the best. The cost is per-frame work that grows with the number of marks: smooth on a lightly- or moderately-marked mesh, and slower to orbit on a very heavily marked one. Auto picks Balanced below a few hundred marked edges.
+
+- **Accurate** builds the whole overlay once and caches it on the GPU, then redraws that cached batch each frame. Camera navigation stays smooth no matter how many marks the mesh carries — orbiting a model with tens of thousands of marked edges costs the GPU a redraw, not the CPU a rebuild. This is where a strong graphics card earns its keep: the heavier your mark set, the more the cached redraw leans on the card instead of stalling the frame. The trade is that its dashes are **world-stable** — they scale with the model, so they grow and shrink on screen as you zoom rather than holding a fixed pixel size. Auto picks Accurate above the cutover.
+
+- **Fast** does the least per frame — a world-space approximation of the offset and dashing, with no per-segment screen math. It is the option for the weakest hardware, or when you want the overlay to cost as close to nothing as possible.
+
+In short: orbiting a dense, heavily-marked hard-surface model and want it buttery, force **Accurate** and let the GPU carry the redraw. Want the crispest dashes for a clean screenshot or a lightly-marked mesh, force **Balanced**. On hardware that is already struggling, **Fast**.
+
+> **Checkpoint:** Switching Quality changes nothing about which marks appear — only how they are drawn. Auto is the right default; the manual tiers are there for when you have a reason to override it.
+
+---
+
 ### Result
 
 Every edge-mark type on your mesh is now visible in a single view, colour- and dash-coded, with overlaps drawn as parallel lines. Instead of cycling the native overlays one at a time and remembering what you saw, you can see a seam crossing a crease — or a sharp missing its bevel weight — directly.
@@ -135,7 +151,7 @@ Every edge-mark type on your mesh is now visible in a single view, colour- and d
 ## Notes
 
 - **Pure visualization.** The addon only reads edge attributes and draws lines. It never modifies mesh data, pushes an undo step, or shows up in a render.
-- **Three quality tiers, picked automatically.** **Auto** chooses from the marked-edge count: **Balanced** (crisp, screen-stable dashes) on lighter meshes, and a cached **Accurate** tier on heavy ones, where the overlay is built once and redrawn each frame so camera navigation stays smooth no matter how many marks there are. **Fast** is a manual option for the weakest hardware.
+- **Three quality tiers, picked automatically.** **Auto** chooses from the marked-edge count; Step 6 covers what each tier trades and when to override it.
 - **Settings persist.** The panel's configuration is stored on the Scene and saved with your .blend file.
 - **Viewport only.** Like all Blender overlays, the marks are a viewport aid and do not appear in renders.
 
