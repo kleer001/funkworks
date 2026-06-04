@@ -24,9 +24,14 @@ Audit this announce.md for honesty. Apply exactly four tests:
 having to", etc. These are fabricated unless verifiably true from external evidence. \
 "So I built X" is OK if X demonstrably exists.
 
-2. READER ASSUMPTION — Flag any claim about the reader's history: "you've written \
-five times", "you know how painful", "every developer has had to". The reader is \
-unknown; their history cannot be assumed.
+2. READER ASSUMPTION — Flag assertions that the reader has ACTUALLY done or experienced \
+something specific: "you've written this five times", "you know how painful this is", \
+"every developer has had to do this". Do NOT flag hypothetical or illustrative \
+second-person scene-setting that walks through a workflow as a possibility ("you select \
+a few objects and reach for the button", "here's a workflow you might run into", "the \
+button you'd reach for") — that is ordinary copy, not a claim about the reader's real \
+history. The test is whether the sentence asserts the reader's past as fact, not whether \
+it uses the word "you".
 
 3. ORDINAL / SUPERLATIVE — Flag "first", "only", "most", "best", "the definitive" \
 unless the claim is a documented fact.
