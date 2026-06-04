@@ -75,6 +75,13 @@ bpy.context.scene.render.resolution_y = 1080
 bpy.context.scene.render.resolution_percentage = 100
 ```
 
+**`capture_viewport` cannot see Python `draw_handler` overlays.** Its OpenGL re-render
+draws the scene and the native overlay engine, but NOT custom GPU draw handlers
+(`SpaceView3D.draw_handler_add`). An addon that paints into the viewport this way —
+e.g. `all_edge_overlays` — is invisible to `capture_viewport`. Use `method: "window"`
+(xwd) instead, which grabs the real framebuffer including the handler's output. The QA
+`mostly blank` check will otherwise pass on a mark-free viewport and hide the problem.
+
 ### All Other Areas — use xwd window capture
 
 The runner calls `xwd -id <win_id> -silent | convert xwd:- output.png` via `capture_window()`.
@@ -90,6 +97,23 @@ This captures the full Blender window at its logical X11 pixel size (~1921×1011
 **Setup before a window capture:** Make the relevant area large and in the correct state
 *before* the runner calls `capture_window()`. The capture is of the whole Blender window —
 make sure the UI element you want to show dominates the frame.
+
+**Open the N-panel on a specific tab without clicking.** `show_region_ui` opens the sidebar
+but on whatever tab was last active. The active tab IS settable from Python (4.2+):
+
+```python
+area = next(a for w in bpy.context.window_manager.windows for a in w.screen.areas if a.type == 'VIEW_3D')
+next(s for s in area.spaces if s.type == 'VIEW_3D').show_region_ui = True
+for rg in area.regions:
+    if rg.type == 'UI':
+        rg.active_panel_category = 'View'   # the panel's bl_category
+area.tag_redraw()
+```
+
+**Foreground contention:** `capture_window()` runs `wmctrl -ia` to raise Blender, but if the
+operator is actively using another window (a browser), the compositor can hand `xwd` the
+composited pixels of whatever is on top. If a window capture comes back showing the wrong
+app, re-raise and retake — or capture while Blender is the focused window.
 
 ### Transient UI — menus, submenus, redo panel (xdotool)
 
