@@ -17,9 +17,14 @@ Answer these three questions before writing a line of code:
 
 1. **Is there demand?** Use the research pipeline (crawler + digest agent) output to confirm people are actually asking for this. Don't build speculatively.
 2. **Does a similar addon exist?** If so, what makes this one different? Name the difference explicitly — it'll drive all the copy.
-3. **Is it easy to use without reading docs?** If the workflow requires more than 2–3 steps or a manual, reconsider the UX. The most important thing Blender addon users want: easy to use and saves time.
+3. **Is the end-state already reachable with a native operator?** Demand for a feature does not mean the capability is missing — the host app often already does it through a menu path users don't think to open. Before scaffolding, enumerate the built-in operators that produce the same end result and write down the exact path to each (menu ▸ submenu, or shortcut). Don't lean on a web search for this: forum threads are dominated by the complaint, not the buried workaround, so reason it out from the host's actual operator set. Then state in one line what is *genuinely* new:
+   - **New capability** — the native operators can't produce this end-state at all. Strongest justification.
+   - **Entry point / convenience only** — the native path exists but is buried or awkward, and the plugin surfaces the same operation where users reach for it. Legitimate, but thin: the copy must lead with the entry-point gap and must never imply the capability was missing. Name the native path in the docs so the framing stays honest.
 
-If you can't answer all three, stop and ask the user before proceeding.
+   If the only delta is entry point or convenience, say so out loud here so that honesty flows into every doc downstream.
+4. **Is it easy to use without reading docs?** If the workflow requires more than 2–3 steps or a manual, reconsider the UX. The most important thing Blender addon users want: easy to use and saves time.
+
+If you can't answer all four, stop and ask the user before proceeding.
 
 ---
 
