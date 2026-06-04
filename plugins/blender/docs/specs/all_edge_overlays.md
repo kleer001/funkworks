@@ -70,10 +70,12 @@ draws. There is no operator that changes the scene.
 │ ☑ Seam          [colour]  ▓▓ · · · ·     │
 │ ☑ Sharp         [colour]  ▓▓ ─·─·─·      │
 │ ──────────────────────────────────────── │
+│ Palette           [ Colourblind-Safe ▾ ] │   ← preset: Colourblind / Blender Native
+│ Quality           [ Auto ▾ ]             │   ← Auto / Fast / Balanced / Accurate
 │ Line Width        [ 2.0 px ]             │
 │ Dash Scale        [ 8.0 px ]             │
 │ Fade Weak Marks   [ ☑ ]                  │   ← opacity ∝ value for Crease/Bevel
-│ Occlude (depth)   [ ☑ ]                   │
+│ Occlude (depth)   [ ☐ ]                   │   ← default off (x-ray)
 └──────────────────────────────────────────┘
 ```
 
@@ -81,8 +83,10 @@ draws. There is no operator that changes the scene.
   draw callback).
 - Each channel row: enable checkbox, color swatch, and a non-interactive dash-pattern
   preview so the legend lives in the panel itself.
-- Defaults echo Blender's own edge-mark theme hues so the overlay feels native:
-  Crease violet, Bevel Weight blue, Seam red, Sharp cyan.
+- The **Palette** preset switches all four channel colours at once: *Colourblind-Safe*
+  (Okabe-Ito, the default) or *Blender Native* (read live from the active theme's edge-mark
+  hues — crease, bevel, seam, sharp — so it matches any custom theme). Each swatch stays
+  individually editable after a preset is chosen.
 
 ### Header / Overlays dropdown (optional, phase 2)
 
@@ -140,52 +144,90 @@ with the flag set. This keeps the batch small on meshes where most edges are unm
 
 ### Drawing
 
-- **Coordinate space:** register the draw handler in `'POST_VIEW'` so vertex positions are
-  world-space; multiply local vert coords by `object.matrix_world` once per object when
-  building the batch.
-- **Shader / dashing:** there is no builtin dashed-polyline shader. Two options, in
-  preference order:
-  1. **Custom GLSL shader** (`gpu.types.GPUShader`) that takes a per-vertex cumulative
-     screen-space arc length and discards fragments where `fract(arclen / dash_scale)` falls
-     in the "off" half of the channel's pattern. Gives zoom-stable dashes and lets each
-     channel define its own on/off pattern (dot, dash, dash-dot). This is the intended path.
-  2. Fallback for prototyping only: builtin `'POLYLINE_UNIFORM_COLOR'` (supports
-     `lineWidth` + `viewportSize`) with CPU-subdivided dash segments drawn as `'LINES'`.
-     Simpler, but dash length is computed per-frame and is heavier on big selections.
-- **Parallel offset for coincident marks:** compute each edge's screen-space normal
-  (perpendicular to the edge direction in the view plane) and offset channel *k* by
-  `k * width * 1.5` pixels along it. This is what turns "four marks on one edge" from an
-  unreadable overdraw into four legible parallel lines. The offset is applied in the vertex
-  shader using `viewportSize` so it stays constant in pixels at any zoom.
-- **Depth:** when "Occlude" is on, `gpu.state.depth_test_set('LESS_EQUAL')` and draw against
-  the existing depth buffer so back-facing marks are hidden; when off, draw with depth test
-  disabled (x-ray style). Always `gpu.state.blend_set('ALPHA')` for the value-fade.
+- **Coordinate space:** the draw handler is registered in `'POST_VIEW'`, so vertex positions
+  are world-space and the GPU depth test works against the scene depth buffer. Local vert
+  coords are multiplied by `object.matrix_world` per frame.
+- **Shader:** the builtin `'POLYLINE_FLAT_COLOR'` shader (per-vertex RGBA, `lineWidth`,
+  `viewportSize`). It is available on every GPU backend Blender supports, which maximizes
+  reach. Every channel's dash segments — across all objects — are accumulated into one
+  vertex/colour stream and drawn in a **single batch**: per-edge batching is O(edges) draw
+  calls and does not scale. Per-vertex colour carries both the channel hue and the per-edge
+  fade alpha, so one draw covers all channels at once.
+- **Dashing (two CPU paths, tier-selected):** there is no builtin dashed-polyline shader, so
+  dashes are CPU-subdivided. The **screen-accurate** path subdivides in screen space and maps
+  each dash point back to a world point at the edge's depth via
+  `bpy_extras.view3d_utils.region_2d_to_location_3d` — pixel-stable dashes and a pixel-exact
+  parallel offset that still depth-test correctly. The **fast** path uses a single per-edge
+  world/pixel ratio for offset and dash sizing (no per-segment unproject), trading a little
+  accuracy for ~4× lower per-frame cost on dense selections.
+- **Parallel offset for coincident marks:** each edge's screen-space normal offsets channel
+  *k* by `(slot − 1.5) · width · 1.5` pixels, turning coincident marks from an unreadable
+  overdraw into legible parallel lines. Constant in pixels at any zoom.
+- **Depth / Occlude:** when "Occlude" is on, `gpu.state.depth_test_set('LESS_EQUAL')` plus a
+  small per-point depth bias toward the camera **along the view axis** (a nudge toward the
+  camera *point* barely moves edges that recede from it). The bias clears the coplanar
+  z-fight on visible-edge marks while marks genuinely behind geometry stay hidden; tuned to
+  ~0.04 of view distance. When off, the depth test is disabled (x-ray). Always
+  `gpu.state.blend_set('ALPHA')` for the value-fade.
+
+### Performance tiers
+
+`scene.edge_overlays.quality` selects **Fast / Balanced / Accurate**, or **Auto** (default),
+which resolves the tier from the total marked-edge count against a 16 ms (60 fps) frame
+budget. Measured live: the screen-accurate path costs ~0.020 ms/marked-edge (holds budget to
+~500 marked edges); the fast path ~0.0047 ms/marked-edge (to ~2500). Auto uses the
+screen-accurate path at/below the cutover and the fast path above it. Accurate and Balanced
+currently share the screen-accurate path; the GPU-dashing Accurate backend below will split
+them and lift the Accurate ceiling.
 
 ### Caching
 
-The draw callback runs every redraw, so it must not rebuild geometry from scratch each
-frame. Cache, per object, the built vertex/color/arclen arrays keyed by
-`(object.name, mesh-update-token)`. Invalidate via a `depsgraph_update_post` handler that
-clears cache entries for objects whose mesh changed, and (in Edit Mode) rebuild from the
-edit bmesh each time the edit mesh reports a change. Object matrix changes only require
-re-uploading positions, not re-reading marks.
+Per object, the **mark read** (iterating edge attributes) is cached as a list of
+local-space `(channel, v0, v1, value)` tuples, invalidated by a `depsgraph_update_post`
+handler that drops entries for objects whose mesh changed. The active edit object is read
+live from the edit bmesh each frame. Because marks are stored in **local space** and
+multiplied by `matrix_world` per frame, object transforms never invalidate the cache.
+
+This cache removes the attribute-read cost, but the dash subdivision and projection are
+view-dependent and still run every frame on the CPU paths — so camera navigation rebuilds
+the dash geometry each frame. The GPU-dashing Accurate backend (below) is what makes
+navigation cheap: it bakes world arc length once and dashes in the fragment shader, leaving
+only a GPU draw per frame.
+
+### GPU-dashing Accurate backend (planned)
+
+A custom `gpu.types.GPUShader` carrying per-vertex cumulative world arc length as an
+attribute, discarding fragments where `fract(arclen / dash_size)` lands in the channel's
+"off" interval. Zoom-stable, GPU-side, and — paired with the per-object cache — cheap on
+camera navigation, which is what lets it scale to large marked-edge counts. It is
+lazy-compiled inside a `try/except`; on any backend-compile failure the addon permanently
+falls back to the screen-accurate builtin path, so reach is never sacrificed for the
+optimization.
 
 ### State storage
 
 A `PropertyGroup` (`EdgeOverlaySettings`) registered as `Scene.edge_overlays`, holding the
-master toggle, and for each channel an enable bool, `FloatVectorProperty(subtype='COLOR')`,
-plus global line width, dash scale, fade, and occlude. Storing on `Scene` persists the
-configuration in the .blend file. Settings changes tag the viewport for redraw via an
-`update=` callback that calls `tag_redraw` on all VIEW_3D areas.
+master toggle, a `quality` enum (Auto/Fast/Balanced/Accurate), a `palette` enum (Colourblind-
+Safe / Blender Native), and for each channel an enable bool and `FloatVectorProperty(
+subtype='COLOR')`, plus global line width, dash scale, fade, and occlude. The palette enum's
+`update=` callback writes the four channel colours — from the active theme's edge-mark hues
+for Native, from the Okabe-Ito constants for Colourblind-Safe — while leaving each swatch
+individually editable. Storing on `Scene` persists the configuration in the .blend file.
+Settings changes tag the viewport for redraw via an `update=` callback that calls
+`tag_redraw` on all VIEW_3D areas.
 
 ### GPU path validation status
 
-The edge-mark **data path above is probe-verified** on 4.2.5. The **GPU draw path is
-designed but not yet validated on a live GL context** — headless/background Blender has no
-GPU context (`gpu.shader.from_builtin` raises "GPU functions for drawing are not available
-in background mode"), so the custom dash shader, the parallel-offset math, and depth
-behavior must be confirmed against a running viewport during implementation. This is the
-primary build risk and the first thing the build should exercise.
+The edge-mark data path and the builtin-shader draw path are both **validated live on
+4.2.5**: register/unregister round-trip, the four distinct channels with colour + dash
+patterns, the parallel offset on coincident marks, value-fade, per-channel toggles, the
+master toggle, edit-mode live update, occlude on/off (verified against per-edge
+camera-visibility ground truth), both palette presets, and the Fast and screen-accurate
+tiers. The **GPU-dashing Accurate backend remains the one unbuilt piece** — its custom
+shader must be confirmed against a running viewport, and its compile-failure fallback to the
+builtin path exercised, when it is added. Headless/background Blender has no GPU context
+(`gpu.shader.from_builtin` raises "GPU functions for drawing are not available in background
+mode"), so that work is live-only.
 
 ## Edge Cases
 
