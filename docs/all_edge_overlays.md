@@ -88,11 +88,11 @@ Where one edge carries more than one mark, the channels draw as **parallel offse
 The **Edge Overlays** panel gives one row per channel — an enable checkbox and an editable colour swatch — plus the global controls beneath them.
 
 - **Channel checkboxes** isolate a question. Turn off everything except Seam and Crease to see only where those two interact.
-- **Palette** swaps all four colours at once between **Colourblind-Safe** and **Blender Native** (Step 5). Each swatch stays individually editable after a preset is chosen.
+- **Palette** swaps all four colours at once between **Colourblind-Safe** and **Blender Native** (Step 6). Each swatch stays individually editable after a preset is chosen.
 - **Quality** chooses how the overlay is drawn (see Notes). Leave it on **Auto**.
 - **Line Width** and **Dash Scale** size the strokes and their dashes.
 - **Fade Weak Marks** scales opacity by value for Crease and Bevel Weight; turn it off for uniform opacity.
-- **Occlude** hides marks that sit behind front-facing geometry. Off (the default) draws every mark through the mesh, x-ray style, so nothing on the far side is missed.
+- **Occlude** (on by default) hides marks behind front-facing geometry, so they read on the surfaces you see — the way Blender's native marks do. Turn it off for x-ray (Step 5).
 
 > **Checkpoint:** Toggling a single channel checkbox removes only that channel's lines; the others stay.
 
@@ -100,7 +100,19 @@ The **Edge Overlays** panel gives one row per channel — an enable checkbox and
 
 ---
 
-### Step 5: Switch the Palette
+### Step 5: See Through the Mesh (Occlude)
+
+By default the overlay is **occluded** — marks behind front-facing geometry are hidden, so they read on the surfaces you can see, the way Blender's native marks do. That keeps a dense mesh legible and is the right starting point for most work.
+
+Turn **Occlude** off in the panel for **x-ray** mode. Every mark now draws through the mesh, including edges on the far side and edges that face away from you. This is the mode for catching a conflict you would otherwise have to orbit to find — a seam that landed on a crease around the back of the model shows up where it sits, through the geometry.
+
+> **Checkpoint:** With Occlude on, only marks on camera-facing surfaces draw; turning it off makes every mark visible through the mesh.
+
+![The same view with Occlude off — every mark drawn through the mesh, x-ray style]({{ "/images/all_edge_overlays/04_occlude_off.png" | relative_url }})
+
+---
+
+### Step 6: Switch the Palette
 
 Set **Palette** to **Blender Native**. All four channel colours change to match your active theme's edge-mark hues — crease, bevel, seam, and sharp — so the overlay reads the way Blender's own marks do. The Native preset is read from the theme, so it follows any custom theme you use.
 
@@ -112,7 +124,7 @@ Set it back to **Colourblind-Safe** for the Okabe-Ito palette, which keeps the f
 
 ---
 
-### Step 6: Choose How It Draws (Quality)
+### Step 7: Choose How It Draws (Quality)
 
 Leave **Quality** on **Auto** and you can ignore this — it reads the marked-edge count and picks a tier for you. But the three tiers trade crispness against navigation cost differently, and on a capable machine it's worth knowing which is which. None of them change *what* is drawn, only *how*.
 
@@ -140,7 +152,7 @@ Every edge-mark type on your mesh is now visible in a single view, colour- and d
 |---------|-------------|-----|
 | No overlay appears | **Show** is off, the addon is disabled, or the mesh has no marks | Enable the addon, click **Show**, and confirm the mesh carries at least one edge mark |
 | One channel never shows | That channel's checkbox is off | Re-check the channel in the **Edge Overlays** panel |
-| Marks vanish behind the mesh | **Occlude** is on and those edges face away | Turn **Occlude** off for x-ray, or orbit so the edges face the camera |
+| Marks vanish behind the mesh | **Occlude** is on (the default) and those edges face away | Turn **Occlude** off for x-ray, or orbit so the edges face the camera |
 | A crease or bevel mark looks faint | **Fade Weak Marks** scales opacity by value; the mark's value is low | Raise the mark's value, or turn off **Fade Weak Marks** for uniform opacity |
 | Dashes change size as you zoom | On heavy meshes **Auto** uses the cached **Accurate** tier, whose dashes are world-stable | Set **Quality** to **Balanced** for screen-stable dashes |
 | Colours are hard to tell apart | The Native palette can be hard for some viewers | Set **Palette** to **Colourblind-Safe** |
@@ -151,7 +163,7 @@ Every edge-mark type on your mesh is now visible in a single view, colour- and d
 ## Notes
 
 - **Pure visualization.** The addon only reads edge attributes and draws lines. It never modifies mesh data, pushes an undo step, or shows up in a render.
-- **Three quality tiers, picked automatically.** **Auto** chooses from the marked-edge count; Step 6 covers what each tier trades and when to override it.
+- **Three quality tiers, picked automatically.** **Auto** chooses from the marked-edge count; Step 7 covers what each tier trades and when to override it.
 - **Settings persist.** The panel's configuration is stored on the Scene and saved with your .blend file.
 - **Viewport only.** Like all Blender overlays, the marks are a viewport aid and do not appear in renders.
 

@@ -516,8 +516,8 @@ def _make_settings():
             default=True, update=_redraw),
         "occlude": bpy.props.BoolProperty(
             name="Occlude",
-            description="Hide marks behind front geometry (off = see-through)",
-            default=False, update=_redraw),
+            description="Hide marks behind front geometry; turn off for x-ray (see every mark, including edges facing away)",
+            default=True, update=_redraw),
     }
     for c in CHANNELS:
         ann["show_" + c["key"]] = bpy.props.BoolProperty(

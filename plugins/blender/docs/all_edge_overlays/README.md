@@ -26,7 +26,7 @@ The addon only reads edge attributes and draws lines. It never changes mesh data
 2. Press **N** → **View** tab → **Edge Overlays** → **Show**
 3. Use the per-channel checkboxes to isolate a question — for example, turn off everything except Seam and Crease to see only where those two meet
 4. Switch **Palette** between Colourblind-Safe and Blender Native, or click a swatch to recolour one channel
-5. Toggle **Occlude** to hide marks behind front-facing geometry; leave it off to see every mark x-ray style
+5. **Occlude** is on by default, hiding marks behind front-facing geometry; turn it off to see every mark x-ray style
 
 ## Distribution
 

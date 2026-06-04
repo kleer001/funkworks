@@ -15,7 +15,7 @@ This addon draws all four mark types at once.
 1. Enable the addon and press N in the viewport
 2. Open the View tab and click Show under Edge Overlays
 3. Every marked edge draws in its own colour and dash pattern; coincident marks draw as parallel lines
-4. Toggle channels, switch palette, or turn on Occlude as needed
+4. Toggle channels, switch palette, or turn Occlude off for x-ray as needed
 
 It reads edge attributes and draws lines — no mesh data is modified, no undo step is pushed, and nothing appears in a render. Settings are stored on the Scene and saved with the file.
 
@@ -25,7 +25,7 @@ It reads edge attributes and draws lines — no mesh data is modified, no undo s
 - **Parallel where they coincide** — channels offset perpendicular to the edge, so two or three marks on one edge read as separate lines instead of a single muddy stroke
 - **Value fade** — Crease and Bevel Weight opacity scales with the mark's value, so weak marks read fainter than strong ones
 - **Two palettes** — a Colourblind-Safe Okabe-Ito preset and a Blender Native preset read from the active theme; each swatch stays individually editable
-- **Depth occlusion** — an Occlude toggle hides marks behind front-facing geometry; off by default for x-ray visibility
+- **Depth occlusion** — marks are hidden behind front-facing geometry by default, matching Blender's native overlays; turn Occlude off for x-ray visibility through the mesh
 - **Scales to dense meshes** — an Auto quality mode caches the overlay on heavy meshes so camera navigation stays smooth as the marked-edge count grows
 
 ## Requirements

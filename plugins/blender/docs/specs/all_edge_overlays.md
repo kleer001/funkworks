@@ -75,7 +75,7 @@ draws. There is no operator that changes the scene.
 │ Line Width        [ 2.0 px ]             │
 │ Dash Scale        [ 3.0 ]                │
 │ Fade Weak Marks   [ ☑ ]                  │   ← opacity ∝ value for Crease/Bevel
-│ Occlude (depth)   [ ☐ ]                   │   ← default off (x-ray)
+│ Occlude (depth)   [ ☑ ]                   │   ← default on; off = x-ray
 └──────────────────────────────────────────┘
 ```
 
