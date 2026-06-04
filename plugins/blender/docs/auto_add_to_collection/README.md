@@ -4,20 +4,23 @@ Make a new collection and move the selected objects into it in one click.
 
 ## The Problem
 
-You select a few objects and click the Outliner's **New Collection** button to group
-them — but Blender creates an *empty* collection and leaves your objects loose. You then
-drag them in by hand, or undo and reach for the **M** (Move to Collection) shortcut
-instead. The Outliner's New Collection action simply ignores your selection. This has
-been the [top-requested fix](https://blender.community/c/rightclickselect/V9fbbc/) for
-this part of the UI since 2020.
+Blender already has an operator that creates a collection and moves your selection into
+it: **M ▸ Move to Collection ▸ New Collection**. The catch is *where* it lives. When you
+want to group a few objects, your hand goes to the **New Collection** button in the
+Outliner — and that button ignores your selection, handing you an *empty* collection with
+your objects still loose beside it. So you drag them in by hand, or undo and go hunting
+for the buried New Collection entry in the M menu. Making the Outliner button respect the
+selection has been a [standing request](https://blender.community/c/rightclickselect/V9fbbc/)
+since 2020.
 
 ## The Solution
 
-Adds a **New Collection with Selection** command to the places you already create
-collections — the **Outliner right-click menu** and the 3D viewport's **Object ▸
-Collection** menu. One click creates a new collection nested under the active collection,
-moves your selected objects into it, and makes it the active collection. It behaves like
-the native New Collection button, but brings your selection along.
+This addon doesn't add a new capability — it puts the create-and-move operation where you
+already reach for it. A **New Collection with Selection** command appears in the
+**Outliner right-click menu** and the 3D viewport's **Object ▸ Collection** menu. One
+click creates a new collection nested under the active collection, moves your selected
+objects into it, and makes it active — the same result as M ▸ New Collection, without the
+menu hunt.
 
 ## Installation
 

@@ -5,18 +5,21 @@ Create a new collection and move your selected objects into it in one click — 
 
 ## Long Description
 
-Click the Outliner's New Collection button with objects selected and Blender hands you an
-empty collection, leaving your objects loose. You drag them in by hand every time, or
-remember to use the M shortcut instead.
+Blender can already create a collection and move your selection into it — the operator is
+tucked away in M ▸ Move to Collection ▸ New Collection. But that's not where your hand
+goes. When you want to group objects you reach for the Outliner's New Collection button,
+and that button ignores your selection: it hands you an empty collection with your objects
+still loose. So you drag them in by hand, or go digging for the M-menu entry.
 
 **How it works:**
 - Select the objects you want to group
 - Right-click in the Outliner, or open Object ▸ Collection in the viewport
 - Choose **New Collection with Selection** — a new collection appears with your objects inside it
 
-The new collection nests under the active collection and becomes active, just like
-Blender's own New Collection button — it just brings your selection along. It's a true
-move (one collection membership per object, no duplicates), fully undoable, with no setup.
+The new collection nests under the active collection and becomes active — the same result
+you'd get from the M-menu's New Collection entry, surfaced where you actually click. It's
+a true move (one collection membership per object, no duplicates), fully undoable, with no
+setup.
 
 ## Features
 

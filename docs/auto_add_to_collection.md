@@ -15,19 +15,22 @@ Make a new collection **and** move your selected objects into it in one click �
 
 ## The Problem
 
-You select a few objects, click the Outliner's **New Collection** button to tidy them
-up — and Blender hands you an *empty* collection sitting next to your still-loose
-objects. Now you have to drag each object into it by hand, or undo and remember to use
-the **M** (Move to Collection) shortcut instead.
+Blender can already create a collection and move your selection into it — the operator
+lives at **M ▸ Move to Collection ▸ New Collection**. But that's not the button you reach
+for. When you want to group a few objects, you click the Outliner's **New Collection**
+button — and Blender hands you an *empty* collection sitting next to your still-loose
+objects. Now you drag each object in by hand, or undo and go hunting for the New
+Collection entry buried in the M menu.
 
-The Outliner's New Collection action ignores your selection. That is the
-[most-requested fix](https://blender.community/c/rightclickselect/V9fbbc/) for this
-corner of the UI, open since 2020: *"once the new collection is created, Blender would
-automatically move the previously selected objects into the collection."*
+The Outliner's New Collection action ignores your selection. Making it respect the
+selection is a [standing request](https://blender.community/c/rightclickselect/V9fbbc/)
+for this corner of the UI, open since 2020: *"once the new collection is created, Blender
+would automatically move the previously selected objects into the collection."*
 
-This addon adds a **New Collection with Selection** command right where you expect it —
-the Outliner right-click menu and the 3D viewport's Object ▸ Collection menu. One click:
-new collection, your selection inside it, nested under whatever collection was active.
+This addon doesn't add a new capability — it puts that create-and-move operation right
+where you expect it: the Outliner right-click menu and the 3D viewport's Object ▸
+Collection menu. One click: new collection, your selection inside it, nested under
+whatever collection was active.
 
 ---
 
