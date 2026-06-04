@@ -91,6 +91,7 @@ def fetch_reddit(
             "date": date,
             "replies": post.get("num_comments", 0),
             "score": post.get("score", 0),
+            "url": BASE_URL + post["permalink"],
         })
 
     # Paginate /new
@@ -194,6 +195,7 @@ def fetch_opportunities(
                     "date": date,
                     "replies": post.get("num_comments", 0),
                     "score": post.get("score", 0),
+                    "url": BASE_URL + post["permalink"],
                 })
 
         time.sleep(config.polite_delay)

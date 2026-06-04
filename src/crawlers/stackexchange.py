@@ -72,6 +72,7 @@ def fetch_stackexchange(session, source: dict, polite_delay: float = 6.0) -> lis
                 "replies": item.get("answer_count", 0),
                 "views": item.get("view_count", 0),
                 "score": item.get("score", 0),
+                "url": item.get("link"),
             })
 
     log.info("Stack Exchange %s: fetched %d posts", site, len(posts))

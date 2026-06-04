@@ -51,7 +51,8 @@ newly written raw file.
 ## Step 4: Read the raw posts file
 
 The file is a JSON array of objects with keys: `title`, `body`, `signals`, and
-optionally `replies`, `views`, `score`, `date`.
+optionally `replies`, `views`, `score`, `date`, `url` (the permalink to the
+source post — carry it through to the output so origin records can cite it).
 Note the total count.
 
 ## Step 5: Split into batches of 50
@@ -119,7 +120,8 @@ Collect the JSON array result from each agent.
 Each batch result contains only the posts Haiku judged worth keeping, each with an `index`
 field (1-based position within that batch). Use `index` to look up the corresponding source
 post and carry forward: `title` (from source), `type`, `complexity`, `novelty`,
-`specificity`, `summary`, and any engagement fields present in the source post
+`specificity`, `summary`, the source `url` (for provenance — keep it even when
+null), and any engagement fields present in the source post
 (`replies`, `views`, `score`, `date`).
 
 ## Step 7.5: Verify novelty via web search
@@ -195,9 +197,18 @@ Write the surviving clusters as a JSON array. Each entry:
   "type": "pain_point",
   "complexity": "moderate",
   "best_summary": "...",
-  "posts": ["title A", "title B", "title C"]
+  "posts": [
+    {"title": "title A", "url": "https://..."},
+    {"title": "title B", "url": "https://..."},
+    {"title": "title C", "url": null}
+  ]
 }
 ```
+
+Each `posts` entry carries the source `title` and `url` from the merged kept
+entries (Step 7). Keep `url` as `null` when the source post had none — never
+drop the field. This is what lets `/new-plugin` write real `source_url` values
+into origin records instead of retroactive null stubs.
 
 ## Step 11: Delete the raw file
 

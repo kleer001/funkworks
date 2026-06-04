@@ -17,7 +17,13 @@ def _test_config():
 
 
 def _make_post(id="abc", title="Test post", selftext="", flair=None) -> dict:
-    return {"id": id, "title": title, "selftext": selftext, "link_flair_text": flair}
+    return {
+        "id": id,
+        "title": title,
+        "selftext": selftext,
+        "link_flair_text": flair,
+        "permalink": f"/r/blender/comments/{id}/{id}/",
+    }
 
 
 def _mock_response(posts: list[dict]) -> MagicMock:
@@ -195,3 +201,4 @@ class TestFetchOpportunities:
         assert "body" in post
         assert "signals" in post
         assert isinstance(post["signals"], list)
+        assert post["url"] == "https://www.reddit.com/r/blender/comments/q1/q1/"

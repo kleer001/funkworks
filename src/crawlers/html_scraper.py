@@ -6,6 +6,7 @@ Add new named scrapers here and register them in crawl.py's dispatcher.
 
 import logging
 import time
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
@@ -58,7 +59,9 @@ def _fetch_nukepedia(session, source: dict, polite_delay: float) -> list[dict]:
             title = title_el.get_text(strip=True)
             body = desc_el.get_text(strip=True)[:MAX_BODY_CHARS] if desc_el else ""
             if title:
-                posts.append({"title": title, "body": body, "date": None})
+                href = title_el.get("href")
+                url = urljoin(base_url, href) if href else None
+                posts.append({"title": title, "body": body, "date": None, "url": url})
 
     # Also try to get recent discussion threads if a forum section exists
     time.sleep(polite_delay)
@@ -69,7 +72,10 @@ def _fetch_nukepedia(session, source: dict, polite_delay: float) -> list[dict]:
             for thread in forum_soup.select(".views-row, tr.odd, tr.even")[:30]:
                 t_el = thread.select_one("a, td.views-field-title")
                 if t_el:
-                    posts.append({"title": t_el.get_text(strip=True), "body": "", "date": None})
+                    a_el = t_el if t_el.name == "a" else t_el.find("a")
+                    href = a_el.get("href") if a_el else None
+                    url = urljoin(base_url, href) if href else None
+                    posts.append({"title": t_el.get_text(strip=True), "body": "", "date": None, "url": url})
     except Exception:
         pass  # forum section may not exist
 

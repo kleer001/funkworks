@@ -72,8 +72,11 @@ def _parse_rss(content: bytes) -> list[dict]:
             date_el = published_el if published_el is not None else updated_el
             date = date_el.text[:10] if date_el is not None and date_el.text else None
 
+            link_el = entry.find(f"{{{_ATOM_NS}}}link")
+            url = link_el.get("href") if link_el is not None else None
+
             if title:
-                posts.append({"title": title, "body": body, "date": date})
+                posts.append({"title": title, "body": body, "date": date, "url": url})
         return posts
 
     # RSS 2.0: root contains <channel><item>...</item></channel>
@@ -105,8 +108,11 @@ def _parse_rss(content: bytes) -> list[dict]:
         elif dc_el is not None and dc_el.text:
             date = dc_el.text[:10]
 
+        link_el = item.find("link")
+        url = link_el.text.strip() if link_el is not None and link_el.text else None
+
         if title:
-            posts.append({"title": title, "body": body, "date": date})
+            posts.append({"title": title, "body": body, "date": date, "url": url})
 
     return posts
 

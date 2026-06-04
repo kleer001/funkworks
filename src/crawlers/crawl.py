@@ -91,7 +91,7 @@ def crawl_all(config: Config, dcc_config: dict | None) -> tuple[dict, Path]:
                 "signals": list(matched),
                 "date": post.get("date"),
             }
-            for field in ("replies", "views", "score"):
+            for field in ("replies", "views", "score", "url"):
                 if field in post:
                     entry[field] = post[field]
             categorized.append(entry)

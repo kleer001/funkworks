@@ -57,6 +57,7 @@ def fetch_discourse(session, source: dict, polite_delay: float = 6.0) -> list[di
                     "date": date,
                     "replies": max(0, topic.get("posts_count", 1) - 1),
                     "views": topic.get("views", 0),
+                    "url": f"{base_url}/t/{topic['slug']}/{topic['id']}",
                 })
 
         if page < pages - 1:

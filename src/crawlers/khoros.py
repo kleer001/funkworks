@@ -28,7 +28,7 @@ def fetch_khoros(session, source: dict, polite_delay: float = 6.0) -> list[dict]
     limit = source.get("limit", 50)
 
     query = (
-        f"SELECT subject, body, post_time, kudos_sum, views, replies_count "
+        f"SELECT subject, body, post_time, kudos_sum, views, replies_count, view_href "
         f"FROM messages "
         f"WHERE board.id = '{board_id}' AND depth = 0 "
         f"ORDER BY post_time DESC LIMIT {limit}"
@@ -73,6 +73,7 @@ def fetch_khoros(session, source: dict, polite_delay: float = 6.0) -> list[dict]
                 "replies": item.get("replies_count", 0),
                 "views": item.get("views", 0),
                 "score": item.get("kudos_sum", 0),
+                "url": item.get("view_href"),
             })
 
     log.info("Khoros %s/%s: fetched %d posts", base_url, board_id, len(posts))
