@@ -41,20 +41,27 @@ _NATIVE_THEME_ATTR = {
     "sharp":  "edge_sharp",
 }
 
-# Auto-tier thresholds on total marked-edge count, against a 16 ms (60 fps) frame
-# budget. Measured live on a marked grid at this build: the screen-accurate path
-# (_balanced_points, per-segment unproject) costs ~0.020 ms/marked-edge, so ~500
-# marked edges spends ~10 ms — the AUTO cutover to the cheaper _fast_points path,
-# which costs ~0.0047 ms/marked-edge (good to ~2500 marked edges before it too
-# exceeds budget). ACCURATE and BALANCED currently share _balanced_points, so AUTO
-# uses the accurate path at/below the cutover and Fast above it; BALANCED is a
-# manual alias until the GPU-dashing Accurate backend lands and lifts its ceiling.
-_TIER_ACCURATE_MAX = 500
-_TIER_BALANCED_MAX = 500
+# AUTO cutover on total marked-edge count, against a 16 ms (60 fps) frame budget.
+# Measured live on a marked grid: the per-frame screen-accurate path (_balanced_points,
+# per-segment unproject) costs ~0.020 ms/marked-edge, so ~500 marked edges spends ~10 ms.
+# At/below the cutover AUTO uses BALANCED (per-frame, crisp screen-stable dashes); above
+# it AUTO uses ACCURATE, whose cached world-space batch makes camera navigation cheap
+# regardless of count (only a mesh edit rebuilds it), at the cost of world-stable dashes.
+_TIER_AUTO_CUTOVER = 500
+
+# ACCURATE bake fractions of the object's bbox diagonal, so dashes, the parallel offset,
+# and the occlude lift scale with model size (a fixed world size would mis-scale on tiny or
+# huge meshes). Dashes and offset are world-space so the batch can be cached; the
+# outward-normal lift is view-independent so occlusion stays correct after the camera moves.
+# Tuned to reproduce the validated cube look (dimensions 2, diagonal ~3.46).
+_ACCEL_DASH_FRAC = 0.006     # dash length per pattern unit, at dash_scale 8
+_ACCEL_OFFSET_FRAC = 0.006   # parallel channel separation per (slot · line_width)
+_ACCEL_LIFT_FRAC = 0.001     # outward lift to clear the occlude z-fight from any angle
 
 _shader = None    # builtin POLYLINE_FLAT_COLOR, compiled lazily (needs a GPU context)
 _handle = None    # draw-handler reference
 _cache = {}       # obj.name -> list[(key, local_v0, local_v1, value)] for non-edit objects
+_accel_cache = {} # obj.name -> cached ACCURATE GPUBatch (None when object has no marks)
 
 
 # --- mark reading (local space, cached) -------------------------------------
@@ -227,14 +234,140 @@ def _bias_toward_camera(pts, rv3d):
 def _resolve_tier(quality, marked_count):
     if quality != 'AUTO':
         return quality
-    if marked_count <= _TIER_ACCURATE_MAX:
-        return 'ACCURATE'
-    if marked_count <= _TIER_BALANCED_MAX:
-        return 'BALANCED'
-    return 'FAST'
+    return 'BALANCED' if marked_count <= _TIER_AUTO_CUTOVER else 'ACCURATE'
+
+
+# --- ACCURATE: cached world-space batch -------------------------------------
+
+def _edge_outward_normals(me):
+    """Per-edge averaged adjacent-face normal (local space). Lets the cached batch
+    offset marks along the surface (parallel separation) and lift them outward (a
+    view-independent occlude bias that survives camera moves)."""
+    en = [Vector((0.0, 0.0, 0.0)) for _ in me.edges]
+    ekey = {tuple(sorted(e.vertices)): i for i, e in enumerate(me.edges)}
+    for poly in me.polygons:
+        n = poly.normal
+        vs = poly.vertices
+        for k in range(len(vs)):
+            i = ekey.get(tuple(sorted((vs[k], vs[(k + 1) % len(vs)]))))
+            if i is not None:
+                en[i] += n
+    return en
+
+
+def _build_accel(obj, st, enabled):
+    """Build the ACCURATE tier's cached batch: world-space, dash-subdivided, with a
+    world-surface parallel offset and an outward lift. Returns a GPUBatch, or None
+    when the object carries no enabled marks. Rebuilt only on mesh edit or a settings
+    change — never on camera move, which is what makes navigation cheap at scale."""
+    me = obj.data
+    mw = obj.matrix_world
+    nmat = mw.inverted().transposed().to_3x3()
+    crease = me.attributes.get("crease_edge")
+    bevel = me.attributes.get("bevel_weight_edge")
+    en = _edge_outward_normals(me)
+    diag = obj.dimensions.length or 1.0
+    dash_world = (st.dash_scale / 8.0) * diag * _ACCEL_DASH_FRAC
+    lift = diag * _ACCEL_LIFT_FRAC
+    verts = []
+    cols = []
+    for i, edge in enumerate(me.edges):
+        chans = []
+        cv = crease.data[i].value if crease else 0.0
+        if cv > 0.0 and "crease" in enabled:
+            chans.append(("crease", cv))
+        bv = bevel.data[i].value if bevel else 0.0
+        if bv > 0.0 and "bevel" in enabled:
+            chans.append(("bevel", bv))
+        if edge.use_seam and "seam" in enabled:
+            chans.append(("seam", 1.0))
+        if edge.use_edge_sharp and "sharp" in enabled:
+            chans.append(("sharp", 1.0))
+        if not chans:
+            continue
+        wa = mw @ me.vertices[edge.vertices[0]].co
+        wb = mw @ me.vertices[edge.vertices[1]].co
+        seg = wb - wa
+        if seg.length == 0.0:
+            continue
+        nrm = nmat @ en[i]
+        nrm = nrm.normalized() if nrm.length > 0.0 else Vector((0.0, 0.0, 1.0))
+        perp = seg.normalized().cross(nrm)
+        perp = perp.normalized() if perp.length > 0.0 else Vector((0.0, 0.0, 0.0))
+        for key, value in chans:
+            ch = _BY_KEY[key]
+            off = (perp * ((ch["slot"] - 1.5) * st.line_width * _ACCEL_OFFSET_FRAC * diag)
+                   + nrm * lift)
+            a = wa + off
+            col = getattr(st, "color_" + key)
+            alpha = value if (ch["value"] and st.fade_weak) else 1.0
+            rgba = (col[0], col[1], col[2], alpha)
+            length = seg.length
+            d = 0.0
+            idx = 0
+            pat = ch["dash"]
+            while d < length:
+                s = pat[idx % len(pat)] * dash_world
+                nd = min(d + s, length)
+                if idx % 2 == 0:
+                    verts.append(a + seg * (d / length))
+                    verts.append(a + seg * (nd / length))
+                    cols.append(rgba)
+                    cols.append(rgba)
+                d = nd
+                idx += 1
+    if not verts:
+        return None
+    return batch_for_shader(_shader, 'LINES', {"pos": verts, "color": cols})
 
 
 # --- draw -------------------------------------------------------------------
+
+def _set_gpu_state(occlude):
+    gpu.state.blend_set('ALPHA')
+    if occlude:
+        gpu.state.depth_test_set('LESS_EQUAL')
+        gpu.state.depth_mask_set(False)
+    else:
+        gpu.state.depth_test_set('NONE')
+
+
+def _restore_gpu_state():
+    gpu.state.depth_test_set('NONE')
+    gpu.state.depth_mask_set(True)
+    gpu.state.blend_set('NONE')
+
+
+def _collect_segments(obj, st, enabled, tier, rv3d, region, mvp, w, h, verts, cols):
+    """Per-frame point building for the FAST and BALANCED tiers (appends to
+    verts/cols). Screen-dependent, so it runs every redraw."""
+    mw = obj.matrix_world
+    for key, lv0, lv1, value in _marks_for(obj, bpy.context.edit_object):
+        ch = enabled.get(key)
+        if ch is None:
+            continue
+        wa = mw @ lv0
+        wb = mw @ lv1
+        p0 = _project(mvp, wa, w, h)
+        p1 = _project(mvp, wb, w, h)
+        if p0 is None or p1 is None:
+            continue
+        offset_px = (ch["slot"] - 1.5) * st.line_width * 1.5
+        if tier == 'FAST':
+            pts = _fast_points(rv3d, p0, p1, wa, wb, ch["dash"], st.dash_scale, offset_px)
+        else:
+            pts = _balanced_points(region, rv3d, p0, p1, wa, wb, ch["dash"],
+                                   st.dash_scale, offset_px)
+        if not pts:
+            continue
+        if st.occlude:
+            pts = _bias_toward_camera(pts, rv3d)
+        col = getattr(st, "color_" + key)
+        alpha = value if (ch["value"] and st.fade_weak) else 1.0
+        rgba = (col[0], col[1], col[2], alpha)
+        verts.extend(pts)
+        cols.extend([rgba] * len(pts))
+
 
 def _draw():
     global _shader
@@ -262,85 +395,77 @@ def _draw():
     objects = [o for o in view_layer.objects
                if o.type == 'MESH' and o.visible_get()]
 
-    # Effective tier from total marked-edge count (cheap; uses the cache).
     marked_total = sum(len(_marks_for(o, edit_obj)) for o in objects)
     tier = _resolve_tier(st.quality, marked_total)
 
-    # Accumulate every channel's segments into one vertex/colour stream and draw
-    # in a SINGLE batch — per-edge batching is O(edges) draw calls and does not
-    # scale. Per-vertex colour (incl. fade alpha) lets one draw carry all channels.
-    verts = []
-    cols = []
-    for obj in objects:
-        mw = obj.matrix_world
-        for key, lv0, lv1, value in _marks_for(obj, edit_obj):
-            ch = enabled.get(key)
-            if ch is None:
+    if tier == 'ACCURATE':
+        # Cached world-space batches for static objects (cheap nav); the active edit
+        # object is rebuilt per frame via the screen-accurate path so live edits show.
+        batches = []
+        for obj in objects:
+            if obj == edit_obj:
                 continue
-            wa = mw @ lv0
-            wb = mw @ lv1
-            p0 = _project(mvp, wa, w, h)
-            p1 = _project(mvp, wb, w, h)
-            if p0 is None or p1 is None:
-                continue
-            offset_px = (ch["slot"] - 1.5) * st.line_width * 1.5
-            if tier == 'FAST':
-                pts = _fast_points(rv3d, p0, p1, wa, wb, ch["dash"],
-                                   st.dash_scale, offset_px)
-            else:
-                # ACCURATE falls back to the screen-accurate builtin path until
-                # the GLSL backend lands (plan step 4).
-                pts = _balanced_points(region, rv3d, p0, p1, wa, wb, ch["dash"],
-                                       st.dash_scale, offset_px)
-            if not pts:
-                continue
-            if st.occlude:
-                pts = _bias_toward_camera(pts, rv3d)
-            col = getattr(st, "color_" + key)
-            alpha = value if (ch["value"] and st.fade_weak) else 1.0
-            rgba = (col[0], col[1], col[2], alpha)
-            verts.extend(pts)
-            cols.extend([rgba] * len(pts))
-
-    if not verts:
+            b = _accel_cache.get(obj.name, 'MISS')
+            if b == 'MISS':
+                b = _build_accel(obj, st, enabled)
+                _accel_cache[obj.name] = b
+            if b is not None:
+                batches.append(b)
+        edit_verts, edit_cols = [], []
+        if edit_obj in objects:
+            _collect_segments(edit_obj, st, enabled, 'BALANCED', rv3d, region, mvp,
+                              w, h, edit_verts, edit_cols)
+        if not batches and not edit_verts:
+            return
+        _set_gpu_state(st.occlude)
+        _shader.bind()
+        _shader.uniform_float("viewportSize", (w, h))
+        _shader.uniform_float("lineWidth", st.line_width)
+        for b in batches:
+            b.draw(_shader)
+        if edit_verts:
+            batch_for_shader(_shader, 'LINES', {"pos": edit_verts, "color": edit_cols}).draw(_shader)
+        _restore_gpu_state()
         return
 
-    gpu.state.blend_set('ALPHA')
-    if st.occlude:
-        gpu.state.depth_test_set('LESS_EQUAL')
-        gpu.state.depth_mask_set(False)
-    else:
-        gpu.state.depth_test_set('NONE')
-
+    # FAST / BALANCED — accumulate one vertex/colour stream, draw in a single batch.
+    verts, cols = [], []
+    for obj in objects:
+        _collect_segments(obj, st, enabled, tier, rv3d, region, mvp, w, h, verts, cols)
+    if not verts:
+        return
+    _set_gpu_state(st.occlude)
     _shader.bind()
     _shader.uniform_float("viewportSize", (w, h))
     _shader.uniform_float("lineWidth", st.line_width)
     batch_for_shader(_shader, 'LINES', {"pos": verts, "color": cols}).draw(_shader)
-
-    gpu.state.depth_test_set('NONE')
-    gpu.state.depth_mask_set(True)
-    gpu.state.blend_set('NONE')
+    _restore_gpu_state()
 
 
 # --- cache invalidation -----------------------------------------------------
 
 @persistent
 def _on_depsgraph(scene, depsgraph):
-    """Drop cached marks for objects whose mesh changed. Transforms don't
-    invalidate (marks are stored in local space)."""
+    """Drop cached marks (and the ACCURATE batch) for objects whose mesh changed.
+    Transforms don't invalidate — marks are stored in local space."""
     for upd in depsgraph.updates:
         idd = upd.id
         if isinstance(idd, bpy.types.Object):
             if upd.is_updated_geometry:
                 _cache.pop(idd.name, None)
+                _accel_cache.pop(idd.name, None)
         elif isinstance(idd, bpy.types.Mesh):
             _cache.clear()  # rare; a mesh datablock edit can affect any user
+            _accel_cache.clear()
             return
 
 
 # --- settings ---------------------------------------------------------------
 
 def _redraw(self, context):
+    # Settings bake into the ACCURATE batch (colour, width, dash, fade, channel
+    # enables), so any change invalidates it; the per-frame tiers ignore the cache.
+    _accel_cache.clear()
     for area in context.screen.areas:
         if area.type == 'VIEW_3D':
             area.tag_redraw()
@@ -368,9 +493,9 @@ def _make_settings():
             description="Draw tier; Auto picks one from the marked-edge count",
             items=[
                 ('AUTO', "Auto", "Pick a tier from the marked-edge count"),
-                ('FAST', "Fast", "Cheapest; world-space dashing for weak machines"),
-                ('BALANCED', "Balanced", "Screen-accurate dashing"),
-                ('ACCURATE', "Accurate", "Highest fidelity (GPU dashing where available)"),
+                ('FAST', "Fast", "Per-frame, world-approx dashing — lowest overhead"),
+                ('BALANCED', "Balanced", "Per-frame, crisp screen-stable dashing"),
+                ('ACCURATE', "Accurate", "Cached batch — cheap navigation, scales to big meshes"),
             ],
             default='AUTO', update=_redraw),
         "palette": bpy.props.EnumProperty(
@@ -453,6 +578,7 @@ def unregister():
         _handle = None
     _shader = None
     _cache.clear()
+    _accel_cache.clear()
     del bpy.types.Scene.edge_overlays
     for cls in reversed(_CLASSES):
         bpy.utils.unregister_class(cls)

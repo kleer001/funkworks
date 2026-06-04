@@ -172,13 +172,20 @@ with the flag set. This keeps the batch small on meshes where most edges are unm
 
 ### Performance tiers
 
-`scene.edge_overlays.quality` selects **Fast / Balanced / Accurate**, or **Auto** (default),
-which resolves the tier from the total marked-edge count against a 16 ms (60 fps) frame
-budget. Measured live: the screen-accurate path costs ~0.020 ms/marked-edge (holds budget to
-~500 marked edges); the fast path ~0.0047 ms/marked-edge (to ~2500). Auto uses the
-screen-accurate path at/below the cutover and the fast path above it. Accurate and Balanced
-currently share the screen-accurate path; the GPU-dashing Accurate backend below will split
-them and lift the Accurate ceiling.
+`scene.edge_overlays.quality` selects **Fast / Balanced / Accurate**, or **Auto** (default).
+The three are genuinely distinct:
+
+- **Fast** — per-frame, world-approx offset/dash (no per-segment unproject). Lowest overhead;
+  the escape hatch for the weakest machines.
+- **Balanced** — per-frame, screen-accurate dashing. Crispest, screen-stable dashes; per-frame
+  cost makes navigation heavy past a few hundred marked edges.
+- **Accurate** — a **cached world-space batch** (see below). Camera navigation is cheap at any
+  marked-edge count; dashes are world-stable.
+
+Auto resolves from the total marked-edge count against a 16 ms (60 fps) budget. Measured live:
+the screen-accurate path costs ~0.020 ms/marked-edge, so ~500 marked edges spends ~10 ms — the
+cutover. At/below it Auto uses Balanced (crisp, per-frame is cheap at low counts); above it
+Auto uses Accurate, whose cache makes navigation cheap regardless of count.
 
 ### Caching
 
@@ -186,23 +193,29 @@ Per object, the **mark read** (iterating edge attributes) is cached as a list of
 local-space `(channel, v0, v1, value)` tuples, invalidated by a `depsgraph_update_post`
 handler that drops entries for objects whose mesh changed. The active edit object is read
 live from the edit bmesh each frame. Because marks are stored in **local space** and
-multiplied by `matrix_world` per frame, object transforms never invalidate the cache.
+multiplied by `matrix_world` per frame, object transforms never invalidate the mark cache.
 
-This cache removes the attribute-read cost, but the dash subdivision and projection are
-view-dependent and still run every frame on the CPU paths — so camera navigation rebuilds
-the dash geometry each frame. The GPU-dashing Accurate backend (below) is what makes
-navigation cheap: it bakes world arc length once and dashes in the fragment shader, leaving
-only a GPU draw per frame.
+For Fast and Balanced this removes only the attribute-read cost — dash subdivision and
+projection are view-dependent and still run every frame, so camera navigation rebuilds the
+dash geometry. The **Accurate** tier removes that too (below).
 
-### GPU-dashing Accurate backend (planned)
+### Cached world-space batch (Accurate)
 
-A custom `gpu.types.GPUShader` carrying per-vertex cumulative world arc length as an
-attribute, discarding fragments where `fract(arclen / dash_size)` lands in the channel's
-"off" interval. Zoom-stable, GPU-side, and — paired with the per-object cache — cheap on
-camera navigation, which is what lets it scale to large marked-edge counts. It is
-lazy-compiled inside a `try/except`; on any backend-compile failure the addon permanently
-falls back to the screen-accurate builtin path, so reach is never sacrificed for the
-optimization.
+The Accurate tier builds each static object's dash geometry **once, in world space**, and
+caches the resulting `GPUBatch`; each frame is then just a `batch.draw()`, so camera
+navigation never rebuilds — which is what lets it scale to large marked-edge counts. Because
+the geometry is world-space, the parallel offset and the occlude depth bias are baked
+view-independently: the offset runs **along the surface** (perpendicular to the edge, in the
+averaged adjacent-face plane) so coincident marks separate from any angle, and the occlude
+bias is a small **outward-normal lift** so it still clears the coplanar z-fight after the
+camera moves. Dash length, offset, and lift scale with the object's bbox diagonal so they read
+consistently on any model size. The trade-off vs. Balanced is **world-stable** dashes (they
+scale with the model, varying on screen with zoom) rather than pixel-stable ones.
+
+The cache is keyed per object and invalidated by the same `depsgraph` mesh-edit handler, plus
+any settings change (colour, width, dash, fade, channel enables all bake into the batch). The
+active edit object bypasses the cache and draws via the per-frame screen-accurate path so
+live edits show immediately.
 
 ### State storage
 
@@ -218,16 +231,17 @@ Settings changes tag the viewport for redraw via an `update=` callback that call
 
 ### GPU path validation status
 
-The edge-mark data path and the builtin-shader draw path are both **validated live on
-4.2.5**: register/unregister round-trip, the four distinct channels with colour + dash
-patterns, the parallel offset on coincident marks, value-fade, per-channel toggles, the
-master toggle, edit-mode live update, occlude on/off (verified against per-edge
-camera-visibility ground truth), both palette presets, and the Fast and screen-accurate
-tiers. The **GPU-dashing Accurate backend remains the one unbuilt piece** — its custom
-shader must be confirmed against a running viewport, and its compile-failure fallback to the
-builtin path exercised, when it is added. Headless/background Blender has no GPU context
-(`gpu.shader.from_builtin` raises "GPU functions for drawing are not available in background
-mode"), so that work is live-only.
+The whole draw path is **validated live on 4.2.5**: register/unregister round-trip, the four
+distinct channels with colour + dash patterns, the parallel offset on coincident marks,
+value-fade, per-channel toggles, the master toggle, edit-mode live update, occlude on/off
+(verified against per-edge camera-visibility ground truth), both palette presets, and all
+three tiers — Fast, Balanced, and the cached-batch Accurate (its cache confirmed as a single
+reused `GPUBatch`, navigation redrawing at new camera angles without rebuild, and occlude
+rendering cleanly with no z-fight via the baked outward lift). The custom-GLSL dashing variant
+considered in earlier drafts was set aside: the cached world-space batch delivers the same
+cheap-navigation-at-scale win with no GPU-backend portability risk. Headless/background
+Blender has no GPU context (`gpu.shader.from_builtin` raises "GPU functions for drawing are
+not available in background mode"), so the draw path is validated interactively, not headless.
 
 ## Edge Cases
 
