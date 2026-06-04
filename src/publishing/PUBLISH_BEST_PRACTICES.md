@@ -22,6 +22,20 @@ Caught on `subdivide_select_new` v1.0.0 which dropped 5 of 7 Subdivide params;
 shipped v1.1.0 with the full set after user spotted the gap. Verify against the
 Blender Python API docs before defining `bpy.props`, not just the redo panel.
 
+### docs/index.md cards are HTML, newest-first, and numbered
+The homepage is not the simple Markdown list the skill describes — it's a
+`<div class="plugin-grid">` of `plugin-card` blocks, ordered newest-first with a
+sequential `<span class="card-num">NN</span>`. A new plugin takes slot 01, so every
+existing card's number shifts +1. Do it with a script (regex-bump all card-num, then
+insert the new card after the grid `<div>`), not nine hand edits. New cards omit the
+`plugin-card-posts` block until announcements are actually posted. The `card-thumb`
+references `images/banners/<name>_banner.png`, which renders broken until the banner
+lands (separate user-driven step).
+
+### audit_announce.py needs `python3`
+`python` is not on PATH in this environment — run `python3 scripts/audit_announce.py
+<announce.md>`. The pre-commit hook invokes the audit again on any staged announce.md.
+
 ### Honest-copy hook catches reader-assumption phrasing
 Beyond superlatives and rhetorical filler, the hook flags second-person sequences
 that assume reader intent ("You ran X. Now you want to Y."). Rewrite as
