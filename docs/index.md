@@ -125,6 +125,12 @@ layout: home
         <a href="https://github.com/kleer001/funkworks/tree/main/plugins/blender/src/all_edge_overlays.py">Source</a>
       </div>
     </div>
+    <div class="plugin-card-posts">
+      <ul>
+        <li><a href="https://old.reddit.com/r/blender/comments/1u1k59q/free_addon_see_all_four_edgemark_types_at_once/">r/blender</a></li>
+        <li><a href="https://blenderartists.org/t/free-addon-see-all-four-edge-mark-types-at-once-crease-bevel-weight-seam-sharp/1644029">BlenderArtists</a></li>
+      </ul>
+    </div>
   </div>
 
   <div class="plugin-card dcc-blender">
