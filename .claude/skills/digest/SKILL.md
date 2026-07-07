@@ -124,26 +124,62 @@ post and carry forward: `title` (from source), `type`, `complexity`, `novelty`,
 null), and any engagement fields present in the source post
 (`replies`, `views`, `score`, `date`).
 
-## Step 7.5: Verify novelty via web search
+## Step 7.5: Verify each candidate is real, buildable, and unclaimed
 
-Before clustering, drop any kept entry where a free, actively maintained solution already
-exists OR the workflow is already covered by a built-in feature. Verify **all** kept
-entries — including those marked `novel`. The classifier does not have full visibility
-into the addon ecosystem or recent built-in operators.
+Before clustering, kill any kept entry that fails verification. Run all three checks below,
+cheapest-authoritative first. The classifier over-rates novelty — it has no addon-ability
+check and no view of the paid market, so most entries that reach here are already dead.
+Verify **every** kept entry, including those marked `novel`. When any check is uncertain,
+drop — a re-implemented or impossible tool costs the portfolio more than a missed gap.
 
-For each kept entry, regardless of its `novelty` field:
+### 7.5a — Addon-ability + native probe (headless, authoritative)
 
-1. `WebSearch` for `"{dcc_name} addon [core action from summary] free"`.
-2. If results show a free, maintained plugin covering the use case: drop the entry.
-3. If `novelty` is `"novel"`, run a second `WebSearch` for
-   `"{dcc_name} [core action] built-in"` to surface native operators.
-4. If a built-in operator or documented native workflow covers it: drop the entry.
+A web search cannot tell you whether a Python {plugin_label} can *actually* build the tool,
+or whether a native operator already does it. The DCC's own headless interpreter can — this
+is the most reliable check and catches false positives that survive web search.
 
-Maximum two searches per candidate. When uncertain, drop — the cost of a re-implementation
-in the portfolio outweighs the cost of missing a real gap.
+For each candidate, write a short probe that lists the relevant operators / RNA enums / API
+methods for the candidate's action, then run it headless:
 
-Run searches in parallel (one message, multiple `WebSearch` calls) when verifying
-multiple candidates.
+- **Blender:** `blender --background --factory-startup --python <probe.py>`
+- **Houdini:** `hython <probe.py>`
+- Other DCCs: the app's headless script interpreter.
+
+Have the probe print two answers:
+1. **Already native?** Does a built-in operator — with the needed parameters / enum values —
+   already perform this action? If yes → drop (already solved).
+2. **Addon-reachable?** Is the capability exposed to the scripting API at all, or is it
+   C-side only (fixed enums the API can't extend, DNA-only flags with no RNA, missing API
+   methods, solver/renderer-internal behavior)? If the only path is a core/C change a
+   {plugin_label} cannot make → drop (not addon-able, however novel).
+
+C-side-only asks a probe exposes: new snap-target enum values, F9/redo-panel pins,
+file-browser default paths, modifier-internal name flipping, absent bpy API methods.
+
+### 7.5b — Market check, paid AND free
+
+1. `WebSearch` for `"{dcc_name} addon [core action from summary]"` — **no "free" qualifier**,
+   so paid Gumroad / Superhive / Orbolt competitors surface too. A saturated paid market
+   means no differentiation even for a free portfolio piece.
+2. `WebSearch` for `"{dcc_name} addon [core action] free"` to catch free/maintained tools.
+3. If either search shows a tool covering the use case: drop the entry.
+
+### 7.5c — "Abandoned free plugin" is a signal to investigate, not a green light
+
+When 7.5b finds a free tool that's abandoned or stalled, find out *why* before treating the
+space as open — the cause of death decides viability:
+- **Went native** — the DCC bundled the feature; the addon was redundant before its last
+  commit → DEAD, don't rebuild.
+- **API-break maintenance tax** — killed by a breaking API change, not infeasibility; the
+  niche is still open but a rebuild inherits the same recurring maintenance cost →
+  viable-but-flagged.
+- **Plain repo rot** — developer disinterest, never replaced natively, API still supports it
+  → clean rebuild, a real pick.
+
+Only plain repo rot is a clean pick.
+
+Run probes and searches in parallel across candidates when practical — batch independent
+headless probes into one script, and issue independent `WebSearch` calls in one message.
 
 ## Step 8: Cluster by underlying need using Haiku
 
