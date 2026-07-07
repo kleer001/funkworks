@@ -2,9 +2,15 @@
 
 import json
 import logging
+import os
+import random
+import shutil
+import sqlite3
+import tempfile
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from glob import glob
 from pathlib import Path
 
 from src.config import Config, load_dcc_config
@@ -21,6 +27,90 @@ from src.crawlers.base import (
 
 log = logging.getLogger(__name__)
 BASE_URL = "https://www.reddit.com"
+
+# Anonymous reddit .json now 403s; the logged-in Firefox session cookie authorizes
+# the crawl. State files gate each run to posts newer than the last high-water mark.
+STATE_DIR = Path("data/crawl_state")
+_GATE_OVERLAP_SEC = 2 * 24 * 3600  # re-fetch a 2-day sliver under the high-water mark
+_SINCE_FLOOR_DEFAULT = "2026-05-20"  # first-run floor (last good pre-block crawl was 2026-05-22)
+
+_FIREFOX_COOKIE_GLOBS = (
+    "~/snap/firefox/common/.mozilla/firefox/*/cookies.sqlite",
+    "~/.mozilla/firefox/*/cookies.sqlite",
+    "~/.var/app/org.mozilla.firefox/.mozilla/firefox/*/cookies.sqlite",
+)
+
+
+def firefox_reddit_cookies() -> dict[str, str]:
+    """Read logged-in reddit.com cookies from Firefox, newest profile wins.
+
+    Fails loudly if no logged-in Reddit session exists — the fix is to log into
+    reddit.com in Firefox, not to fall back to anonymous (which 403s anyway).
+    Set REDDIT_COOKIE_DB to point at a specific cookies.sqlite.
+    """
+    override = os.environ.get("REDDIT_COOKIE_DB")
+    if override:
+        candidates = [Path(override).expanduser()]
+    else:
+        candidates = [
+            Path(p)
+            for pat in _FIREFOX_COOKIE_GLOBS
+            for p in glob(str(Path(pat).expanduser()))
+        ]
+
+    best: dict[str, str] = {}
+    best_mtime = -1.0
+    for db in candidates:
+        if not db.exists():
+            continue
+        with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+            shutil.copy2(db, tmp.name)  # copy dodges the live-Firefox write lock
+            con = sqlite3.connect(tmp.name)
+            try:
+                rows = con.execute(
+                    "SELECT name, value FROM moz_cookies WHERE host LIKE '%reddit.com'"
+                ).fetchall()
+            finally:
+                con.close()
+        if rows and db.stat().st_mtime > best_mtime:
+            best_mtime = db.stat().st_mtime
+            best = {name: value for name, value in rows}
+
+    if not best:
+        raise RuntimeError(
+            "No logged-in Reddit session found in Firefox. Log into reddit.com in "
+            "Firefox and retry (or set REDDIT_COOKIE_DB to a cookies.sqlite path)."
+        )
+    return best
+
+
+def _state_path(subreddit: str) -> Path:
+    return STATE_DIR / f"reddit_{subreddit}.json"
+
+
+def _load_gate(source: dict, subreddit: str) -> tuple[float, str]:
+    """Return (gate_utc, reason). Posts older than gate_utc are ignored; /new
+    pagination stops once it crosses the gate."""
+    p = _state_path(subreddit)
+    if p.exists():
+        st = json.loads(p.read_text())
+        gate = float(st["newest_created_utc"]) - _GATE_OVERLAP_SEC
+        return gate, f"high-water {st.get('newest_date')} −2d overlap"
+    since = source.get("since", _SINCE_FLOOR_DEFAULT)
+    dt = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    return dt.timestamp(), f"since-floor {since}"
+
+
+def _save_state(subreddit: str, newest_utc: float | None) -> None:
+    if newest_utc is None:
+        return  # nothing newer seen — keep the prior high-water mark
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    d = datetime.fromtimestamp(newest_utc, tz=timezone.utc)
+    _state_path(subreddit).write_text(json.dumps({
+        "newest_created_utc": newest_utc,
+        "newest_date": d.strftime("%Y-%m-%d"),
+        "updated": datetime.now(timezone.utc).isoformat(),
+    }, indent=2))
 
 
 # --- backward-compat wrappers (used by tests) ---
@@ -63,14 +153,25 @@ def fetch_reddit(
     if excluded_flairs is None:
         excluded_flairs = BASE_EXCLUDED_FLAIRS
 
+    cookies = firefox_reddit_cookies()  # raises if no logged-in session
+    gate, gate_reason = _load_gate(source, subreddit)
+    log.info("r/%s gate: %s (skipping older posts)", subreddit, gate_reason)
+
     seen_ids: set[str] = set()
     raw: list[dict] = []
+    newest_utc: float | None = None
 
     def _absorb(post: dict) -> None:
+        nonlocal newest_utc
         post_id = post["id"]
         if post_id in seen_ids:
             return
         seen_ids.add(post_id)
+        created_utc = post.get("created_utc")
+        if created_utc and created_utc < gate:
+            return  # older than the high-water mark — already have it
+        if created_utc and (newest_utc is None or created_utc > newest_utc):
+            newest_utc = created_utc
         flair = post.get("link_flair_text")
         if is_excluded_flair(flair, excluded_flairs):
             return
@@ -80,7 +181,6 @@ def fetch_reddit(
             combined = f"{title} {body}".lower()
             if not any(kw in combined for kw in keywords):
                 return
-        created_utc = post.get("created_utc")
         date = (
             datetime.fromtimestamp(created_utc, tz=timezone.utc).strftime("%Y-%m-%d")
             if created_utc else None
@@ -94,41 +194,59 @@ def fetch_reddit(
             "url": BASE_URL + post["permalink"],
         })
 
-    # Paginate /new
+    def _sleep() -> None:
+        # Jitter the delay above the polite floor — metronomic timing is a bot tell.
+        time.sleep(config.polite_delay + random.uniform(0, 2.5))
+
+    def _get(url: str, params: dict):
+        return session.get(url, params=params, cookies=cookies, timeout=15)
+
+    # Paginate /new, newest-first, until the pages cap or the gate — whichever first.
     after = None
+    stop = "pages cap"
     for _ in range(pages):
         params: dict = {"limit": config.crawl_limit}
         if after:
             params["after"] = after
         try:
-            resp = session.get(f"{base}/new.json", params=params, timeout=10)
+            resp = _get(f"{base}/new.json", params)
             resp.raise_for_status()
             data = resp.json()["data"]
         except Exception as e:
             log.warning("Reddit /new fetch failed: %s", e)
+            stop = "fetch error"
             break
-        for child in data["children"]:
+        children = data["children"]
+        for child in children:
             _absorb(child["data"])
         after = data.get("after")
-        if not after:
+        oldest = min(
+            (c["data"].get("created_utc") or float("inf")) for c in children
+        ) if children else None
+        if oldest is not None and oldest < gate:
+            stop = "reached gate"
             break
-        time.sleep(config.polite_delay)
+        if not after:
+            stop = "end of listing"
+            break
+        _sleep()
+    log.info("r/%s /new stopped: %s — %d kept", subreddit, stop, len(raw))
 
-    # Search supplement: catches posts not surfaced by recency order
+    # Search supplement: catches posts not surfaced by recency order (gate still applies)
     try:
-        time.sleep(config.polite_delay)
-        resp = session.get(
+        _sleep()
+        resp = _get(
             f"{base}/search.json",
-            params={"q": "?", "sort": "new", "t": "month", "limit": 100, "restrict_sr": 1},
-            timeout=10,
+            {"q": "?", "sort": "new", "t": "month", "limit": 100, "restrict_sr": 1},
         )
         resp.raise_for_status()
         for child in resp.json()["data"]["children"]:
             _absorb(child["data"])
     except Exception as e:
         log.warning("Reddit search failed: %s", e)
-    time.sleep(config.polite_delay)
+    _sleep()
 
+    _save_state(subreddit, newest_utc)
     return raw
 
 
